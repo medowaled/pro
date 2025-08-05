@@ -1,18 +1,13 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
+import prisma from "@/lib/prisma";
+import { getJwtSecretKey } from "@/lib/auth";
 
 const loginSchema = z.object({
-  phone: z
-    .string()
-    .regex(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/, {
-      message: "رقم الهاتف المدخل غير صالح. يرجى إدخال رقم صحيح.",
-    }),
-  password: z.string().min(8, {
-    message: "كلمة المرور يجب أن لا تقل عن 8 أحرف.",
-  }),
+  phone: z.string().min(6, "رقم الهاتف مطلوب"),
+  password: z.string().min(6, "كلمة المرور مطلوبة"),
 });
 
 export async function POST(request: Request) {
@@ -26,6 +21,7 @@ export async function POST(request: Request) {
     }
 
     const { phone, password } = parsed.data;
+
     const user = await prisma.user.findFirst({ where: { phone } });
 
     if (!user) {
@@ -36,7 +32,6 @@ export async function POST(request: Request) {
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-
     if (!isPasswordValid) {
       return NextResponse.json(
         { message: "رقم الهاتف أو كلمة المرور غير صحيحة." },
@@ -54,24 +49,24 @@ export async function POST(request: Request) {
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("7d")
-      .sign(new TextEncoder().encode(process.env.NEXT_JWT_SECRET!));
+      .sign(getJwtSecretKey());
 
-    const res = NextResponse.json({
+    const response = NextResponse.json({
       message: "تم تسجيل الدخول بنجاح",
       user: userPayload,
     });
 
-    res.cookies.set("token", token, {
+    response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // أسبوع
+      maxAge: 60 * 60 * 24 * 7,
     });
 
-    return res;
+    return response;
   } catch (error) {
-    console.error("\ud83d\udea8 Login crash error:", error);
+    console.error("LOGIN ERROR:", error);
     return NextResponse.json(
       { message: "حدث خطأ غير متوقع في الخادم." },
       { status: 500 }
