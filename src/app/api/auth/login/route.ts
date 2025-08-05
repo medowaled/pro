@@ -30,7 +30,8 @@ export async function POST(request: Request) {
 
     const { phone, password } = parsed.data;
 
-    const user = await prisma.user.findUnique({ where: { phone } });
+    const user = await prisma.user.findFirst({ where: { phone } });
+
 
     if (!user) {
       return NextResponse.json(
