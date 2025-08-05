@@ -3,11 +3,16 @@ import { z } from "zod";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
-import { getJwtSecretKey } from "@/lib/auth";
 
 const loginSchema = z.object({
-  phone: z.string().min(8, { message: "رقم الهاتف مطلوب" }),
-  password: z.string().min(8, { message: "كلمة المرور غير صحيحة" }),
+  phone: z
+    .string()
+    .regex(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/, {
+      message: "رقم الهاتف المدخل غير صالح. يرجى إدخال رقم صحيح.",
+    }),
+  password: z.string().min(8, {
+    message: "كلمة المرور يجب أن لا تقل عن 8 أحرف.",
+  }),
 });
 
 export async function POST(request: Request) {
@@ -16,14 +21,11 @@ export async function POST(request: Request) {
     const parsed = loginSchema.safeParse(body);
 
     if (!parsed.success) {
-      const errorMessages = parsed.error.errors
-        .map((e) => e.message)
-        .join("\n");
+      const errorMessages = parsed.error.errors.map((e) => e.message).join("\n");
       return NextResponse.json({ message: errorMessages }, { status: 400 });
     }
 
     const { phone, password } = parsed.data;
-
     const user = await prisma.user.findFirst({ where: { phone } });
 
     if (!user) {
@@ -52,9 +54,7 @@ export async function POST(request: Request) {
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("7d")
-      .sign(getJwtSecretKey());
-
-    console.log("✅ Token created:", token);
+      .sign(new TextEncoder().encode(process.env.NEXT_JWT_SECRET!));
 
     const res = NextResponse.json({
       message: "تم تسجيل الدخول بنجاح",
@@ -63,17 +63,15 @@ export async function POST(request: Request) {
 
     res.cookies.set("token", token, {
       httpOnly: true,
-      secure: false, // ✅ مؤقتًا للتجربة
-      sameSite: "lax", // ✅ لتجنب منع التوكن
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 60 * 24 * 7, // أسبوع
     });
-
-    console.log("✅ Token set in cookies");
 
     return res;
   } catch (error) {
-    console.error("❌ Login error:", error);
+    console.error("\ud83d\udea8 Login crash error:", error);
     return NextResponse.json(
       { message: "حدث خطأ غير متوقع في الخادم." },
       { status: 500 }
