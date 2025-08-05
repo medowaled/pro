@@ -56,10 +56,13 @@ export async function POST(request: Request) {
     };
 
     const token = await new SignJWT(userPayload)
-      .setProtectedHeader({ alg: "HS256" })
-      .setIssuedAt()
-      .setExpirationTime("7d")
-      .sign(getJwtSecretKey());
+  .setProtectedHeader({ alg: "HS256" })
+  .setIssuedAt()
+  .setExpirationTime("7d")
+  .sign(getJwtSecretKey());
+
+console.log("✅ Token created:", token); 
+
 
     const res = NextResponse.json({
       message: "تم تسجيل الدخول بنجاح",
@@ -73,13 +76,15 @@ export async function POST(request: Request) {
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 1 week
     });
+    console.log("✅ Token set in cookies");
 
     return res;
   } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { message: "حدث خطأ غير متوقع في الخادم." },
-      { status: 500 }
-    );
-  }
+  console.error("❌ Login error:", error);
+  return NextResponse.json(
+    { message: "حدث خطأ غير متوقع في الخادم." },
+    { status: 500 }
+  );
+}
+
 }
