@@ -6,14 +6,8 @@ import { SignJWT } from "jose";
 import { getJwtSecretKey } from "@/lib/auth";
 
 const loginSchema = z.object({
-  phone: z
-    .string()
-    .regex(/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/, {
-      message: "رقم الهاتف المدخل غير صالح. يرجى إدخال رقم صحيح.",
-    }),
-  password: z.string().min(8, {
-    message: "كلمة المرور يجب أن لا تقل عن 8 أحرف.",
-  }),
+  phone: z.string().min(8, { message: "رقم الهاتف مطلوب" }),
+  password: z.string().min(8, { message: "كلمة المرور غير صحيحة" }),
 });
 
 export async function POST(request: Request) {
@@ -31,7 +25,6 @@ export async function POST(request: Request) {
     const { phone, password } = parsed.data;
 
     const user = await prisma.user.findFirst({ where: { phone } });
-
 
     if (!user) {
       return NextResponse.json(
@@ -56,13 +49,12 @@ export async function POST(request: Request) {
     };
 
     const token = await new SignJWT(userPayload)
-  .setProtectedHeader({ alg: "HS256" })
-  .setIssuedAt()
-  .setExpirationTime("7d")
-  .sign(getJwtSecretKey());
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setExpirationTime("7d")
+      .sign(getJwtSecretKey());
 
-console.log("✅ Token created:", token); 
-
+    console.log("✅ Token created:", token);
 
     const res = NextResponse.json({
       message: "تم تسجيل الدخول بنجاح",
@@ -71,20 +63,20 @@ console.log("✅ Token created:", token);
 
     res.cookies.set("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: false, // ✅ مؤقتًا للتجربة
+      sameSite: "lax", // ✅ لتجنب منع التوكن
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 1 week
+      maxAge: 60 * 60 * 24 * 7,
     });
+
     console.log("✅ Token set in cookies");
 
     return res;
   } catch (error) {
-  console.error("❌ Login error:", error);
-  return NextResponse.json(
-    { message: "حدث خطأ غير متوقع في الخادم." },
-    { status: 500 }
-  );
-}
-
+    console.error("❌ Login error:", error);
+    return NextResponse.json(
+      { message: "حدث خطأ غير متوقع في الخادم." },
+      { status: 500 }
+    );
+  }
 }
