@@ -1,13 +1,15 @@
-import { NextResponse } from "next/server";
-import { z } from "zod";
-import prisma from "@/lib/prisma";
-import bcrypt from "bcrypt";
-import { SignJWT } from "jose";
-import { getJwtSecretKey } from "@/lib/auth";
+// src/app/api/auth/login/route.ts
+
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import prisma from '@/lib/prisma';
+import bcrypt from 'bcrypt';
+import { SignJWT } from 'jose';
+import { getJwtSecretKey } from '@/lib/auth';
 
 const loginSchema = z.object({
   phone: z.string(),
-  password: z.string().min(8),
+  password: z.string(),
 });
 
 export async function POST(req: Request) {
@@ -17,18 +19,20 @@ export async function POST(req: Request) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { message: parsed.error.errors.map(e => e.message).join(", ") },
+        { message: 'بيانات الدخول غير صحيحة' },
         { status: 400 }
       );
     }
 
     const { phone, password } = parsed.data;
 
-    const user = await prisma.user.findFirst({ where: { phone } });
+    const user = await prisma.user.findUnique({
+      where: { phone },
+    });
 
     if (!user) {
       return NextResponse.json(
-        { message: "رقم الهاتف أو كلمة المرور غير صحيحة." },
+        { message: 'رقم الهاتف أو كلمة المرور غير صحيحة' },
         { status: 401 }
       );
     }
@@ -37,7 +41,7 @@ export async function POST(req: Request) {
 
     if (!isPasswordValid) {
       return NextResponse.json(
-        { message: "رقم الهاتف أو كلمة المرور غير صحيحة." },
+        { message: 'رقم الهاتف أو كلمة المرور غير صحيحة' },
         { status: 401 }
       );
     }
@@ -49,29 +53,29 @@ export async function POST(req: Request) {
     };
 
     const token = await new SignJWT(payload)
-      .setProtectedHeader({ alg: "HS256" })
+      .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
-      .setExpirationTime("7d")
+      .setExpirationTime('7d')
       .sign(getJwtSecretKey());
 
     const res = NextResponse.json({
-      message: "تم تسجيل الدخول بنجاح",
+      message: 'تم تسجيل الدخول بنجاح',
       user: payload,
     });
 
-    res.cookies.set("token", token, {
+    res.cookies.set('token', token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      path: "/",
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      sameSite: 'strict',
       maxAge: 60 * 60 * 24 * 7,
     });
 
     return res;
-  } catch (err) {
-    console.error("Login Error:", err);
+  } catch (error) {
+    console.error('Login error:', error);
     return NextResponse.json(
-      { message: "حدث خطأ غير متوقع في الخادم." },
+      { message: 'حدث خطأ في الخادم' },
       { status: 500 }
     );
   }
