@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(uuid())
+  firstName    String
+  lastName     String
+  phone        String       @unique
+  password     String
+  role         String  // ADMIN or STUDENT
+  specialty    String? // For instructors
+  year         String? // For Students
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  courses      Course[]
+  enrollments  Enrollment[]
+  staticEnrollments StaticEnrollment[]
+}
+
+model Course {
+  id           String       @id @default(cuid())
+  title        String
+  description  String?
+  imageBase64  String?      @map("image_base64")
+  dataAiHint   String?      @map("data_ai_hint")
+  videoUrl     String?
+  price        String
+  featured     Boolean
+  category     String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  instructor   User         @relation(fields: [instructorId], references: [id])
+  instructorId String
+  enrollments  Enrollment[]
+  content      Json? // [{ type: "video" | "article" | "quiz", title: "...", duration: "...", url: "..." }]
+}
+
+model StaticCourse {
+  id           String       @id @default(cuid())
+  courseId     String       @unique // e.g., 'grade-1', 'grade-2', etc.
+  title        String
+  description  String
+  price        String
+  category     String
+  instructor   String
+  instructorId String
+  rating       String
+  students     String
+  lessons      String
+  gradient     String
+  shadowColor  String
+  imageBase64  String?
+  units        Json         // Array of units with video URLs
+  featured     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  enrollments  StaticEnrollment[]
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  course    Course   @relation(fields: [courseId], references: [id])
+  courseId  String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, courseId])
+}
+
+model StaticEnrollment {
+  id        String       @id @default(cuid())
+  user      User         @relation(fields: [userId], references: [id])
+  userId    String
+  course    StaticCourse? @relation(fields: [courseId], references: [id])
+  courseId  String
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, courseId])
+}
