@@ -87,30 +87,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     cacheTimestamp = Date.now();
     setUser(data.user);
     
-    // Wait a bit to ensure the cookie is set
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
     return data.user;
   };
 
   const logout = async () => {
     try {
-      // Clear cache immediately
-      userCache = null;
-      cacheTimestamp = 0;
-      setUser(null);
-      
-      // Call logout API
-      await fetch('/api/auth/logout', { method: 'POST' });
+        // Clear user state immediately
+        setUser(null);
+        userCache = null;
+        cacheTimestamp = 0;
+        
+        // Call logout API
+        await fetch('/api/auth/logout', { 
+          method: 'POST',
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        });
     } catch (error) {
-      console.error("Logout failed", error);
+        console.error("Logout failed", error);
     } finally {
       console.log(">>>>> HIT LOGOUT");
       
-      // Force a full page reload to clear all state and ensure middleware runs
-      window.location.href = '/login';
+      // Wait a bit to ensure the cookie is cleared
+      setTimeout(() => {
+        // Force a full page reload to clear all state
+        window.location.href = '/login';
+      }, 1000); // Increased timeout to ensure cookie is cleared
     }
   };
+
+  // Add a function to refresh user data
+  const refreshUser = useCallback(() => {
+    // Clear cache to force fresh data
+    userCache = null;
+    cacheTimestamp = 0;
+    checkUser();
+  }, [checkUser]);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isLoading }}>

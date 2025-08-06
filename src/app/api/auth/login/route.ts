@@ -64,13 +64,19 @@ export async function POST(request: Request) {
       user: payload,
     });
 
+    // Set the token cookie with proper options
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 60 * 24 * 7, // 7 days
     });
+
+    // Add cache control headers
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
 
     console.log("✅ Login successful, token set.");
     return response;

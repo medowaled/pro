@@ -52,14 +52,32 @@ export default function LoginPage() {
     },
   });
 
-  // Check if user is already logged in
+  // Redirect if user is already logged in
   useEffect(() => {
     if (!isLoading && user) {
       const redirectTo = searchParams.get('redirect');
-      if (user.role === "ADMIN") {
-        window.location.href = redirectTo || "/admin/dashboard";
+      
+      if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
+        // Check if user has permission for the redirect URL
+        if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
+          window.location.href = redirectTo;
+        } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
+          window.location.href = redirectTo;
+        } else {
+          // Redirect to appropriate dashboard based on role
+          if (user.role === "ADMIN") {
+            window.location.href = "/admin/dashboard";
+          } else {
+            window.location.href = "/user/my-courses";
+          }
+        }
       } else {
-        window.location.href = redirectTo || "/user/my-courses";
+        // Default redirect based on role
+        if (user.role === "ADMIN") {
+          window.location.href = "/admin/dashboard";
+        } else {
+          window.location.href = "/user/my-courses";
+        }
       }
     }
   }, [user, isLoading, searchParams]);
@@ -78,12 +96,31 @@ export default function LoginPage() {
       // Get redirect URL from search params or use default
       const redirectTo = searchParams.get('redirect');
       
-      // Use window.location for a full page reload to ensure middleware runs
-      if (user.role === "ADMIN") {
-        window.location.href = redirectTo || "/admin/dashboard";
-      } else {
-        window.location.href = redirectTo || "/user/my-courses";
-      }
+      // Wait for the cookie to be set and then redirect
+      setTimeout(() => {
+        if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
+          // Check if user has permission for the redirect URL
+          if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
+            window.location.href = redirectTo;
+          } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
+            window.location.href = redirectTo;
+          } else {
+            // Redirect to appropriate dashboard based on role
+            if (user.role === "ADMIN") {
+              window.location.href = "/admin/dashboard";
+            } else {
+              window.location.href = "/user/my-courses";
+            }
+          }
+        } else {
+          // Default redirect based on role
+          if (user.role === "ADMIN") {
+            window.location.href = "/admin/dashboard";
+          } else {
+            window.location.href = "/user/my-courses";
+          }
+        }
+      }, 2000); // Increased timeout to ensure cookie is set
     } catch (error: any) {
       toast({
         title: "فشل تسجيل الدخول",
@@ -93,7 +130,7 @@ export default function LoginPage() {
     }
   }
 
-  // Show loading state while checking auth
+  // Show loading state while checking authentication
   if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -109,7 +146,7 @@ export default function LoginPage() {
     );
   }
 
-  // Don't show login form if user is already logged in
+  // Don't render the form if user is already logged in (will be redirected)
   if (user) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -117,7 +154,7 @@ export default function LoginPage() {
         <main className="flex-grow flex items-center justify-center py-12">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">جاري توجيهك...</p>
+            <p className="text-muted-foreground">جاري توجيهك إلى لوحة التحكم...</p>
           </div>
         </main>
         <SiteFooter />
