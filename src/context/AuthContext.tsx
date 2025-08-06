@@ -124,6 +124,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           console.log("❌ Logout API failed");
         }
+
+        // Call clear token API
+        const clearResponse = await fetch('/api/auth/clear-token', { 
+          method: 'POST',
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+          credentials: 'include',
+        });
+        
+        if (clearResponse.ok) {
+          console.log("✅ Clear token API called successfully");
+        } else {
+          console.log("❌ Clear token API failed");
+        }
     } catch (error) {
         console.error("❌ Logout failed", error);
     } finally {
@@ -137,7 +152,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setTimeout(() => {
         // Use replace to prevent back button from working
         window.location.replace('/login');
-      }, 2000);
+      }, 3000);
     }
   };
 

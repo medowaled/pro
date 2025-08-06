@@ -63,7 +63,7 @@ function LoginForm() {
       // Force a small delay to prevent auto-login
       setTimeout(() => {
         window.location.reload();
-      }, 500);
+      }, 1000);
     }
   }, []);
 
