@@ -58,7 +58,7 @@ function LoginForm() {
   // Redirect if user is already logged in
   useEffect(() => {
     if (!isLoading && user && !isLoggingIn) {
-      console.log('🔄 Redirecting logged in user:', user);
+
       const redirectTo = searchParams.get('redirect');
       
       // Small delay to ensure proper state management
@@ -97,14 +97,14 @@ function LoginForm() {
         description: `مرحباً ${user.name}! جاري توجيهك إلى لوحة التحكم الخاصة بك.`,
       });
 
-      console.log(">>> User logged in:", user);
+
       
       // Get redirect URL from search params or use default
       const redirectTo = searchParams.get('redirect');
       
       // Wait for the cookie to be set and then redirect
       setTimeout(() => {
-        console.log('🔄 Redirecting after login:', user.role);
+
         if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
           if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
             window.location.href = redirectTo;

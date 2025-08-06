@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         userCache = data.user;
         cacheTimestamp = now;
         setUser(data.user);
-        console.log('✅ User authenticated:', data.user);
+
       } else {
         console.log('❌ User not authenticated');
         setUser(null);
@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw new Error(data.message || 'فشل تسجيل الدخول');
     }
 
-    console.log('✅ Login successful, user data:', data.user);
+
     
     // Update cache and state immediately
     userCache = data.user;
@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      console.log("🔄 Starting logout process...");
+
       
       // Clear user state immediately
       setUser(null);
@@ -113,14 +113,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       
       if (response.ok) {
-        console.log("✅ Logout API called successfully");
+
       } else {
         console.log("❌ Logout API failed");
       }
     } catch (error) {
       console.error("❌ Logout failed", error);
     } finally {
-      console.log("🔄 Clearing storage and redirecting...");
+
       
       // Clear all storage
       sessionStorage.clear();
