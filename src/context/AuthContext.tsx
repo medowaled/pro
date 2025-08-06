@@ -43,6 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         headers: {
           'Cache-Control': 'no-cache',
         },
+        credentials: 'include', // Ensure cookies are sent
       });
       
       if (res.ok) {
@@ -72,6 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, password }),
+      credentials: 'include', // Ensure cookies are sent
     });
 
     const data = await response.json();
@@ -82,10 +84,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     console.log('Login successful, user data:', data.user);
     
-    // Update cache
+    // Update cache and state immediately
     userCache = data.user;
     cacheTimestamp = Date.now();
     setUser(data.user);
+    
+    // Wait a bit to ensure the cookie is set
+    await new Promise(resolve => setTimeout(resolve, 100));
     
     return data.user;
   };
@@ -103,6 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           headers: {
             'Cache-Control': 'no-cache',
           },
+          credentials: 'include', // Ensure cookies are sent
         });
     } catch (error) {
         console.error("Logout failed", error);

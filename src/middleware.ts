@@ -18,17 +18,19 @@ export async function middleware(request: NextRequest) {
                 verifiedToken = await verifyAuth(token) as TokenPayload;
             } catch (err) {
                 console.error('Token verification failed:', err);
-                // Clear invalid token and redirect to login
-                const response = NextResponse.redirect(new URL('/login', request.url));
-                response.cookies.set("token", "", {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: "strict",
-                    path: "/",
-                    expires: new Date(0),
-                    maxAge: 0,
-                });
-                return response;
+                // Only clear token and redirect if not on login/register pages
+                if (!pathname.startsWith('/login') && !pathname.startsWith('/register')) {
+                    const response = NextResponse.redirect(new URL('/login', request.url));
+                    response.cookies.set("token", "", {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === "production",
+                        sameSite: "lax", // Changed from "strict" to "lax"
+                        path: "/",
+                        expires: new Date(0),
+                        maxAge: 0,
+                    });
+                    return response;
+                }
             }
         }
 
@@ -76,17 +78,20 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     } catch (error) {
         console.error('Middleware error:', error);
-        // Clear any invalid tokens and redirect to login
-        const response = NextResponse.redirect(new URL('/login', request.url));
-        response.cookies.set("token", "", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            path: "/",
-            expires: new Date(0),
-            maxAge: 0,
-        });
-        return response;
+        // Only redirect to login if not already on login/register pages
+        if (!request.nextUrl.pathname.startsWith('/login') && !request.nextUrl.pathname.startsWith('/register')) {
+            const response = NextResponse.redirect(new URL('/login', request.url));
+            response.cookies.set("token", "", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax", // Changed from "strict" to "lax"
+                path: "/",
+                expires: new Date(0),
+                maxAge: 0,
+            });
+            return response;
+        }
+        return NextResponse.next();
     }
 }
 

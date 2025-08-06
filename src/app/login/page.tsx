@@ -27,7 +27,7 @@ import SiteHeader from "@/components/layout/header";
 import SiteFooter from "@/components/layout/footer";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect, Suspense } from "react";
+import { useEffect, Suspense, useState } from "react";
 
 const formSchema = z.object({
   phone: z
@@ -44,6 +44,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login, user, isLoading } = useAuth();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,7 +55,7 @@ function LoginForm() {
 
   // Redirect if user is already logged in
   useEffect(() => {
-    if (!isLoading && user) {
+    if (!isLoading && user && !isLoggingIn) {
       const redirectTo = searchParams.get('redirect');
       
       if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
@@ -80,10 +81,12 @@ function LoginForm() {
         }
       }
     }
-  }, [user, isLoading, searchParams]);
+  }, [user, isLoading, searchParams, isLoggingIn]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      setIsLoggingIn(true);
+      
       const user = await login(values.phone, values.password);
 
       toast({
@@ -120,8 +123,9 @@ function LoginForm() {
             window.location.href = "/user/my-courses";
           }
         }
-      }, 2000); // Increased timeout to ensure cookie is set
+      }, 1500); // Reduced timeout to ensure faster redirect
     } catch (error: any) {
+      setIsLoggingIn(false);
       toast({
         title: "فشل تسجيل الدخول",
         description: error.message,
@@ -199,9 +203,9 @@ function LoginForm() {
             <Button
               type="submit"
               className="w-full font-headline text-lg"
-              disabled={form.formState.isSubmitting}
+              disabled={form.formState.isSubmitting || isLoggingIn}
             >
-              {form.formState.isSubmitting ? "جاري الدخول..." : "دخول"}
+              {form.formState.isSubmitting || isLoggingIn ? "جاري الدخول..." : "دخول"}
             </Button>
           </form>
         </Form>
