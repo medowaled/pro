@@ -25,6 +25,7 @@ export default function AdminLayout({
   const { logout } = useAuth();
 
   const handleLogout = async () => {
+    console.log("🔄 Admin logout button clicked");
     await logout();
   };
 

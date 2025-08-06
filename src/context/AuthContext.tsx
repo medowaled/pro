@@ -133,7 +133,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.clear();
       
       // Force a full page reload to clear all state
-      window.location.href = '/login';
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 100);
     }
   };
 

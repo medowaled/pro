@@ -36,6 +36,7 @@ export default function UserLayout({
   const showSidebar = !noSidebarPaths.includes(pathname);
 
   const handleLogout = async () => {
+    console.log("🔄 User logout button clicked");
     await logout();
   };
 
