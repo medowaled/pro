@@ -33,6 +33,25 @@ export async function POST() {
     maxAge: 0,
   });
 
+  // Clear NextAuth cookies if they exist
+  res.cookies.set("next-auth.session-token", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    expires: new Date(0),
+    maxAge: 0,
+  });
+
+  res.cookies.set("__Secure-next-auth.session-token", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    expires: new Date(0),
+    maxAge: 0,
+  });
+
   // Add cache control headers
   res.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.headers.set('Pragma', 'no-cache');

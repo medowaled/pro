@@ -14,26 +14,38 @@ export async function middleware(request: NextRequest) {
 
         console.log('🔍 Middleware checking:', pathname, 'Token exists:', !!token);
 
-        let verifiedToken: TokenPayload | null = null;
-        if (token) {
-            try {
-                const payload = await verifyAuth(token);
-                verifiedToken = payload as unknown as TokenPayload;
-                console.log('✅ Token verified for:', verifiedToken.role);
-            } catch (err) {
-                console.error('❌ Token verification failed:', err);
-                // Clear invalid token and redirect to login
-                const response = NextResponse.redirect(new URL('/login', request.url));
-                response.cookies.set("token", "", {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    sameSite: "lax",
-                    path: "/",
-                    expires: new Date(0),
-                    maxAge: 0,
-                });
-                return response;
+        // If no token, allow access to public pages only
+        if (!token) {
+            if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about' || pathname === '/') {
+                return NextResponse.next();
             }
+            if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
+                return NextResponse.next();
+            }
+            // Redirect to login for protected routes
+            const redirectUrl = new URL('/login', request.url);
+            redirectUrl.searchParams.set('redirect', pathname);
+            return NextResponse.redirect(redirectUrl);
+        }
+
+        let verifiedToken: TokenPayload | null = null;
+        try {
+            const payload = await verifyAuth(token);
+            verifiedToken = payload as unknown as TokenPayload;
+            console.log('✅ Token verified for:', verifiedToken.role);
+        } catch (err) {
+            console.error('❌ Token verification failed:', err);
+            // Clear invalid token and redirect to login
+            const response = NextResponse.redirect(new URL('/login', request.url));
+            response.cookies.set("token", "", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/",
+                expires: new Date(0),
+                maxAge: 0,
+            });
+            return response;
         }
 
         // Allow access to public pages

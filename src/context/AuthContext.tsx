@@ -137,7 +137,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setTimeout(() => {
         // Use replace to prevent back button from working
         window.location.replace('/login');
-      }, 1000);
+      }, 2000);
     }
   };
 
