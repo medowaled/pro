@@ -28,7 +28,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  // Add a flag to prevent auto-login after logout
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const checkUser = useCallback(async () => {
+    if (isLoggingOut) return; // Don't check user if logging out
+    
     setIsLoading(true);
     try {
       // Check cache first
@@ -54,43 +59,70 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } else {
         setUser(null);
         userCache = null;
+        cacheTimestamp = 0;
       }
     } catch (error) {
       setUser(null);
       userCache = null;
+      cacheTimestamp = 0;
     } finally {
       setIsLoading(false);
     }
+  }, [isLoggingOut]);
+
+  // Force check user on mount and when needed
+  useEffect(() => {
+    if (!isLoggingOut) {
+      checkUser();
+    }
+  }, [checkUser, isLoggingOut]);
+
+  // Clear cache when component unmounts
+  useEffect(() => {
+    return () => {
+      // Don't clear cache on unmount to preserve user state
+    };
   }, []);
 
-  useEffect(() => {
-    checkUser();
-  }, [checkUser]);
-
   const login = async (phone: string, password: string): Promise<User> => {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, password }),
-      credentials: 'include',
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || 'فشل تسجيل الدخول');
+    if (isLoggingOut) {
+      throw new Error('جاري تسجيل الخروج، يرجى الانتظار');
     }
     
-    // Update cache and state immediately
-    userCache = data.user;
-    cacheTimestamp = Date.now();
-    setUser(data.user);
-    
-    return data.user;
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, password }),
+        credentials: 'include',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'فشل تسجيل الدخول');
+      }
+      
+      // Update cache and state immediately
+      userCache = data.user;
+      cacheTimestamp = Date.now();
+      setUser(data.user);
+      
+      return data.user;
+    } catch (error) {
+      // Clear cache on login error
+      userCache = null;
+      cacheTimestamp = 0;
+      setUser(null);
+      throw error;
+    }
   };
 
   const logout = async (): Promise<void> => {
     try {
+      // Set logout flag to prevent auto-login
+      setIsLoggingOut(true);
+      
       // Clear user state and cache immediately
       setUser(null);
       userCache = null;
@@ -109,13 +141,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
       });
       
+      // Force a fresh check after logout to ensure no auto-login
+      setTimeout(async () => {
+        await checkUser();
+        setIsLoggingOut(false);
+      }, 100);
+      
     } catch (error) {
       console.error('Logout error:', error);
+      // Even if API fails, clear local state
+      setUser(null);
+      userCache = null;
+      cacheTimestamp = 0;
+      setIsLoggingOut(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user: isLoggingOut ? null : user, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

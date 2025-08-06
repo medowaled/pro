@@ -16,10 +16,13 @@ export async function POST() {
     maxAge: 0,
   });
 
-  // Add cache control headers to prevent caching
+  // Add cache control headers to prevent caching and auto-login
   response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
   response.headers.set('Pragma', 'no-cache');
   response.headers.set('Expires', '0');
+  response.headers.set('Clear-Site-Data', '"cache", "cookies", "storage"');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'DENY');
 
   return response;
 }

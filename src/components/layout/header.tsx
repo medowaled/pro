@@ -22,8 +22,42 @@ const navLinks = [
 
 export default function SiteHeader() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const { theme, setTheme } = useTheme();
+
+  // Don't render auth buttons while loading
+  if (isLoading) {
+    return (
+      <header className="bg-background shadow-sm sticky top-0 z-40">
+        <div className="responsive-container flex h-16 sm:h-20 items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link href="/" className="flex items-center gap-2 sm:gap-3">
+              <div className="bg-gradient-to-br from-blue-500 to-green-500 rounded-full shadow-lg shadow-blue-500/20">
+                <Avatar className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12">
+                  <AvatarImage src={Mostafa.src} alt="مستر مصطفى خليل" data-ai-hint="teacher portrait" />
+                  <AvatarFallback className="text-xs sm:text-sm">MK</AvatarFallback>
+                </Avatar>
+              </div>
+              <div className="text-right hidden sm:block">
+                <h1 className="text-sm sm:text-base md:text-lg font-bold text-foreground leading-tight">
+                  مستر مصطفى خليل
+                </h1>
+                <p className="text-xs text-muted-foreground leading-tight hidden md:block">
+                  استاذ العلوم بوزارة التربية والتعليم
+                </p>
+              </div>
+            </Link>
+          </div>
+          
+          {/* Loading indicator */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="bg-background shadow-sm sticky top-0 z-40">
@@ -63,7 +97,7 @@ export default function SiteHeader() {
               {link.label}
             </Link>
           ))}
-           {user && (
+           {user && !isLoading && (
             <Link
               href={user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses'}
               className={cn(
@@ -78,11 +112,11 @@ export default function SiteHeader() {
 
         {/* Left side: Auth and Theme buttons */}
         <div className="flex items-center gap-1 sm:gap-2">
-          {user ? (
+          {user && !isLoading ? (
              <div className="flex items-center gap-2 sm:gap-4">
               <LogoutButton />
              </div>
-          ) : (
+          ) : !isLoading ? (
             <div className="hidden lg:flex items-center gap-2">
                <Button asChild className="font-headline bg-gradient-to-r from-blue-500 to-green-500 text-white hover:opacity-90 rounded-full text-sm">
                 <Link href="/register">أنشئ حسابك</Link>
@@ -91,7 +125,7 @@ export default function SiteHeader() {
                 <Link href="/login">سجل دخولك</Link>
               </Button>
             </div>
-          )}
+          ) : null}
            <Button
             variant="ghost"
             size="icon"
@@ -144,7 +178,7 @@ export default function SiteHeader() {
                           {link.label}
                         </Link>
                       ))}
-                       {user && (
+                       {user && !isLoading && (
                         <Link
                            href={user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses'}
                           className={cn(
@@ -157,9 +191,9 @@ export default function SiteHeader() {
                       )}
                     </nav>
                     <div className="mt-auto flex flex-col gap-3 sm:gap-4">
-                      {user ? (
+                      {user && !isLoading ? (
                          <LogoutButton />
-                      ) : (
+                      ) : !isLoading ? (
                         <>
                            <Button asChild className="font-headline text-base sm:text-xl rounded-full bg-gradient-to-r from-blue-500 to-green-500 text-white">
                               <Link href="/register">أنشئ حسابك</Link>
@@ -168,7 +202,7 @@ export default function SiteHeader() {
                               <Link href="/login">سجل دخولك</Link>
                           </Button>
                         </>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 </SheetContent>

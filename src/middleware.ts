@@ -63,6 +63,7 @@ export async function middleware(request: NextRequest) {
         if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
             // Allow access to login/register pages even if user is logged in
             // This prevents redirect loops and allows proper logout flow
+            // Don't redirect logged in users to prevent auto-login issues
             return NextResponse.next();
         }
         
