@@ -89,9 +89,10 @@ function LoginForm() {
       
       const user = await login(values.phone, values.password);
 
+      // Improved success message
       toast({
         title: "تم تسجيل الدخول بنجاح",
-        description: `مرحباً ${user.name}! جاري توجيهك إلى لوحة التحكم الخاصة بك.`,
+        description: `مرحباً ${user.name}! تم تسجيل دخولك بنجاح. جاري توجيهك إلى لوحة التحكم الخاصة بك.`,
       });
       
       // Get redirect URL from search params or use default

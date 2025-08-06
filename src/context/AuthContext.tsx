@@ -118,7 +118,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Logout error:', error);
     }
-    // Note: Redirect is handled by LogoutButton component
   };
 
   return (
