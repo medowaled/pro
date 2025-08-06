@@ -19,6 +19,33 @@ import { useRef, useState, useEffect } from 'react';
 import Mostafa from './images/hero-latest.png';
 import { Smile, Users, Star, Award, Trophy, FlaskConical, Lightbulb, GraduationCap, Atom, Dna } from 'lucide-react';
 import Autoplay from "embla-carousel-autoplay"
+import pkg from 'pg';
+const { Client } = pkg;
+
+// رابط الاتصال الخاص بك
+const connectionString = "postgresql://postgres.vxhgrubehihphhkmluez:8xrJ8QyMpiJbCi61@aws-0-eu-central-1.pooler.supabase.com:6543/postgres";
+
+async function testConnection() {
+  const client = new Client({
+    connectionString,
+    ssl: {
+      rejectUnauthorized: false, // مهم مع Supabase
+    },
+  });
+    try {
+    await client.connect();
+    console.log("✅ تم الاتصال بقاعدة البيانات بنجاح");
+
+    // اختياري: نفذ استعلام للتأكد
+    const res = await client.query('SELECT NOW() as current_time;');
+    console.log("⏰ وقت السيرفر:", res.rows[0].current_time);
+  } catch (error) {
+    console.error("❌ فشل الاتصال بقاعدة البيانات:", error.message);
+  } finally {
+    await client.end();
+  }
+}
+
 
 const AnimatedNumber = ({ value, suffix = '' }: { value: number, suffix?: string }) => {
   const [count, setCount] = useState(0);
@@ -121,7 +148,7 @@ export default function Home() {
    const plugin = useRef(
     Autoplay({ delay: 5000, stopOnInteraction: true })
   )
-
+testConnection();
   return (
     <div className="flex flex-col min-h-screen">
       <SiteHeader />
