@@ -12,7 +12,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import Mostafa from '../../app/images/hero-latest.png';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from 'next-themes';
-import LogoutButton from '@/components/LogoutButton';
 
 const navLinks = [
   { href: '/', label: 'الرئيسية' },
@@ -22,8 +21,12 @@ const navLinks = [
 
 export default function SiteHeader() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <header className="bg-background shadow-sm sticky top-0 z-40">
@@ -81,7 +84,9 @@ export default function SiteHeader() {
           {user ? (
              <div className="flex items-center gap-2 sm:gap-4">
               <span className="font-semibold text-foreground hidden sm:inline text-sm md:text-base">{user.name}</span>
-               <LogoutButton />
+               <Button variant="destructive" className="font-headline rounded-full text-xs sm:text-sm" onClick={handleLogout}>
+                تسجيل الخروج
+              </Button>
              </div>
           ) : (
             <div className="hidden lg:flex items-center gap-2">
@@ -159,7 +164,9 @@ export default function SiteHeader() {
                     </nav>
                     <div className="mt-auto flex flex-col gap-3 sm:gap-4">
                       {user ? (
-                         <LogoutButton />
+                         <Button variant="destructive" className="font-headline text-base sm:text-xl" onClick={handleLogout}>
+                            تسجيل الخروج
+                        </Button>
                       ) : (
                         <>
                            <Button asChild className="font-headline text-base sm:text-xl rounded-full bg-gradient-to-r from-blue-500 to-green-500 text-white">
