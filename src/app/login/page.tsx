@@ -65,7 +65,7 @@ export default function LoginPage() {
       if (user.role === "ADMIN") {
         window.location.href = "/admin/dashboard";
       } else {
-        window.location.href = "/";
+        window.location.href = "/user/my-courses";
       }
     } catch (error: any) {
       toast({

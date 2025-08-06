@@ -1,4 +1,3 @@
-import { AnyNull } from './../node_modules/.prisma/client/index.d';
 import { NextResponse, type NextRequest } from 'next/server';
 import { verifyAuth } from './lib/auth';
 
@@ -7,10 +6,24 @@ export async function middleware(request: NextRequest) {
         const token = request.cookies.get('token')?.value;
         const { pathname } = request.nextUrl;
 
-        const verifiedToken = token && (await verifyAuth(token).catch((err: any) => {
-            console.error('Token verification failed:', err);    
-            return null;
-        }));
+        let verifiedToken = null;
+        if (token) {
+            try {
+                verifiedToken = await verifyAuth(token);
+            } catch (err) {
+                console.error('Token verification failed:', err);
+                // Clear invalid token
+                const response = NextResponse.next();
+                response.cookies.set("token", "", {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "strict",
+                    path: "/",
+                    expires: new Date(0),
+                });
+                return response;
+            }
+        }
 
         // Allow access to public course introduction pages
         if (pathname.startsWith('/courses/')) {

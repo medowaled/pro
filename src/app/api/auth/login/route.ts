@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("7d")
-      .sign(getJwtSecretKey());
+      .sign(new TextEncoder().encode(getJwtSecretKey()));
 
     const response = NextResponse.json({
       message: "تم تسجيل الدخول بنجاح",

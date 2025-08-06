@@ -106,7 +106,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       cacheTimestamp = 0;
       
       setUser(null);
-      router.refresh();
+      
+      // Force a full page reload to clear all state
       window.location.href = '/login';
     }
   };
