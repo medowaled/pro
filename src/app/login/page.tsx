@@ -53,7 +53,7 @@ function LoginForm() {
     },
   });
 
-  // Redirect if user is already logged in - IMPROVED LOGIC
+  // Redirect if user is already logged in - SIMPLIFIED LOGIC
   useEffect(() => {
     if (!isLoading && user && !isLoggingIn) {
       const redirectTo = searchParams.get('redirect');

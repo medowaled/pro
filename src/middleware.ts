@@ -59,7 +59,7 @@ export async function middleware(request: NextRequest) {
             return NextResponse.next();
         }
 
-        // Handle login and register pages - REMOVED AUTOMATIC REDIRECTS
+        // Handle login and register pages - ALLOW ACCESS WITHOUT REDIRECTS
         if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
             // Allow access to login/register pages even if user is logged in
             // This prevents the redirect loop that was causing logout issues
