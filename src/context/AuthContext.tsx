@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       userCache = null;
       cacheTimestamp = 0;
       
-      // Clear all storage first
+      // Clear all storage
       sessionStorage.clear();
       localStorage.clear();
       
@@ -117,11 +117,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error('Logout error:', error);
-    } finally {
-      // Force immediate redirect to login page
-      // Use window.location.replace to prevent back button issues
-      window.location.replace('/login');
     }
+    // Note: Redirect is handled by LogoutButton component
   };
 
   return (
