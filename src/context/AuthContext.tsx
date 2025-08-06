@@ -86,15 +86,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     cacheTimestamp = Date.now();
     setUser(data.user);
     
-    // Wait for the cookie to be set
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
     return data.user;
   };
 
   const logout = async (): Promise<void> => {
     try {
-      // Clear user state immediately
+      // Clear user state and cache immediately
       setUser(null);
       userCache = null;
       cacheTimestamp = 0;
@@ -104,7 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.clear();
       
       // Call logout API
-      const response = await fetch('/api/auth/logout', { 
+      await fetch('/api/auth/logout', { 
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -112,9 +109,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
       });
       
-      if (!response.ok) {
-        console.error('Logout API failed');
-      }
     } catch (error) {
       console.error('Logout error:', error);
     }

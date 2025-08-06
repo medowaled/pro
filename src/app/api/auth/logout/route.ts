@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 
 export async function POST() {
-  const response = NextResponse.json({ message: "تم تسجيل الخروج بنجاح" });
+  const response = NextResponse.json({ 
+    message: "تم تسجيل الخروج بنجاح",
+    success: true 
+  });
 
   // Clear the token cookie with proper settings
   response.cookies.set("token", "", {

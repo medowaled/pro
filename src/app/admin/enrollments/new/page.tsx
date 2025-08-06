@@ -97,7 +97,7 @@ export default function NewEnrollmentPage() {
 
       toast({
         title: "تم تسجيل الطالب بنجاح",
-        description: "تم تسجيل الطالب في الدورة المحددة.",
+        description: "تم تسجيل الطالب في الدورة المحددة بنجاح. يمكن للطالب الآن الوصول إلى محتوى الدورة والبدء في التعلم.",
       });
       router.push("/admin/dashboard");
     } catch (error: any) {

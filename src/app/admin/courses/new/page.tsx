@@ -136,7 +136,7 @@ export default function NewCoursePage() {
 
       toast({
         title: 'تم إنشاء الدورة بنجاح',
-        description: 'تمت إضافة الدورة الجديدة إلى القائمة.',
+        description: 'تمت إضافة الدورة الجديدة إلى القائمة بنجاح. يمكن للطلاب الآن التسجيل فيها والاستفادة من المحتوى التعليمي.',
       });
       router.push('/admin/dashboard');
     } catch (error: any) {

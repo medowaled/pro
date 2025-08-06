@@ -53,32 +53,28 @@ function LoginForm() {
     },
   });
 
-  // Redirect if user is already logged in - SIMPLIFIED LOGIC
+  // Simplified redirect logic for logged in users
   useEffect(() => {
     if (!isLoading && user && !isLoggingIn) {
       const redirectTo = searchParams.get('redirect');
       
-      // Small delay to ensure proper state management
-      setTimeout(() => {
-        if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
-          if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
-            window.location.replace(redirectTo);
-          } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
-            window.location.replace(redirectTo);
-          } else {
-            if (user.role === "ADMIN") {
-              window.location.replace("/admin/dashboard");
-            } else {
-              window.location.replace("/user/my-courses");
-            }
-          }
+      // Determine the correct redirect path
+      let targetPath = '/';
+      if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
+        if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
+          targetPath = redirectTo;
+        } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
+          targetPath = redirectTo;
         } else {
-          if (user.role === "ADMIN") {
-            window.location.replace("/admin/dashboard");
-          } else {
-            window.location.replace("/user/my-courses");
-          }
+          targetPath = user.role === "ADMIN" ? "/admin/dashboard" : "/user/my-courses";
         }
+      } else {
+        targetPath = user.role === "ADMIN" ? "/admin/dashboard" : "/user/my-courses";
+      }
+      
+      // Redirect after a short delay
+      setTimeout(() => {
+        window.location.replace(targetPath);
       }, 500);
     }
   }, [user, isLoading, searchParams, isLoggingIn]);
@@ -98,27 +94,23 @@ function LoginForm() {
       // Get redirect URL from search params or use default
       const redirectTo = searchParams.get('redirect');
       
-      // Wait for the cookie to be set and then redirect
-      setTimeout(() => {
-        if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
-          if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
-            window.location.replace(redirectTo);
-          } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
-            window.location.replace(redirectTo);
-          } else {
-            if (user.role === "ADMIN") {
-              window.location.replace("/admin/dashboard");
-            } else {
-              window.location.replace("/user/my-courses");
-            }
-          }
+      // Determine the correct redirect path
+      let targetPath = '/';
+      if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
+        if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
+          targetPath = redirectTo;
+        } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
+          targetPath = redirectTo;
         } else {
-          if (user.role === "ADMIN") {
-            window.location.replace("/admin/dashboard");
-          } else {
-            window.location.replace("/user/my-courses");
-          }
+          targetPath = user.role === "ADMIN" ? "/admin/dashboard" : "/user/my-courses";
         }
+      } else {
+        targetPath = user.role === "ADMIN" ? "/admin/dashboard" : "/user/my-courses";
+      }
+      
+      // Redirect after showing success message
+      setTimeout(() => {
+        window.location.replace(targetPath);
       }, 1500);
     } catch (error: any) {
       setIsLoggingIn(false);

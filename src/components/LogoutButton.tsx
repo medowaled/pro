@@ -4,9 +4,11 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function LogoutButton() {
   const { logout } = useAuth();
+  const { toast } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -15,30 +17,27 @@ export default function LogoutButton() {
     try {
       setIsLoggingOut(true);
       
-      // Clear all storage immediately
-      sessionStorage.clear();
-      localStorage.clear();
+      // Call logout function from AuthContext
+      await logout();
       
-      // Call logout API
-      const response = await fetch('/api/auth/logout', { 
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-        },
+      // Show success message
+      toast({
+        title: "تم تسجيل الخروج بنجاح",
+        description: "تم تسجيل خروجك بنجاح. شكراً لاستخدامك منصتنا!",
       });
       
-      if (!response.ok) {
-        console.error('Logout API failed');
-      }
-      
-      // Force immediate redirect to homepage
-      window.location.replace('/');
+      // Redirect to homepage after a short delay
+      setTimeout(() => {
+        window.location.replace('/');
+      }, 1000);
       
     } catch (error) {
       console.error('Logout error:', error);
-      // Even if there's an error, redirect to homepage
-      window.location.replace('/');
+      toast({
+        title: "خطأ في تسجيل الخروج",
+        description: "حدث خطأ أثناء تسجيل الخروج. يرجى المحاولة مرة أخرى.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoggingOut(false);
     }
