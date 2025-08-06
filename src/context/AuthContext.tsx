@@ -103,6 +103,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         // Set flag to prevent auto-login
         sessionStorage.setItem('justLoggedOut', 'true');
+        localStorage.setItem('justLoggedOut', 'true');
         
         // Clear user state immediately
         setUser(null);
@@ -134,8 +135,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // Force a full page reload to clear all state
       setTimeout(() => {
-        window.location.href = '/login';
-      }, 100);
+        // Use replace to prevent back button from working
+        window.location.replace('/login');
+      }, 500);
     }
   };
 

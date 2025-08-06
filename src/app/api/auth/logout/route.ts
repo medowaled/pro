@@ -7,7 +7,17 @@ export async function POST() {
   res.cookies.set("token", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax", // Better compatibility
+    sameSite: "lax",
+    path: "/",
+    expires: new Date(0),
+    maxAge: 0,
+  });
+
+  // Also clear any other auth-related cookies
+  res.cookies.set("auth", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
     path: "/",
     expires: new Date(0),
     maxAge: 0,

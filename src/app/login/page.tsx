@@ -55,10 +55,11 @@ function LoginForm() {
 
   // Clear logout flag on component mount
   useEffect(() => {
-    const justLoggedOut = sessionStorage.getItem('justLoggedOut');
+    const justLoggedOut = sessionStorage.getItem('justLoggedOut') || localStorage.getItem('justLoggedOut');
     if (justLoggedOut === 'true') {
       console.log('🚫 User just logged out, clearing flag');
       sessionStorage.removeItem('justLoggedOut');
+      localStorage.removeItem('justLoggedOut');
     }
   }, []);
 
@@ -69,10 +70,11 @@ function LoginForm() {
       const redirectTo = searchParams.get('redirect');
       
       // Check if user just logged out (prevent auto-login)
-      const justLoggedOut = sessionStorage.getItem('justLoggedOut');
+      const justLoggedOut = sessionStorage.getItem('justLoggedOut') || localStorage.getItem('justLoggedOut');
       if (justLoggedOut === 'true') {
         console.log('🚫 User just logged out, preventing auto-redirect');
         sessionStorage.removeItem('justLoggedOut');
+        localStorage.removeItem('justLoggedOut');
         return;
       }
       
