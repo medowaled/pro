@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
                     response.cookies.set("token", "", {
                         httpOnly: true,
                         secure: process.env.NODE_ENV === "production",
-                        sameSite: "lax", // Changed from "strict" to "lax"
+                        sameSite: "lax", // Better compatibility
                         path: "/",
                         expires: new Date(0),
                         maxAge: 0,
@@ -35,7 +35,7 @@ export async function middleware(request: NextRequest) {
         }
 
         // Allow access to public pages
-        if (pathname.startsWith('/courses/') || pathname === '/courses') {
+        if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about') {
             return NextResponse.next();
         }
 
@@ -84,7 +84,7 @@ export async function middleware(request: NextRequest) {
             response.cookies.set("token", "", {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: "lax", // Changed from "strict" to "lax"
+                sameSite: "lax", // Better compatibility
                 path: "/",
                 expires: new Date(0),
                 maxAge: 0,
@@ -96,5 +96,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/user/:path*', '/login', '/register', '/courses/:id', '/courses'],
+    matcher: ['/admin/:path*', '/user/:path*', '/login', '/register', '/courses/:id', '/courses', '/about'],
 };

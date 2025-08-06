@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Cache for user data
 let userCache: User | null = null;
 let cacheTimestamp = 0;
-const USER_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+const USER_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(data.user);
     
     // Wait a bit to ensure the cookie is set
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     return data.user;
   };

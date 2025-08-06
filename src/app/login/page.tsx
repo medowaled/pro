@@ -123,7 +123,7 @@ function LoginForm() {
             window.location.href = "/user/my-courses";
           }
         }
-      }, 1000); // Reduced timeout for faster redirect
+      }, 2000); // Increased timeout to ensure cookie is set and middleware processes
     } catch (error: any) {
       setIsLoggingIn(false);
       toast({
