@@ -59,22 +59,10 @@ export async function middleware(request: NextRequest) {
             return NextResponse.next();
         }
 
-        // Handle login and register pages
+        // Handle login and register pages - REMOVED AUTOMATIC REDIRECTS
         if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
-            // If user is already logged in, redirect to appropriate dashboard
-            if (verifiedToken) {
-                console.log('🔄 Redirecting logged in user from login page');
-                
-                // Add a small delay to prevent race conditions
-                const response = NextResponse.next();
-                response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-                
-                if (verifiedToken.role === 'ADMIN') {
-                    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-                } else {
-                    return NextResponse.redirect(new URL('/user/my-courses', request.url));
-                }
-            }
+            // Allow access to login/register pages even if user is logged in
+            // This prevents the redirect loop that was causing logout issues
             return NextResponse.next();
         }
         

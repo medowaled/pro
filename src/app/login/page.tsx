@@ -53,7 +53,7 @@ function LoginForm() {
     },
   });
 
-  // Redirect if user is already logged in
+  // Redirect if user is already logged in - IMPROVED LOGIC
   useEffect(() => {
     if (!isLoading && user && !isLoggingIn) {
       const redirectTo = searchParams.get('redirect');
@@ -62,21 +62,21 @@ function LoginForm() {
       setTimeout(() => {
         if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
           if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
-            window.location.href = redirectTo;
+            window.location.replace(redirectTo);
           } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
-            window.location.href = redirectTo;
+            window.location.replace(redirectTo);
           } else {
             if (user.role === "ADMIN") {
-              window.location.href = "/admin/dashboard";
+              window.location.replace("/admin/dashboard");
             } else {
-              window.location.href = "/user/my-courses";
+              window.location.replace("/user/my-courses");
             }
           }
         } else {
           if (user.role === "ADMIN") {
-            window.location.href = "/admin/dashboard";
+            window.location.replace("/admin/dashboard");
           } else {
-            window.location.href = "/user/my-courses";
+            window.location.replace("/user/my-courses");
           }
         }
       }, 500);
@@ -101,21 +101,21 @@ function LoginForm() {
       setTimeout(() => {
         if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
           if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
-            window.location.href = redirectTo;
+            window.location.replace(redirectTo);
           } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
-            window.location.href = redirectTo;
+            window.location.replace(redirectTo);
           } else {
             if (user.role === "ADMIN") {
-              window.location.href = "/admin/dashboard";
+              window.location.replace("/admin/dashboard");
             } else {
-              window.location.href = "/user/my-courses";
+              window.location.replace("/user/my-courses");
             }
           }
         } else {
           if (user.role === "ADMIN") {
-            window.location.href = "/admin/dashboard";
+            window.location.replace("/admin/dashboard");
           } else {
-            window.location.href = "/user/my-courses";
+            window.location.replace("/user/my-courses");
           }
         }
       }, 1500);

@@ -12,7 +12,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   login: (phone: string, password: string) => Promise<User>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -92,31 +92,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return data.user;
   };
 
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     try {
       // Clear user state immediately
       setUser(null);
       userCache = null;
       cacheTimestamp = 0;
       
-      // Call logout API
-      const response = await fetch('/api/auth/logout', { 
-        method: 'POST',
-        credentials: 'include', // ضروري ليمسح الكوكي من HttpOnly
-      });
-      
-      if (!response.ok) {
-        // Handle logout failure silently
-      }
-    } catch (error) {
-      // Handle logout error silently
-    } finally {
-      // Clear all storage
+      // Clear all storage first
       sessionStorage.clear();
       localStorage.clear();
       
+      // Call logout API
+      const response = await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+        },
+      });
+      
+      if (!response.ok) {
+        console.error('Logout API failed');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
       // Force immediate redirect to login page
-      window.location.href = '/login';
+      // Use window.location.replace to prevent back button issues
+      window.location.replace('/login');
     }
   };
 
