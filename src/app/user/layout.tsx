@@ -94,15 +94,12 @@ export default function UserLayout({
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       onClick={handleLogout}
-                      asChild
                       tooltip={{ children: "تسجيل الخروج" }}
                     >
-                      <Link href="#">
-                        <LogOut />
-                        <span className="group-data-[collapsible=icon]:hidden">
-                          تسجيل الخروج
-                        </span>
-                      </Link>
+                      <LogOut />
+                      <span className="group-data-[collapsible=icon]:hidden">
+                        تسجيل الخروج
+                      </span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>

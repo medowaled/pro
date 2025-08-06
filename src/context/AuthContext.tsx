@@ -110,7 +110,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         cacheTimestamp = 0;
         
         // Call logout API
-        await fetch('/api/auth/logout', { 
+        const response = await fetch('/api/auth/logout', { 
           method: 'POST',
           headers: {
             'Cache-Control': 'no-cache',
@@ -118,14 +118,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           credentials: 'include',
         });
         
-        console.log("✅ Logout API called successfully");
+        if (response.ok) {
+          console.log("✅ Logout API called successfully");
+        } else {
+          console.log("❌ Logout API failed");
+        }
     } catch (error) {
         console.error("❌ Logout failed", error);
     } finally {
       console.log("🔄 Redirecting to login page...");
       
-      // Force a full page reload to clear all state and prevent auto-login
-      window.location.replace('/login');
+      // Clear all storage
+      sessionStorage.clear();
+      localStorage.clear();
+      
+      // Force a full page reload to clear all state
+      window.location.href = '/login';
     }
   };
 

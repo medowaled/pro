@@ -89,11 +89,9 @@ export default function AdminLayout({
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleLogout} asChild tooltip={{children: 'الخروج'}}>
-                  <Link href="#">
-                    <LogOut />
-                    <span className="group-data-[collapsible=icon]:hidden">تسجيل الخروج</span>
-                  </Link>
+                <SidebarMenuButton onClick={handleLogout} tooltip={{children: 'الخروج'}}>
+                  <LogOut />
+                  <span className="group-data-[collapsible=icon]:hidden">تسجيل الخروج</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
