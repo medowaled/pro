@@ -95,19 +95,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-        await fetch('/api/auth/logout', { method: 'POST' });
+      // Clear cache immediately
+      userCache = null;
+      cacheTimestamp = 0;
+      setUser(null);
+      
+      // Call logout API
+      await fetch('/api/auth/logout', { method: 'POST' });
     } catch (error) {
-        console.error("Logout failed", error);
+      console.error("Logout failed", error);
     } finally {
       console.log(">>>>> HIT LOGOUT");
       
-      // Clear cache
-      userCache = null;
-      cacheTimestamp = 0;
-      
-      setUser(null);
-      
-      // Force a full page reload to clear all state
+      // Force a full page reload to clear all state and ensure middleware runs
       window.location.href = '/login';
     }
   };

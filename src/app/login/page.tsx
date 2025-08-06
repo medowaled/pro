@@ -25,8 +25,9 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import SiteHeader from "@/components/layout/header";
 import SiteFooter from "@/components/layout/footer";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   phone: z
@@ -41,7 +42,8 @@ const formSchema = z.object({
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const { login } = useAuth();
+  const searchParams = useSearchParams();
+  const { login, user, isLoading } = useAuth();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,6 +51,18 @@ export default function LoginPage() {
       password: "",
     },
   });
+
+  // Check if user is already logged in
+  useEffect(() => {
+    if (!isLoading && user) {
+      const redirectTo = searchParams.get('redirect');
+      if (user.role === "ADMIN") {
+        window.location.href = redirectTo || "/admin/dashboard";
+      } else {
+        window.location.href = redirectTo || "/user/my-courses";
+      }
+    }
+  }, [user, isLoading, searchParams]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -61,11 +75,14 @@ export default function LoginPage() {
 
       console.log(">>> User", user);
       
+      // Get redirect URL from search params or use default
+      const redirectTo = searchParams.get('redirect');
+      
       // Use window.location for a full page reload to ensure middleware runs
       if (user.role === "ADMIN") {
-        window.location.href = "/admin/dashboard";
+        window.location.href = redirectTo || "/admin/dashboard";
       } else {
-        window.location.href = "/user/my-courses";
+        window.location.href = redirectTo || "/user/my-courses";
       }
     } catch (error: any) {
       toast({
@@ -74,6 +91,38 @@ export default function LoginPage() {
         variant: "destructive",
       });
     }
+  }
+
+  // Show loading state while checking auth
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <SiteHeader />
+        <main className="flex-grow flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">جاري التحقق من حالة تسجيل الدخول...</p>
+          </div>
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
+
+  // Don't show login form if user is already logged in
+  if (user) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <SiteHeader />
+        <main className="flex-grow flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">جاري توجيهك...</p>
+          </div>
+        </main>
+        <SiteFooter />
+      </div>
+    );
   }
 
   return (

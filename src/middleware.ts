@@ -30,25 +30,35 @@ export async function middleware(request: NextRequest) {
             return NextResponse.next();
         }
 
-        // Allow access to homepage for everyone (no automatic redirect)
+        // Allow access to homepage for everyone
         if (pathname === '/') {
             return NextResponse.next();
         }
 
+        // Handle login and register pages
         if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
-            // Don't redirect logged in users automatically
+            // If user is already logged in, redirect to appropriate dashboard
+            if (verifiedToken) {
+                if (verifiedToken.role === 'ADMIN') {
+                    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+                } else {
+                    return NextResponse.redirect(new URL('/user/my-courses', request.url));
+                }
+            }
             return NextResponse.next();
         }
         
+        // Handle protected routes
         if (pathname.startsWith('/admin') || pathname.startsWith('/user')) {
             if (!verifiedToken) {
                 const redirectUrl = new URL('/login', request.url);
-                redirectUrl.searchParams.set('redirect', pathname); // Pass the original path
+                redirectUrl.searchParams.set('redirect', pathname);
                 return NextResponse.redirect(redirectUrl);
             }
 
+            // Check role-based access
             if (pathname.startsWith('/admin') && verifiedToken.role !== 'ADMIN') {
-                return NextResponse.redirect(new URL('/', request.url));
+                return NextResponse.redirect(new URL('/user/my-courses', request.url));
             }
 
             if (pathname.startsWith('/user') && verifiedToken.role !== 'STUDENT') {

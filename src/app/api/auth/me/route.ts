@@ -9,7 +9,9 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const verifiedToken = await verifyAuth(token);
+        const verifiedToken = await verifyAuth(token) as any;
+        
+        // Return user data with proper structure
         return NextResponse.json({ 
             user: { 
                 id: verifiedToken.id, 
@@ -18,6 +20,18 @@ export async function GET(request: NextRequest) {
             } 
         });
     } catch (err) {
-        return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+        console.error('Token verification failed:', err);
+        
+        // Clear invalid token
+        const response = NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+        response.cookies.set("token", "", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+            expires: new Date(0),
+        });
+        
+        return response;
     }
 }
