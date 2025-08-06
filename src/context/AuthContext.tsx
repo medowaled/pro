@@ -99,60 +99,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-        console.log("🔄 Starting logout process...");
-        
-        // Set flag to prevent auto-login
-        sessionStorage.setItem('justLoggedOut', 'true');
-        localStorage.setItem('justLoggedOut', 'true');
-        
-        // Clear user state immediately
-        setUser(null);
-        userCache = null;
-        cacheTimestamp = 0;
-        
-        // Call logout API
-        const response = await fetch('/api/auth/logout', { 
-          method: 'POST',
-          headers: {
-            'Cache-Control': 'no-cache',
-          },
-          credentials: 'include',
-        });
-        
-        if (response.ok) {
-          console.log("✅ Logout API called successfully");
-        } else {
-          console.log("❌ Logout API failed");
-        }
-
-        // Call clear token API
-        const clearResponse = await fetch('/api/auth/clear-token', { 
-          method: 'POST',
-          headers: {
-            'Cache-Control': 'no-cache',
-          },
-          credentials: 'include',
-        });
-        
-        if (clearResponse.ok) {
-          console.log("✅ Clear token API called successfully");
-        } else {
-          console.log("❌ Clear token API failed");
-        }
+      console.log("🔄 Starting logout process...");
+      
+      // Clear user state immediately
+      setUser(null);
+      userCache = null;
+      cacheTimestamp = 0;
+      
+      // Call logout API
+      const response = await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include', // ضروري ليمسح الكوكي من HttpOnly
+      });
+      
+      if (response.ok) {
+        console.log("✅ Logout API called successfully");
+      } else {
+        console.log("❌ Logout API failed");
+      }
     } catch (error) {
-        console.error("❌ Logout failed", error);
+      console.error("❌ Logout failed", error);
     } finally {
-      console.log("🔄 Redirecting to login page...");
+      console.log("🔄 Clearing storage and redirecting...");
       
       // Clear all storage
       sessionStorage.clear();
       localStorage.clear();
       
-      // Force a full page reload to clear all state
-      setTimeout(() => {
-        // Use replace to prevent back button from working
-        window.location.replace('/login');
-      }, 3000);
+      // Force immediate redirect to login page
+      window.location.href = '/login';
     }
   };
 
