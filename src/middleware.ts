@@ -1,3 +1,4 @@
+import { AnyNull } from './../node_modules/.prisma/client/index.d';
 import { NextResponse, type NextRequest } from 'next/server';
 import { verifyAuth } from './lib/auth';
 
@@ -6,7 +7,7 @@ export async function middleware(request: NextRequest) {
         const token = request.cookies.get('token')?.value;
         const { pathname } = request.nextUrl;
 
-        const verifiedToken = token && (await verifyAuth(token).catch((err) => {
+        const verifiedToken = token && (await verifyAuth(token).catch((err: any) => {
             console.error('Token verification failed:', err);    
             return null;
         }));
@@ -34,7 +35,7 @@ export async function middleware(request: NextRequest) {
             }
 
             if (pathname.startsWith('/admin') && verifiedToken.role !== 'ADMIN') {
-                 return NextResponse.redirect(new URL('/', request.url));
+                return NextResponse.redirect(new URL('/', request.url));
             }
 
             if (pathname.startsWith('/user') && verifiedToken.role !== 'STUDENT') {

@@ -56,9 +56,9 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json(
+    return NextResponse.json( 
       { message: "تم إنشاء الحساب بنجاح!", user: { id: newUser.id } },
-      { status: 201 },
+      { statu s: 201 },
     );
   } catch (error) {
     console.error(error);

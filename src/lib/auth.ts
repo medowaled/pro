@@ -6,3 +6,14 @@ export function getJwtSecretKey() {
 
   return new TextEncoder().encode(secret);
 }
+export function verifyAuth(token: string) {
+  return new Promise((resolve, reject) => {
+    const secretKey = getJwtSecretKey();
+    jwt.verify(token, secretKey, (err: any, decoded: any) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(decoded);
+    });
+  });
+}
