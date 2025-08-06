@@ -99,6 +99,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
+        console.log("🔄 Starting logout process...");
+        
+        // Set flag to prevent auto-login
+        sessionStorage.setItem('justLoggedOut', 'true');
+        
         // Clear user state immediately
         setUser(null);
         userCache = null;
@@ -112,15 +117,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           },
           credentials: 'include',
         });
+        
+        console.log("✅ Logout API called successfully");
     } catch (error) {
-        console.error("Logout failed", error);
+        console.error("❌ Logout failed", error);
     } finally {
-      console.log(">>>>> HIT LOGOUT");
+      console.log("🔄 Redirecting to login page...");
       
-      // Wait for the cookie to be cleared
-      setTimeout(() => {
-        window.location.href = '/login';
-      }, 1000);
+      // Force a full page reload to clear all state and prevent auto-login
+      window.location.replace('/login');
     }
   };
 
