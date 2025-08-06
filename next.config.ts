@@ -61,10 +61,24 @@ const nextConfig: NextConfig = {
   },
   // Enable compression
   compress: true,
-  // Optimize bundle size
-  swcMinify: true,
   // Enable static optimization
   trailingSlash: false,
+  // Webpack configuration to handle Node.js modules
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Don't attempt to load Node.js modules on the client side
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        dns: false,
+        child_process: false,
+        aws4: false,
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
