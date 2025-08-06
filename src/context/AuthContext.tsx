@@ -51,14 +51,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         userCache = data.user;
         cacheTimestamp = now;
         setUser(data.user);
-
       } else {
-        console.log('❌ User not authenticated');
         setUser(null);
         userCache = null;
       }
     } catch (error) {
-      console.error('Error checking user auth:', error);
       setUser(null);
       userCache = null;
     } finally {
@@ -83,8 +80,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!response.ok) {
       throw new Error(data.message || 'فشل تسجيل الدخول');
     }
-
-
     
     // Update cache and state immediately
     userCache = data.user;
@@ -99,8 +94,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-
-      
       // Clear user state immediately
       setUser(null);
       userCache = null;
@@ -112,16 +105,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         credentials: 'include', // ضروري ليمسح الكوكي من HttpOnly
       });
       
-      if (response.ok) {
-
-      } else {
-        console.log("❌ Logout API failed");
+      if (!response.ok) {
+        // Handle logout failure silently
       }
     } catch (error) {
-      console.error("❌ Logout failed", error);
+      // Handle logout error silently
     } finally {
-
-      
       // Clear all storage
       sessionStorage.clear();
       localStorage.clear();

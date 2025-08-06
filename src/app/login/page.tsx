@@ -53,12 +53,9 @@ function LoginForm() {
     },
   });
 
-  // No need for logout flag logic anymore
-
   // Redirect if user is already logged in
   useEffect(() => {
     if (!isLoading && user && !isLoggingIn) {
-
       const redirectTo = searchParams.get('redirect');
       
       // Small delay to ensure proper state management
@@ -96,15 +93,12 @@ function LoginForm() {
         title: "تم تسجيل الدخول بنجاح",
         description: `مرحباً ${user.name}! جاري توجيهك إلى لوحة التحكم الخاصة بك.`,
       });
-
-
       
       // Get redirect URL from search params or use default
       const redirectTo = searchParams.get('redirect');
       
       // Wait for the cookie to be set and then redirect
       setTimeout(() => {
-
         if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
           if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
             window.location.href = redirectTo;

@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
         const token = request.cookies.get('token')?.value;
         const { pathname } = request.nextUrl;
 
-
+        console.log('🔍 Middleware checking:', pathname, 'Token exists:', !!token);
 
         // If no token, allow access to public pages only
         if (!token) {
@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
         try {
             const payload = await verifyAuth(token);
             verifiedToken = payload as unknown as TokenPayload;
-
+            console.log('✅ Token verified for:', verifiedToken.role);
         } catch (err) {
             console.error('❌ Token verification failed:', err);
             // Clear invalid token and redirect to login
@@ -63,7 +63,7 @@ export async function middleware(request: NextRequest) {
         if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
             // If user is already logged in, redirect to appropriate dashboard
             if (verifiedToken) {
-
+                console.log('🔄 Redirecting logged in user from login page');
                 
                 // Add a small delay to prevent race conditions
                 const response = NextResponse.next();
@@ -81,7 +81,7 @@ export async function middleware(request: NextRequest) {
         // Handle protected routes
         if (pathname.startsWith('/admin') || pathname.startsWith('/user')) {
             if (!verifiedToken) {
-
+                console.log('❌ No valid token, redirecting to login');
                 const redirectUrl = new URL('/login', request.url);
                 redirectUrl.searchParams.set('redirect', pathname);
                 return NextResponse.redirect(redirectUrl);
@@ -89,11 +89,12 @@ export async function middleware(request: NextRequest) {
 
             // Ensure users are redirected to their appropriate dashboard
             if (pathname.startsWith('/admin') && verifiedToken.role !== 'ADMIN') {
-
+                console.log('🔄 Non-admin trying to access admin area, redirecting');
                 return NextResponse.redirect(new URL('/user/my-courses', request.url));
             }
 
             if (pathname.startsWith('/user') && verifiedToken.role !== 'STUDENT') {
+                console.log('🔄 Non-student trying to access user area, redirecting');
                 return NextResponse.redirect(new URL('/admin/dashboard', request.url));
             }
         }
