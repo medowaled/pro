@@ -53,36 +53,13 @@ function LoginForm() {
     },
   });
 
-  // Clear logout flag on component mount
-  useEffect(() => {
-    const justLoggedOut = sessionStorage.getItem('justLoggedOut') || localStorage.getItem('justLoggedOut');
-    if (justLoggedOut === 'true') {
-      console.log('🚫 User just logged out, clearing flag');
-      sessionStorage.removeItem('justLoggedOut');
-      localStorage.removeItem('justLoggedOut');
-      
-      // Show logout success message
-      toast({
-        title: "تم تسجيل الخروج بنجاح",
-        description: "تم تسجيل خروجك من الحساب بنجاح.",
-      });
-    }
-  }, [toast]);
+  // No need for logout flag logic anymore
 
   // Redirect if user is already logged in
   useEffect(() => {
     if (!isLoading && user && !isLoggingIn) {
       console.log('🔄 Redirecting logged in user:', user);
       const redirectTo = searchParams.get('redirect');
-      
-      // Check if user just logged out (prevent auto-login)
-      const justLoggedOut = sessionStorage.getItem('justLoggedOut') || localStorage.getItem('justLoggedOut');
-      if (justLoggedOut === 'true') {
-        console.log('🚫 User just logged out, preventing auto-redirect');
-        sessionStorage.removeItem('justLoggedOut');
-        localStorage.removeItem('justLoggedOut');
-        return;
-      }
       
       // Small delay to ensure proper state management
       setTimeout(() => {

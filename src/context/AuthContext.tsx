@@ -31,19 +31,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const checkUser = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Check if user just logged out
-      const justLoggedOut = sessionStorage.getItem('justLoggedOut') || localStorage.getItem('justLoggedOut');
-      if (justLoggedOut === 'true') {
-        console.log('🚫 User just logged out, skipping auth check');
-        sessionStorage.removeItem('justLoggedOut');
-        localStorage.removeItem('justLoggedOut');
-        setUser(null);
-        userCache = null;
-        cacheTimestamp = 0;
-        setIsLoading(false);
-        return;
-      }
-
       // Check cache first
       const now = Date.now();
       if (userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
@@ -114,10 +101,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       console.log("🔄 Starting logout process...");
       
-      // Set flag to prevent auto-login
-      sessionStorage.setItem('justLoggedOut', 'true');
-      localStorage.setItem('justLoggedOut', 'true');
-      
       // Clear user state immediately
       setUser(null);
       userCache = null;
@@ -139,16 +122,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       console.log("🔄 Clearing storage and redirecting...");
       
-      // Clear all storage except the logout flag
-      const justLoggedOut = sessionStorage.getItem('justLoggedOut');
+      // Clear all storage
       sessionStorage.clear();
       localStorage.clear();
-      
-      // Restore the logout flag
-      if (justLoggedOut) {
-        sessionStorage.setItem('justLoggedOut', justLoggedOut);
-        localStorage.setItem('justLoggedOut', justLoggedOut);
-      }
       
       // Force immediate redirect to login page
       window.location.href = '/login';
