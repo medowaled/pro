@@ -1,3 +1,4 @@
+
 import { NextResponse, type NextRequest } from 'next/server';
 import { verifyAuth } from './lib/auth';
 
@@ -16,10 +17,10 @@ export async function middleware(request: NextRequest) {
 
         // If no token, allow access to public pages only
         if (!token) {
-            if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about' || pathname === '/') {
+            if (pathname.startsWith('/courses/')  pathname === '/courses'  pathname === '/about'  pathname === '/') {
                 return NextResponse.next();
             }
-            if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
+            if (pathname.startsWith('/login')  pathname.startsWith('/register')) {
                 return NextResponse.next();
             }
             // Redirect to login for protected routes
@@ -49,7 +50,7 @@ export async function middleware(request: NextRequest) {
         }
 
         // Allow access to public pages
-        if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about') {
+        if (pathname.startsWith('/courses/')  pathname === '/courses'  pathname === '/about') {
             return NextResponse.next();
         }
 
@@ -59,7 +60,7 @@ export async function middleware(request: NextRequest) {
         }
 
         // Handle login and register pages
-        if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
+        if (pathname.startsWith('/login')  pathname.startsWith('/register')) {
             // If user is already logged in, redirect to appropriate dashboard
             if (verifiedToken) {
                 console.log('🔄 Redirecting logged in user from login page');
@@ -78,7 +79,7 @@ export async function middleware(request: NextRequest) {
         }
         
         // Handle protected routes
-        if (pathname.startsWith('/admin') || pathname.startsWith('/user')) {
+        if (pathname.startsWith('/admin')  pathname.startsWith('/user')) {
             if (!verifiedToken) {
                 console.log('❌ No valid token, redirecting to login');
                 const redirectUrl = new URL('/login', request.url);
@@ -92,7 +93,9 @@ export async function middleware(request: NextRequest) {
                 return NextResponse.redirect(new URL('/user/my-courses', request.url));
             }
 
-            if (pathname.startsWith('/user') && verifiedToken.role !== 'STUDENT') {
+Eslam Saad, [07/08/2025 12:14 ص]
+Ahmed Waleed, [8/6/2025 11:51 PM]
+if (pathname.startsWith('/user') && verifiedToken.role !== 'STUDENT') {
                 console.log('🔄 Non-student trying to access user area, redirecting');
                 return NextResponse.redirect(new URL('/admin/dashboard', request.url));
             }
