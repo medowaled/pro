@@ -63,6 +63,11 @@ export async function middleware(request: NextRequest) {
             // If user is already logged in, redirect to appropriate dashboard
             if (verifiedToken) {
                 console.log('🔄 Redirecting logged in user from login page');
+                
+                // Add a small delay to prevent race conditions
+                const response = NextResponse.next();
+                response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+                
                 if (verifiedToken.role === 'ADMIN') {
                     return NextResponse.redirect(new URL('/admin/dashboard', request.url));
                 } else {

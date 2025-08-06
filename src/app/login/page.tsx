@@ -60,12 +60,14 @@ function LoginForm() {
       console.log('🚫 User just logged out, clearing flag');
       sessionStorage.removeItem('justLoggedOut');
       localStorage.removeItem('justLoggedOut');
-      // Force a small delay to prevent auto-login
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      
+      // Show logout success message
+      toast({
+        title: "تم تسجيل الخروج بنجاح",
+        description: "تم تسجيل خروجك من الحساب بنجاح.",
+      });
     }
-  }, []);
+  }, [toast]);
 
   // Redirect if user is already logged in
   useEffect(() => {
@@ -82,11 +84,20 @@ function LoginForm() {
         return;
       }
       
-      if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
-        if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
-          window.location.href = redirectTo;
-        } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
-          window.location.href = redirectTo;
+      // Small delay to ensure proper state management
+      setTimeout(() => {
+        if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
+          if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
+            window.location.href = redirectTo;
+          } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
+            window.location.href = redirectTo;
+          } else {
+            if (user.role === "ADMIN") {
+              window.location.href = "/admin/dashboard";
+            } else {
+              window.location.href = "/user/my-courses";
+            }
+          }
         } else {
           if (user.role === "ADMIN") {
             window.location.href = "/admin/dashboard";
@@ -94,13 +105,7 @@ function LoginForm() {
             window.location.href = "/user/my-courses";
           }
         }
-      } else {
-        if (user.role === "ADMIN") {
-          window.location.href = "/admin/dashboard";
-        } else {
-          window.location.href = "/user/my-courses";
-        }
-      }
+      }, 500);
     }
   }, [user, isLoading, searchParams, isLoggingIn]);
 
@@ -112,7 +117,7 @@ function LoginForm() {
 
       toast({
         title: "تم تسجيل الدخول بنجاح",
-        description: "جاري توجيهك إلى لوحة التحكم الخاصة بك.",
+        description: `مرحباً ${user.name}! جاري توجيهك إلى لوحة التحكم الخاصة بك.`,
       });
 
       console.log(">>> User logged in:", user);
