@@ -34,8 +34,8 @@ export async function middleware(request: NextRequest) {
             }
         }
 
-        // Allow access to public course introduction pages
-        if (pathname.startsWith('/courses/')) {
+        // Allow access to public pages
+        if (pathname.startsWith('/courses/') || pathname === '/courses') {
             return NextResponse.next();
         }
 
@@ -96,5 +96,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/user/:path*', '/login', '/register', '/courses/:id'],
+    matcher: ['/admin/:path*', '/user/:path*', '/login', '/register', '/courses/:id', '/courses'],
 };

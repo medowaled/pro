@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(data.user);
     
     // Wait a bit to ensure the cookie is set
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 200));
     
     return data.user;
   };
