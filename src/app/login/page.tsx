@@ -56,16 +56,15 @@ function LoginForm() {
   // Redirect if user is already logged in
   useEffect(() => {
     if (!isLoading && user && !isLoggingIn) {
+      console.log('🔄 Redirecting logged in user:', user);
       const redirectTo = searchParams.get('redirect');
       
       if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
-        // Check if user has permission for the redirect URL
         if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
           window.location.href = redirectTo;
         } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
           window.location.href = redirectTo;
         } else {
-          // Redirect to appropriate dashboard based on role
           if (user.role === "ADMIN") {
             window.location.href = "/admin/dashboard";
           } else {
@@ -73,7 +72,6 @@ function LoginForm() {
           }
         }
       } else {
-        // Default redirect based on role
         if (user.role === "ADMIN") {
           window.location.href = "/admin/dashboard";
         } else {
@@ -94,21 +92,20 @@ function LoginForm() {
         description: "جاري توجيهك إلى لوحة التحكم الخاصة بك.",
       });
 
-      console.log(">>> User", user);
+      console.log(">>> User logged in:", user);
       
       // Get redirect URL from search params or use default
       const redirectTo = searchParams.get('redirect');
       
       // Wait for the cookie to be set and then redirect
       setTimeout(() => {
+        console.log('🔄 Redirecting after login:', user.role);
         if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
-          // Check if user has permission for the redirect URL
           if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
             window.location.href = redirectTo;
           } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
             window.location.href = redirectTo;
           } else {
-            // Redirect to appropriate dashboard based on role
             if (user.role === "ADMIN") {
               window.location.href = "/admin/dashboard";
             } else {
@@ -116,14 +113,13 @@ function LoginForm() {
             }
           }
         } else {
-          // Default redirect based on role
           if (user.role === "ADMIN") {
             window.location.href = "/admin/dashboard";
           } else {
             window.location.href = "/user/my-courses";
           }
         }
-      }, 2000); // Increased timeout to ensure cookie is set and middleware processes
+      }, 1500);
     } catch (error: any) {
       setIsLoggingIn(false);
       toast({

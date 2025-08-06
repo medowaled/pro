@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import { jwtVerify } from 'jose';
 
 export function getJwtSecretKey() {
   const secret = process.env.NEXT_JWT_SECRET;
@@ -9,14 +9,12 @@ export function getJwtSecretKey() {
   return secret;
 }
 
-export function verifyAuth(token: string) {
-  return new Promise((resolve, reject) => {
-    const secretKey = getJwtSecretKey();
-    jwt.verify(token, secretKey, (err: any, decoded: any) => {
-      if (err) {
-        return reject(err);
-      }
-      resolve(decoded);
-    });
-  });
+export async function verifyAuth(token: string) {
+  try {
+    const secretKey = new TextEncoder().encode(getJwtSecretKey());
+    const { payload } = await jwtVerify(token, secretKey);
+    return payload;
+  } catch (error) {
+    throw new Error('Invalid token');
+  }
 }

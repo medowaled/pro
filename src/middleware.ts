@@ -12,19 +12,23 @@ export async function middleware(request: NextRequest) {
         const token = request.cookies.get('token')?.value;
         const { pathname } = request.nextUrl;
 
+        console.log('🔍 Middleware checking:', pathname, 'Token exists:', !!token);
+
         let verifiedToken: TokenPayload | null = null;
         if (token) {
             try {
-                verifiedToken = await verifyAuth(token) as TokenPayload;
+                const payload = await verifyAuth(token);
+                verifiedToken = payload as unknown as TokenPayload;
+                console.log('✅ Token verified for:', verifiedToken.role);
             } catch (err) {
-                console.error('Token verification failed:', err);
+                console.error('❌ Token verification failed:', err);
                 // Only clear token and redirect if not on login/register pages
                 if (!pathname.startsWith('/login') && !pathname.startsWith('/register')) {
                     const response = NextResponse.redirect(new URL('/login', request.url));
                     response.cookies.set("token", "", {
                         httpOnly: true,
                         secure: process.env.NODE_ENV === "production",
-                        sameSite: "lax", // Better compatibility
+                        sameSite: "lax",
                         path: "/",
                         expires: new Date(0),
                         maxAge: 0,
@@ -39,7 +43,7 @@ export async function middleware(request: NextRequest) {
             return NextResponse.next();
         }
 
-        // Allow access to homepage for everyone (no automatic redirect)
+        // Allow access to homepage for everyone
         if (pathname === '/') {
             return NextResponse.next();
         }
@@ -48,6 +52,7 @@ export async function middleware(request: NextRequest) {
         if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
             // If user is already logged in, redirect to appropriate dashboard
             if (verifiedToken) {
+                console.log('🔄 Redirecting logged in user from login page');
                 if (verifiedToken.role === 'ADMIN') {
                     return NextResponse.redirect(new URL('/admin/dashboard', request.url));
                 } else {
@@ -60,31 +65,34 @@ export async function middleware(request: NextRequest) {
         // Handle protected routes
         if (pathname.startsWith('/admin') || pathname.startsWith('/user')) {
             if (!verifiedToken) {
+                console.log('❌ No valid token, redirecting to login');
                 const redirectUrl = new URL('/login', request.url);
-                redirectUrl.searchParams.set('redirect', pathname); // Pass the original path
+                redirectUrl.searchParams.set('redirect', pathname);
                 return NextResponse.redirect(redirectUrl);
             }
 
             // Ensure users are redirected to their appropriate dashboard
             if (pathname.startsWith('/admin') && verifiedToken.role !== 'ADMIN') {
+                console.log('🔄 Non-admin trying to access admin area, redirecting');
                 return NextResponse.redirect(new URL('/user/my-courses', request.url));
             }
 
             if (pathname.startsWith('/user') && verifiedToken.role !== 'STUDENT') {
+                console.log('🔄 Non-student trying to access user area, redirecting');
                 return NextResponse.redirect(new URL('/admin/dashboard', request.url));
             }
         }
         
         return NextResponse.next();
     } catch (error) {
-        console.error('Middleware error:', error);
+        console.error('🔥 Middleware error:', error);
         // Only redirect to login if not already on login/register pages
         if (!request.nextUrl.pathname.startsWith('/login') && !request.nextUrl.pathname.startsWith('/register')) {
             const response = NextResponse.redirect(new URL('/login', request.url));
             response.cookies.set("token", "", {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: "lax", // Better compatibility
+                sameSite: "lax",
                 path: "/",
                 expires: new Date(0),
                 maxAge: 0,

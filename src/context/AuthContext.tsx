@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Cache for user data
 let userCache: User | null = null;
 let cacheTimestamp = 0;
-const USER_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+const USER_CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         headers: {
           'Cache-Control': 'no-cache',
         },
-        credentials: 'include', // Ensure cookies are sent
+        credentials: 'include',
       });
       
       if (res.ok) {
@@ -51,7 +51,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         userCache = data.user;
         cacheTimestamp = now;
         setUser(data.user);
+        console.log('✅ User authenticated:', data.user);
       } else {
+        console.log('❌ User not authenticated');
         setUser(null);
         userCache = null;
       }
@@ -73,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, password }),
-      credentials: 'include', // Ensure cookies are sent
+      credentials: 'include',
     });
 
     const data = await response.json();
@@ -82,15 +84,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw new Error(data.message || 'فشل تسجيل الدخول');
     }
 
-    console.log('Login successful, user data:', data.user);
+    console.log('✅ Login successful, user data:', data.user);
     
     // Update cache and state immediately
     userCache = data.user;
     cacheTimestamp = Date.now();
     setUser(data.user);
     
-    // Wait a bit to ensure the cookie is set
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Wait for the cookie to be set
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     return data.user;
   };
@@ -108,28 +110,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           headers: {
             'Cache-Control': 'no-cache',
           },
-          credentials: 'include', // Ensure cookies are sent
+          credentials: 'include',
         });
     } catch (error) {
         console.error("Logout failed", error);
     } finally {
       console.log(">>>>> HIT LOGOUT");
       
-      // Wait a bit to ensure the cookie is cleared
+      // Wait for the cookie to be cleared
       setTimeout(() => {
-        // Force a full page reload to clear all state
         window.location.href = '/login';
-      }, 1000); // Increased timeout to ensure cookie is cleared
+      }, 1000);
     }
   };
-
-  // Add a function to refresh user data
-  const refreshUser = useCallback(() => {
-    // Clear cache to force fresh data
-    userCache = null;
-    cacheTimestamp = 0;
-    checkUser();
-  }, [checkUser]);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isLoading }}>
