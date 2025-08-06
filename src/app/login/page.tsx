@@ -60,6 +60,10 @@ function LoginForm() {
       console.log('🚫 User just logged out, clearing flag');
       sessionStorage.removeItem('justLoggedOut');
       localStorage.removeItem('justLoggedOut');
+      // Force a small delay to prevent auto-login
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
     }
   }, []);
 

@@ -22,19 +22,17 @@ export async function middleware(request: NextRequest) {
                 console.log('✅ Token verified for:', verifiedToken.role);
             } catch (err) {
                 console.error('❌ Token verification failed:', err);
-                // Only clear token and redirect if not on login/register pages
-                if (!pathname.startsWith('/login') && !pathname.startsWith('/register')) {
-                    const response = NextResponse.redirect(new URL('/login', request.url));
-                    response.cookies.set("token", "", {
-                        httpOnly: true,
-                        secure: process.env.NODE_ENV === "production",
-                        sameSite: "lax",
-                        path: "/",
-                        expires: new Date(0),
-                        maxAge: 0,
-                    });
-                    return response;
-                }
+                // Clear invalid token and redirect to login
+                const response = NextResponse.redirect(new URL('/login', request.url));
+                response.cookies.set("token", "", {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "lax",
+                    path: "/",
+                    expires: new Date(0),
+                    maxAge: 0,
+                });
+                return response;
             }
         }
 
@@ -86,20 +84,17 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     } catch (error) {
         console.error('🔥 Middleware error:', error);
-        // Only redirect to login if not already on login/register pages
-        if (!request.nextUrl.pathname.startsWith('/login') && !request.nextUrl.pathname.startsWith('/register')) {
-            const response = NextResponse.redirect(new URL('/login', request.url));
-            response.cookies.set("token", "", {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
-                path: "/",
-                expires: new Date(0),
-                maxAge: 0,
-            });
-            return response;
-        }
-        return NextResponse.next();
+        // Clear token and redirect to login on any error
+        const response = NextResponse.redirect(new URL('/login', request.url));
+        response.cookies.set("token", "", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+            expires: new Date(0),
+            maxAge: 0,
+        });
+        return response;
     }
 }
 
