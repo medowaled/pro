@@ -53,59 +53,18 @@ export default function LoginPage() {
     },
   });
 
-  // Redirect if user is already logged in
-  useEffect(() => {
-    if (user) {
-      console.log('User already logged in, redirecting...');
-      if (user.role === "ADMIN") {
-        console.log('Redirecting admin to dashboard');
-        router.replace("/admin/dashboard");
-      } else {
-        console.log('Redirecting student to my-courses');
-        router.replace("/user/my-courses");
-      }
-    }
-  }, [user, router]);
-
-  // Don't render the form if user is already logged in
-  if (user) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <SiteHeader />
-        <main className="flex-grow flex items-center justify-center py-12">
-          <Card className="w-full max-w-md mx-4">
-            <CardContent className="text-center py-8">
-              <p className="text-lg">جاري توجيهك إلى لوحة التحكم...</p>
-            </CardContent>
-          </Card>
-        </main>
-        <SiteFooter />
-      </div>
-    );
-  }
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       console.log("🔄 Starting login process...");
-      const user = await login(values.phone, values.password);
+      await login(values.phone, values.password);
 
-      console.log("✅ Login successful, user:", user);
+      // Redirection is now handled in AuthContext
+      console.log("✅ Login successful, redirection is handled by AuthContext.");
 
       toast({
         title: "تم تسجيل الدخول بنجاح",
         description: "جاري توجيهك إلى لوحة التحكم الخاصة بك.",
       });
-
-      console.log("🔄 Redirecting user to dashboard...");
-      
-      // Redirect based on user role immediately
-      if (user.role === "ADMIN") {
-        console.log("👨‍💼 Redirecting admin to:", "/admin/dashboard");
-        router.replace("/admin/dashboard");
-      } else {
-        console.log("👨‍🎓 Redirecting student to:", "/user/my-courses");
-        router.replace("/user/my-courses");
-      }
     } catch (error: any) {
       console.error("❌ Login failed:", error);
 

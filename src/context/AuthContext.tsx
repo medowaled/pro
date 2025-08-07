@@ -96,7 +96,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     cacheTimestamp = Date.now();
     setUser(data.user);
     
-    // Return the user data immediately
+    // Redirect based on user role
+    const targetUrl = data.user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
+    router.push(targetUrl);
+
+    // Return the user data
     return data.user;
   };
 
@@ -116,14 +120,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         method: 'POST',
       });
       
-      console.log("✅ Logout completed successfully");
+      console.log("✅ Logout completed successfully, redirecting to home.");
+      router.push('/');
       
     } catch (error) {
       console.error("❌ Logout failed", error);
-      // Even if API fails, maintain logout state
+      // Even if API fails, maintain logout state and redirect
       setUser(null);
       userCache = null;
       cacheTimestamp = 0;
+      router.push('/');
     }
   };
 
