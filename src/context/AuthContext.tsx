@@ -26,20 +26,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkUser = useCallback(async () => {
+  const checkUser = useCallback(async (forceCheck = false) => {
     setIsLoading(true);
     try {
       const now = Date.now();
-      if (userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
+      // تجاهل الكاش إذا تم طلب فحص إجباري
+      if (!forceCheck && userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
         setUser(userCache);
         setIsLoading(false);
         return;
       }
+      
       const res = await fetch('/api/auth/me', {
         headers: {
           'Cache-Control': 'no-cache',
         },
       });
+      
       if (res.ok) {
         const data = await res.json();
         userCache = data.user;
@@ -79,9 +82,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!response.ok) {
       throw new Error(data.message || 'فشل تسجيل الدخول');
     }
+    
+    // تحديث الكاش والحالة
     userCache = data.user;
     cacheTimestamp = Date.now();
     setUser(data.user);
+    
+    // إعادة التحقق من حالة المستخدم للتأكد من تحديث الحالة
+    await checkUser();
+    
     return data.user;
   };
 
@@ -97,8 +106,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         method: 'POST',
       });
       
-      // إعادة التحقق من حالة المستخدم للتأكد من تسجيل الخروج
-      await checkUser();
+      // إجبار إعادة التحقق من حالة المستخدم للتأكد من تسجيل الخروج
+      await checkUser(true);
     } catch (error) {
       // في حالة حدوث خطأ، تأكد من حذف البيانات المحلية
       setUser(null);
