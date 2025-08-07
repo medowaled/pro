@@ -32,9 +32,19 @@ export default function SiteHeader() {
   const handleDashboardClick = () => {
     console.log('🔗 Dashboard link clicked');
     console.log('👤 Current user:', user);
+    console.log('👤 User role:', user?.role);
+    
     const targetUrl = user?.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
     console.log('🎯 Target URL:', targetUrl);
-    router.push(targetUrl);
+    
+    // Use router.replace for immediate navigation
+    router.replace(targetUrl);
+    
+    // Add a fallback with setTimeout in case router.replace doesn't work
+    setTimeout(() => {
+      console.log('🔄 Fallback navigation to:', targetUrl);
+      window.location.href = targetUrl;
+    }, 100);
   };
 
   return (
