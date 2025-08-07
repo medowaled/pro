@@ -55,25 +55,31 @@ function LoginForm() {
 
   // Simplified redirect logic for logged in users
   useEffect(() => {
+    // Only redirect if user is actually logged in and not in a logout state
     if (!isLoading && user && !isLoggingIn) {
-      const redirectTo = searchParams.get('redirect');
-      
-      // Determine the correct redirect path
-      let targetPath = '/';
-      if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
-        if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
-          targetPath = redirectTo;
-        } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
-          targetPath = redirectTo;
+      // Add a small delay to ensure logout state is properly handled
+      const timer = setTimeout(() => {
+        const redirectTo = searchParams.get('redirect');
+        
+        // Determine the correct redirect path
+        let targetPath = '/';
+        if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
+          if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
+            targetPath = redirectTo;
+          } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
+            targetPath = redirectTo;
+          } else {
+            targetPath = user.role === "ADMIN" ? "/admin/dashboard" : "/user/my-courses";
+          }
         } else {
           targetPath = user.role === "ADMIN" ? "/admin/dashboard" : "/user/my-courses";
         }
-      } else {
-        targetPath = user.role === "ADMIN" ? "/admin/dashboard" : "/user/my-courses";
-      }
+        
+        // Redirect immediately if user is already logged in
+        window.location.replace(targetPath);
+      }, 500); // Add delay to prevent immediate redirect after logout
       
-      // Redirect immediately if user is already logged in
-      window.location.replace(targetPath);
+      return () => clearTimeout(timer);
     }
   }, [user, isLoading, searchParams, isLoggingIn]);
 

@@ -26,11 +26,16 @@ export default function LogoutButton() {
         description: "تم تسجيل خروجك بنجاح. شكراً لاستخدامك منصتنا!",
       });
       
-      // Use router.push instead of window.location for better navigation
-      // This prevents potential issues with the authentication state
+      // Force a complete page reload to clear all state and prevent auto-login
       setTimeout(() => {
+        // Clear any remaining storage
+        sessionStorage.clear();
+        localStorage.clear();
+        
+        // Force reload to homepage to ensure clean state
         window.location.href = '/';
-      }, 100);
+        window.location.reload();
+      }, 200);
       
     } catch (error) {
       console.error('Logout error:', error);
@@ -39,10 +44,13 @@ export default function LogoutButton() {
         description: "حدث خطأ أثناء تسجيل الخروج. يرجى المحاولة مرة أخرى.",
         variant: "destructive",
       });
-      // Even if there's an error, redirect to homepage
+      // Even if there's an error, force reload to clear state
       setTimeout(() => {
+        sessionStorage.clear();
+        localStorage.clear();
         window.location.href = '/';
-      }, 100);
+        window.location.reload();
+      }, 200);
     } finally {
       setIsLoggingOut(false);
     }

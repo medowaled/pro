@@ -50,6 +50,23 @@ export async function middleware(request: NextRequest) {
                 expires: new Date(0),
                 maxAge: 0,
             });
+            // Clear other potential auth cookies
+            response.cookies.set("auth", "", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                path: "/",
+                expires: new Date(0),
+                maxAge: 0,
+            });
+            response.cookies.set("session", "", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                path: "/",
+                expires: new Date(0),
+                maxAge: 0,
+            });
             return response;
         }
 
@@ -96,6 +113,23 @@ export async function middleware(request: NextRequest) {
         // Clear token and redirect to login on any error
         const response = NextResponse.redirect(new URL('/login', request.url));
         response.cookies.set("token", "", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+            expires: new Date(0),
+            maxAge: 0,
+        });
+        // Clear other potential auth cookies
+        response.cookies.set("auth", "", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+            expires: new Date(0),
+            maxAge: 0,
+        });
+        response.cookies.set("session", "", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",

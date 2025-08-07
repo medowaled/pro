@@ -25,6 +25,8 @@ const USER_CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
 // Flag to track if user just logged out to prevent immediate re-checking
 let justLoggedOut = false;
+let logoutTimestamp = 0;
+const LOGOUT_COOLDOWN = 5 * 60 * 1000; // 5 minutes cooldown after logout
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -32,19 +34,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   const checkUser = useCallback(async () => {
-    // If user just logged out, skip checking
-    if (justLoggedOut) {
+    // Check if we're in logout cooldown period
+    const now = Date.now();
+    if (justLoggedOut && (now - logoutTimestamp) < LOGOUT_COOLDOWN) {
       setUser(null);
       setIsLoading(false);
-      justLoggedOut = false;
       return;
+    }
+
+    // Reset logout flag after cooldown period
+    if (justLoggedOut && (now - logoutTimestamp) >= LOGOUT_COOLDOWN) {
+      justLoggedOut = false;
     }
 
     setIsLoading(true);
     try {
-      // Check cache first
-      const now = Date.now();
-      if (userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
+      // Check cache first (but only if not in logout cooldown)
+      if (!justLoggedOut && userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
         setUser(userCache);
         setIsLoading(false);
         return;
@@ -52,7 +58,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const res = await fetch('/api/auth/me', {
         headers: {
-          'Cache-Control': 'no-cache',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
         },
         credentials: 'include',
       });
@@ -84,13 +91,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Cleanup effect to reset logout flag on unmount
   useEffect(() => {
     return () => {
-      // Reset logout flag when component unmounts
-      justLoggedOut = false;
+      // Don't reset logout flag on unmount to maintain logout state
     };
   }, []);
 
   const login = async (phone: string, password: string): Promise<User> => {
     try {
+      // Reset logout state when logging in
+      justLoggedOut = false;
+      logoutTimestamp = 0;
+      
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -121,8 +131,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async (): Promise<void> => {
     try {
-      // Set logout flag to prevent immediate re-checking
+      // Set logout flag and timestamp to prevent immediate re-checking
       justLoggedOut = true;
+      logoutTimestamp = Date.now();
       
       // Clear user state and cache immediately
       setUser(null);
@@ -139,16 +150,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         credentials: 'include',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
         },
       });
       
     } catch (error) {
       console.error('Logout error:', error);
-      // Even if API fails, clear local state
+      // Even if API fails, clear local state and set logout flag
       setUser(null);
       userCache = null;
       cacheTimestamp = 0;
       justLoggedOut = true;
+      logoutTimestamp = Date.now();
     }
   };
 
