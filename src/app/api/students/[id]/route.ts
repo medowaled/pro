@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { verifyAuth } from '@/lib/auth';
@@ -19,6 +20,7 @@ export async function GET(
     try {
         const token = request.headers.get('cookie')?.split('; ').find(c => c.startsWith('token='))?.split('=')[1];
         const verifiedToken = token && (await verifyAuth(token).catch(() => null));
+        
         if (!verifiedToken || verifiedToken.role !== 'ADMIN') {
             return NextResponse.json({ message: 'غير مصرح لك بالوصول.' }, { status: 401 });
         }
@@ -54,6 +56,7 @@ export async function PUT(
      try {
         const token = request.headers.get('cookie')?.split('; ').find(c => c.startsWith('token='))?.split('=')[1];
         const verifiedToken = token && (await verifyAuth(token).catch(() => null));
+        
         if (!verifiedToken || verifiedToken.role !== 'ADMIN') {
             return NextResponse.json({ message: 'غير مصرح لك بالوصول.' }, { status: 401 });
         }
@@ -111,20 +114,21 @@ export async function DELETE(
     try {
         const token = request.headers.get('cookie')?.split('; ').find(c => c.startsWith('token='))?.split('=')[1];
         const verifiedToken = token && (await verifyAuth(token).catch(() => null));
+        
         if (!verifiedToken || verifiedToken.role !== 'ADMIN') {
             return NextResponse.json({ message: 'غير مصرح لك بالوصول.' }, { status: 401 });
         }
 
         const { id } = params;
 
-        // First, delete enrollments associated with the student
+        // أولاً، احذف التسجيلات المرتبطة بالطالب
         await prisma.enrollment.deleteMany({
             where: {
                 userId: id,
             },
         });
 
-        // Then, delete the student (user)
+        // ثم احذف الطالب (المستخدم)
         await prisma.user.delete({
             where: {
                 id: id,

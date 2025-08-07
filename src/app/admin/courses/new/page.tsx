@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -32,11 +33,14 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import type { Instructor } from '@/lib/types';
-import { ArrowRight, GripVertical, Plus, Trash2, Link as LinkIcon } from 'lucide-react';
-import Image from 'next/image';
-import { Switch } from '@/components/ui/switch';
+import { useState, useEffect } from 'react';
+import { GripVertical, Trash2, LinkIcon } from 'lucide-react';
+
+interface Instructor {
+  id: string;
+  name: string;
+  specialty: string;
+}
 
 const contentSchema = z.object({
   id: z.string().optional(),
@@ -85,7 +89,7 @@ export default function NewCoursePage() {
     control: form.control,
     name: "content",
   });
-  
+
   const watchedContentType = form.watch('content');
 
   useEffect(() => {
@@ -104,6 +108,7 @@ export default function NewCoursePage() {
         });
       }
     };
+
     fetchInstructors();
   }, [toast]);
 
@@ -111,10 +116,10 @@ export default function NewCoursePage() {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        form.setValue('imageBase64', base64String);
-        setPreviewImage(base64String);
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setPreviewImage(result);
+        form.setValue('imageBase64', result);
       };
       reader.readAsDataURL(file);
     }
@@ -124,94 +129,59 @@ export default function NewCoursePage() {
     try {
       const response = await fetch('/api/courses', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(values),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || 'حدث خطأ ما');
+        const error = await response.json();
+        throw new Error(error.message || 'حدث خطأ أثناء إنشاء الدورة');
       }
 
       toast({
-        title: 'تم إنشاء الدورة بنجاح',
-        description: 'تمت إضافة الدورة الجديدة إلى القائمة بنجاح. يمكن للطلاب الآن التسجيل فيها والاستفادة من المحتوى التعليمي.',
+        title: 'نجح',
+        description: 'تم إنشاء الدورة بنجاح.',
       });
+
       router.push('/admin/dashboard');
     } catch (error: any) {
+      console.error(error);
       toast({
-        title: 'فشل إنشاء الدورة',
-        description: error.message || "حدث خطأ أثناء إنشاء الدورة. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
+        title: 'خطأ',
+        description: error.message || 'حدث خطأ أثناء إنشاء الدورة.',
         variant: 'destructive',
       });
     }
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="max-w-4xl mx-auto">
       <CardHeader>
-        <div className='flex justify-between items-center'>
-          <div>
-            <CardTitle className="text-2xl font-headline">إضافة دورة جديدة</CardTitle>
-            <CardDescription className="font-body">
-              املأ التفاصيل أدناه لإنشاء دورة جديدة.
-            </CardDescription>
-          </div>
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/admin/dashboard">
-              <ArrowRight className="h-5 w-5" />
-            </Link>
-          </Button>
-        </div>
+        <CardTitle>إنشاء دورة جديدة</CardTitle>
+        <CardDescription>
+          قم بإنشاء دورة جديدة وإضافة المحتوى المطلوب
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>عنوان الدورة</FormLabel>
-                  <FormControl>
-                    <Input placeholder="مثال: مقدمة في علوم البيانات" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>وصف الدورة</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="اكتب وصفاً جذاباً للدورة هنا..."
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="price"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>السعر</FormLabel>
+                    <FormLabel>عنوان الدورة</FormLabel>
                     <FormControl>
-                      <Input placeholder="مثال: 99 ر.س" {...field} />
+                      <Input {...field} placeholder="عنوان الدورة" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="category"
@@ -219,195 +189,232 @@ export default function NewCoursePage() {
                   <FormItem>
                     <FormLabel>الفئة</FormLabel>
                     <FormControl>
-                      <Input placeholder="مثال: البرمجة" {...field} />
+                      <Input {...field} placeholder="مثال: البرمجة" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>السعر</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="100" type="number" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="instructorId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>المدرب</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر المدرب" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {instructors.map((instructor) => (
+                          <SelectItem key={instructor.id} value={instructor.id}>
+                            {instructor.name} - {instructor.specialty}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>وصف الدورة</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} placeholder="وصف مفصل للدورة..." rows={4} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="videoUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>رابط الفيديو الترويجي</FormLabel>
+                  <FormLabel>رابط الفيديو التعريفي (اختياري)</FormLabel>
                   <FormControl>
-                    <Input dir="ltr" placeholder="https://example.com/promo-video.mp4" {...field} />
+                    <div className="relative">
+                      <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input {...field} placeholder="https://example.com/video" className="pl-10" dir="ltr" />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-             <FormField
-                control={form.control}
-                name="imageBase64"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>صورة الدورة</FormLabel>
-                        <FormControl>
-                            <Input type="file" accept="image/*" onChange={handleImageChange} className="file:text-foreground"/>
-                        </FormControl>
-                        {previewImage && (
-                            <div className="mt-4">
-                               <Image src={previewImage} alt="Preview" width={200} height={150} className="rounded-md object-cover" />
-                            </div>
-                        )}
-                        <FormMessage />
-                    </FormItem>
-                )}
-             />
-            <FormField
-              control={form.control}
-              name="instructorId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>المدرب</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="اختر المدرب المسؤول عن الدورة" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {instructors.map((instructor) => (
-                        <SelectItem key={instructor.id} value={String(instructor.id)}>
-                          {instructor.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <FormLabel>صورة الدورة</FormLabel>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="max-w-xs"
+                />
+              </div>
+              {previewImage && (
+                <div className="relative w-32 h-32">
+                  <img
+                    src={previewImage}
+                    alt="Preview"
+                    className="w-full h-full object-cover rounded-md"
+                  />
+                </div>
               )}
-            />
-            
+            </div>
+
             <FormField
               control={form.control}
               name="featured"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                  <div className="space-y-0.5">
-                    <FormLabel>دورة مميزة</FormLabel>
-                    <FormDescription>
-                      هل تود عرض هذه الدورة في الصفحة الرئيسية؟
-                    </FormDescription>
-                  </div>
+                <FormItem className="flex flex-row items-start space-x-3 space-x-reverse">
                   <FormControl>
-                    <Switch
+                    <input
+                      type="checkbox"
                       checked={field.value}
-                      onCheckedChange={field.onChange}
+                      onChange={field.onChange}
+                      className="w-4 h-4"
                     />
                   </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>دورة مميزة</FormLabel>
+                    <FormDescription>
+                      عرض الدورة في القسم المميز في الصفحة الرئيسية
+                    </FormDescription>
+                  </div>
                 </FormItem>
               )}
             />
 
-            <div className="space-y-4 rounded-lg border p-4">
-                <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-medium">محتويات الدورة</h3>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => append({ type: 'video', title: '', duration: '', url: '' })}
-                    >
-                        <Plus className="mr-2 h-4 w-4" /> إضافة محتوى
-                    </Button>
-                </div>
-                 {fields.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">لم يتم إضافة أي محتوى بعد.</p>
-                )}
-                {fields.map((field, index) => (
-                    <div key={field.id} className="flex items-start gap-4 p-3 bg-secondary/50 rounded-md">
-                        <GripVertical className="h-5 w-5 mt-10 text-muted-foreground cursor-grab" />
-                        <div className="flex-grow grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                           <FormField
-                                control={form.control}
-                                name={`content.${index}.title`}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>العنوان</FormLabel>
-                                        <FormControl>
-                                            <Input {...field} placeholder="عنوان الدرس" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={form.control}
-                                name={`content.${index}.type`}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>النوع</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="اختر النوع" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="video">فيديو</SelectItem>
-                                                <SelectItem value="article">مقالة</SelectItem>
-                                                <SelectItem value="quiz">اختبار</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            
-                            {watchedContentType?.[index]?.type === 'video' && (
-                                <FormField
-                                    control={form.control}
-                                    name={`content.${index}.duration`}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>المدة (اختياري)</FormLabel>
-                                            <FormControl>
-                                                <Input {...field} placeholder="10:30" />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            )}
-                            
-                            {watchedContentType?.[index]?.type && (
-                               <FormField
-                                  control={form.control}
-                                  name={`content.${index}.url`}
-                                  render={({ field }) => (
-                                    <FormItem className="md:col-span-3">
-                                      <FormLabel>
-                                        {
-                                          {
-                                            'video': 'رابط الفيديو',
-                                            'article': 'رابط المقالة',
-                                            'quiz': 'رابط الاختبار'
-                                          }[watchedContentType[index].type]
-                                        }
-                                      </FormLabel>
-                                      <FormControl>
-                                         <div className="relative">
-                                           <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                           <Input {...field} placeholder="https://example.com/..." className="pl-10" dir="ltr" />
-                                         </div>
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                            )}
-                        </div>
-                        <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="mt-6">
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                    </div>
-                ))}
-            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <FormLabel>محتوى الدورة</FormLabel>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => append({ type: 'video', title: '', duration: '', url: '' })}
+                >
+                  إضافة درس
+                </Button>
+              </div>
 
+              {fields.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">لم يتم إضافة أي محتوى بعد.</p>
+              )}
+              {fields.map((field, index) => (
+                <div key={field.id} className="flex items-start gap-4 p-3 bg-secondary/50 rounded-md">
+                  <GripVertical className="h-5 w-5 mt-10 text-muted-foreground cursor-grab" />
+                  <div className="flex-grow grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                     <FormField
+                        control={form.control}
+                        name={`content.${index}.title`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>العنوان</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="عنوان الدرس" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={form.control}
+                        name={`content.${index}.type`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>النوع</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="اختر النوع" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="video">فيديو</SelectItem>
+                                <SelectItem value="article">مقالة</SelectItem>
+                                <SelectItem value="quiz">اختبار</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      {watchedContentType?.[index]?.type === 'video' && (
+                        <FormField
+                          control={form.control}
+                          name={`content.${index}.duration`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>المدة (اختياري)</FormLabel>
+                              <FormControl>
+                                <Input {...field} placeholder="10:30" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                      
+                      {watchedContentType?.[index]?.type && (
+                         <FormField
+                            control={form.control}
+                            name={`content.${index}.url`}
+                            render={({ field }) => (
+                              <FormItem className="md:col-span-3">
+                                <FormLabel>
+                                  {
+                                    {
+                                      'video': 'رابط الفيديو',
+                                      'article': 'رابط المقالة',
+                                      'quiz': 'رابط الاختبار'
+                                    }[watchedContentType[index].type]
+                                  }
+                                </FormLabel>
+                                <FormControl>
+                                   <div className="relative">
+                                     <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                     <Input {...field} placeholder="https://example.com/..." className="pl-10" dir="ltr" />
+                                   </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                      )}
+                  </div>
+                  <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="mt-6">
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+            </div>
 
             <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? 'جاري الإنشاء...' : 'إنشاء الدورة'}

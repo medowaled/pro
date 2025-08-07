@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -100,13 +101,13 @@ export default function EditInstructorPage() {
 
       toast({
         title: 'تم تحديث بيانات المدرب بنجاح',
-        description: 'تم حفظ التغييرات على بيانات المدرب بنجاح. سيتم تطبيق التحديثات فوراً.',
+        description: 'تم حفظ التغييرات.',
       });
       router.push('/admin/dashboard');
     } catch (error: any) {
       toast({
         title: 'فشل تحديث البيانات',
-        description: error.message || "حدث خطأ أثناء تحديث بيانات المدرب. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
+        description: error.message,
         variant: 'destructive',
       });
     }

@@ -10,6 +10,7 @@ export async function GET(
     try {
         const token = request.headers.get('cookie')?.split('; ').find(c => c.startsWith('token='))?.split('=')[1];
         const verifiedToken = token && (await verifyAuth(token).catch(() => null));
+        
         if (!verifiedToken || verifiedToken.role !== 'ADMIN') {
             return NextResponse.json({ message: 'غير مصرح لك بالوصول.' }, { status: 401 });
         }
@@ -63,6 +64,7 @@ export async function DELETE(
     try {
         const token = request.headers.get('cookie')?.split('; ').find(c => c.startsWith('token='))?.split('=')[1];
         const verifiedToken = token && (await verifyAuth(token).catch(() => null));
+        
         if (!verifiedToken || verifiedToken.role !== 'ADMIN') {
             return NextResponse.json({ message: 'غير مصرح لك بالوصول.' }, { status: 401 });
         }

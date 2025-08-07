@@ -1,3 +1,4 @@
+Eslam Saad, [07/08/2025 05:29 ص]
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -97,13 +98,13 @@ export default function NewEnrollmentPage() {
 
       toast({
         title: "تم تسجيل الطالب بنجاح",
-        description: "تم تسجيل الطالب في الدورة المحددة بنجاح. يمكن للطالب الآن الوصول إلى محتوى الدورة والبدء في التعلم.",
+        description: "تم تسجيل الطالب في الدورة المحددة.",
       });
       router.push("/admin/dashboard");
     } catch (error: any) {
       toast({
         title: "فشل تسجيل الطالب",
-        description: error.message || "حدث خطأ أثناء تسجيل الطالب. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
+        description: error.message,
         variant: "destructive",
       });
     }

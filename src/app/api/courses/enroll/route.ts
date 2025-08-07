@@ -25,11 +25,33 @@ export async function POST(request: NextRequest) {
         const staticCourse = await getStaticCourseByIdFromDB(courseId);
         
         if (staticCourse) {
+            // Check if already enrolled in static course
+            const existingStaticEnrollment = await prisma.staticEnrollment.findUnique({
+                where: {
+                    userId_courseId: {
+                        userId: userId,
+                        courseId: courseId
+                    }
+                }
+            });
+
+            if (existingStaticEnrollment) {
+                return NextResponse.json({ message: 'أنت مسجل بالفعل في هذه الدورة.' }, { status: 400 });
+            }
+
+            // Create static enrollment
+            const staticEnrollment = await prisma.staticEnrollment.create({
+                data: {
+                    userId: userId,
+                    courseId: courseId
+                }
+            });
             
             return NextResponse.json({ 
                 message: 'تم التسجيل في الدورة بنجاح.',
                 courseId: courseId,
-                courseTitle: staticCourse.title
+                courseTitle: staticCourse.title,
+                enrollmentId: staticEnrollment.id
             }, { status: 200 });
 
         } else {
@@ -71,4 +93,4 @@ export async function POST(request: NextRequest) {
         console.error(error);
         return NextResponse.json({ message: 'حدث خطأ أثناء التسجيل في الدورة.' }, { status: 500 });
     }
-} 
+}
