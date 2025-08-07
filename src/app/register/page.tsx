@@ -85,9 +85,9 @@ export default function RegisterPage() {
 
       toast({
         title: "تم إنشاء الحساب بنجاح",
-        description: "مرحباً بك في منصتنا التعليمية! تم إنشاء حسابك بنجاح. يمكنك الآن تسجيل الدخول والبدء في رحلتك التعليمية.",
+        description: "خطوتك التالية هي الاشتراك. سيتم توجيهك إلى صفحة الدفع.",
       });
-      router.push("/login");
+      router.push("/user/payment-info");
     } catch (error: any) {
       toast({
         title: "فشل إنشاء الحساب",
