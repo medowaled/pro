@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await fetch('/api/auth/logout', { 
         method: 'POST',
       });
-      window.location.href = '/login'; // إعادة التوجيه مباشرة بعد تسجيل الخروج
+      // لا تعيد التوجيه لأي صفحة بعد تسجيل الخروج
     } catch (error) {
       setUser(null);
       userCache = null;
