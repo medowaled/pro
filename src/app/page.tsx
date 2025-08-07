@@ -19,6 +19,8 @@ import { useRef, useState, useEffect } from 'react';
 import Mostafa from './images/hero-latest.png';
 import { Smile, Users, Star, Award, Trophy, FlaskConical, Lightbulb, GraduationCap, Atom, Dna } from 'lucide-react';
 import Autoplay from "embla-carousel-autoplay"
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 
 const AnimatedNumber = ({ value, suffix = '' }: { value: number, suffix?: string }) => {
@@ -119,9 +121,27 @@ const ScienceBackground = () => {
 };
 
 export default function Home() {
-   const plugin = useRef(
+  const plugin = useRef(
     Autoplay({ delay: 5000, stopOnInteraction: true })
-  )
+  );
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace('/login');
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || !user) {
+    // يمكن عرض سبينر أو شاشة انتظار بسيطة
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+        <span className="text-muted-foreground ml-4">جاري التحقق من تسجيل الدخول...</span>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col min-h-screen">
       <SiteHeader />
