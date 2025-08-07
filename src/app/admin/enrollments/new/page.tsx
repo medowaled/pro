@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -15,27 +15,27 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import type { Course, Student } from "@/lib/types";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import type { Course, Student } from '@/lib/types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
 const formSchema = z.object({
-  studentId: z.string({ required_error: "يجب اختيار طالب" }),
-  courseId: z.string({ required_error: "يجب اختيار دورة" }),
+  studentId: z.string({ required_error: 'يجب اختيار طالب' }),
+  courseId: z.string({ required_error: 'يجب اختيار دورة' }),
 });
 
 export default function NewEnrollmentPage() {
@@ -48,12 +48,12 @@ export default function NewEnrollmentPage() {
     const fetchData = async () => {
       try {
         const [studentsRes, coursesRes] = await Promise.all([
-          fetch("/api/students"),
-          fetch("/api/courses"),
+          fetch('/api/students'),
+          fetch('/api/courses'),
         ]);
 
         if (!studentsRes.ok || !coursesRes.ok) {
-          throw new Error("Failed to fetch data");
+          throw new Error('Failed to fetch data');
         }
 
         const studentsData = await studentsRes.json();
@@ -64,9 +64,9 @@ export default function NewEnrollmentPage() {
       } catch (error) {
         console.error(error);
         toast({
-          title: "خطأ",
-          description: "فشل في جلب قائمة الطلاب والدورات.",
-          variant: "destructive",
+          title: 'خطأ',
+          description: 'فشل في جلب قائمة الطلاب والدورات.',
+          variant: 'destructive',
         });
       }
     };
@@ -83,28 +83,30 @@ export default function NewEnrollmentPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const response = await fetch("/api/enrollments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/enrollments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
       });
+
+      console.log(response);
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "حدث خطأ ما");
+        throw new Error(data.message || 'حدث خطأ ما');
       }
 
       toast({
-        title: "تم تسجيل الطالب بنجاح",
-        description: "تم تسجيل الطالب في الدورة المحددة.",
+        title: 'تم تسجيل الطالب بنجاح',
+        description: 'تم تسجيل الطالب في الدورة المحددة.',
       });
-      router.push("/admin/dashboard");
+      router.push('/admin/dashboard');
     } catch (error: any) {
       toast({
-        title: "فشل تسجيل الطالب",
+        title: 'فشل تسجيل الطالب',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     }
   }
@@ -176,7 +178,7 @@ export default function NewEnrollmentPage() {
                     <SelectContent>
                       {courses.map((course) => (
                         <SelectItem key={course.id} value={course.id}>
-                          {course.title}{" "}
+                          {course.title}{' '}
                           {course.category && `(${course.category})`}
                         </SelectItem>
                       ))}
@@ -191,7 +193,7 @@ export default function NewEnrollmentPage() {
               className="w-full"
               disabled={form.formState.isSubmitting}
             >
-              {form.formState.isSubmitting ? "جاري التسجيل..." : "تسجيل الطالب"}
+              {form.formState.isSubmitting ? 'جاري التسجيل...' : 'تسجيل الطالب'}
             </Button>
           </form>
         </Form>

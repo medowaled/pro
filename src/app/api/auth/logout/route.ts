@@ -1,50 +1,38 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 
-export async function POST() {
-  // إنشاء response مع إعادة التوجيه للصفحة الرئيسية
-  const response = NextResponse.redirect('/');
-  
-  // Clear ALL possible auth cookies
+export async function POST(request: Request) {
+  const response = NextResponse.redirect(new URL('/', request.url));
+
   const cookiesToClear = [
-    "token",
-    "auth", 
-    "session",
-    "user",
-    "userId",
-    "next-auth.session-token",
-    "__Secure-next-auth.session-token",
-    "csrf",
-    "csrf-token",
-    "session-token",
-    "access-token",
-    "refresh-token",
-    "auth-token",
-    "jwt",
-    "jwt-token",
-    "bearer-token",
-    "api-token",
-    "user-token",
-    "login-token",
-    "secure-token"
+    'token',
+    'auth',
+    'session',
+    'userId',
+    'jwt',
+    'next-auth.session-token',
+    '__Secure-next-auth.session-token',
+    'csrf',
+    'csrf-token',
+    'session-token',
+    'access-token',
+    'refresh-token',
+    'auth-token',
+    'bearer-token',
+    'api-token',
+    'user-token',
+    'login-token',
+    'secure-token',
   ];
 
-  // Clear each cookie with maximum security settings
-  cookiesToClear.forEach(cookieName => {
-    response.cookies.set(cookieName, "", {
+  cookiesToClear.forEach((cookieName) => {
+    response.cookies.set(cookieName, '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
       expires: new Date(0),
-      maxAge: 0,
     });
   });
-
-  // Add comprehensive cache control headers
-  response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private, max-age=0');
-  response.headers.set('Pragma', 'no-cache');
-  response.headers.set('Expires', '0');
-  response.headers.set('Clear-Site-Data', '"cache", "cookies", "storage", "executionContexts"');
 
   return response;
 }

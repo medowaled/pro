@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -15,9 +15,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Course, Student, Instructor } from "@/lib/types";
+} from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { Course, Student, Instructor } from '@/lib/types';
 import {
   PlusCircle,
   MoreHorizontal,
@@ -27,18 +27,18 @@ import {
   Trash2,
   Edit,
   Eye,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { useEffect, useState, useCallback } from "react";
-import Link from "next/link";
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { useEffect, useState, useCallback } from 'react';
+import Link from 'next/link';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-import { useToast } from "@/hooks/use-toast";
+} from '@/components/ui/dropdown-menu';
+import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,10 +48,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useRouter } from "next/navigation";
+} from '@/components/ui/alert-dialog';
+import { useRouter } from 'next/navigation';
 
-type ItemType = "course" | "student" | "instructor";
+type ItemType = 'course' | 'student' | 'instructor';
 
 export default function AdminDashboardPage() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -68,13 +68,13 @@ export default function AdminDashboardPage() {
   const fetchData = useCallback(async () => {
     try {
       const [coursesRes, studentsRes, instructorsRes] = await Promise.all([
-        fetch("/api/courses"),
-        fetch("/api/students"),
-        fetch("/api/instructors"),
+        fetch('/api/courses'),
+        fetch('/api/students'),
+        fetch('/api/instructors'),
       ]);
 
       if (!coursesRes.ok || !studentsRes.ok || !instructorsRes.ok) {
-        throw new Error("Failed to fetch dashboard data");
+        throw new Error('Failed to fetch dashboard data');
       }
 
       const coursesData = await coursesRes.json();
@@ -87,9 +87,9 @@ export default function AdminDashboardPage() {
     } catch (error) {
       console.error(error);
       toast({
-        title: "خطأ",
-        description: "فشل في تحميل بيانات لوحة التحكم.",
-        variant: "destructive",
+        title: 'خطأ',
+        description: 'فشل في تحميل بيانات لوحة التحكم.',
+        variant: 'destructive',
       });
     }
   }, [toast]);
@@ -110,26 +110,33 @@ export default function AdminDashboardPage() {
       const response = await fetch(
         `/api/${itemToDelete.type}s/${itemToDelete.id}`,
         {
-          method: "DELETE",
-        },
+          method: 'DELETE',
+        }
       );
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || "فشل الحذف");
+        throw new Error(data.message || 'فشل الحذف');
       }
 
       toast({
-        title: "نجاح",
-        description: "تم حذف العنصر بنجاح.",
+        title: 'نجاح',
+        description: 'تم حذف العنصر بنجاح.',
       });
 
-      fetchData();
+      // Remove from state instead of full refetch
+      if (itemToDelete.type === 'course') {
+        setCourses((prev) => prev.filter((c) => c.id !== itemToDelete.id));
+      } else if (itemToDelete.type === 'student') {
+        setStudents((prev) => prev.filter((s) => s.id !== itemToDelete.id));
+      } else if (itemToDelete.type === 'instructor') {
+        setInstructors((prev) => prev.filter((i) => i.id !== itemToDelete.id));
+      }
     } catch (error: any) {
       toast({
-        title: "خطأ",
+        title: 'خطأ',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     } finally {
       setIsAlertOpen(false);
@@ -224,7 +231,7 @@ export default function AdminDashboardPage() {
                           {course.title}
                         </TableCell>
                         <TableCell>{course.instructor}</TableCell>
-                        <TableCell>{course.price}</TableCell>
+                        <TableCell>{course.price as string}</TableCell>
                         <TableCell>
                           <Badge variant="outline">{course.category}</Badge>
                         </TableCell>
@@ -239,7 +246,7 @@ export default function AdminDashboardPage() {
                               <DropdownMenuItem
                                 onSelect={() =>
                                   router.push(
-                                    `/admin/courses/${course.id}/edit`,
+                                    `/admin/courses/${course.id}/edit`
                                   )
                                 }
                               >
@@ -248,7 +255,7 @@ export default function AdminDashboardPage() {
                               <DropdownMenuItem
                                 onSelect={() =>
                                   router.push(
-                                    `/admin/courses/${course.id}/enrollments`,
+                                    `/admin/courses/${course.id}/enrollments`
                                   )
                                 }
                               >
@@ -257,7 +264,7 @@ export default function AdminDashboardPage() {
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() =>
-                                  handleDeleteClick(course.id, "course")
+                                  handleDeleteClick(course.id, 'course')
                                 }
                                 className="text-destructive"
                               >
@@ -323,7 +330,7 @@ export default function AdminDashboardPage() {
                               <DropdownMenuItem
                                 onSelect={() =>
                                   router.push(
-                                    `/admin/students/${student.id}/edit`,
+                                    `/admin/students/${student.id}/edit`
                                   )
                                 }
                               >
@@ -332,7 +339,7 @@ export default function AdminDashboardPage() {
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() =>
-                                  handleDeleteClick(student.id, "student")
+                                  handleDeleteClick(student.id, 'student')
                                 }
                                 className="text-destructive"
                               >
@@ -396,7 +403,7 @@ export default function AdminDashboardPage() {
                               <DropdownMenuItem
                                 onSelect={() =>
                                   router.push(
-                                    `/admin/instructors/${instructor.id}/edit`,
+                                    `/admin/instructors/${instructor.id}/edit`
                                   )
                                 }
                               >
@@ -405,7 +412,7 @@ export default function AdminDashboardPage() {
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 onClick={() =>
-                                  handleDeleteClick(instructor.id, "instructor")
+                                  handleDeleteClick(instructor.id, 'instructor')
                                 }
                                 className="text-destructive"
                               >

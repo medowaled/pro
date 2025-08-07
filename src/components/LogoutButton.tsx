@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/components/ui/button';
+import { LogOut } from 'lucide-react';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function LogoutButton() {
   const { logout } = useAuth();
@@ -13,28 +13,26 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
-    
+
     try {
       setIsLoggingOut(true);
-      
+
       // Call logout function
       await logout();
-      
       // Show success message
       toast({
-        title: "تم تسجيل الخروج بنجاح",
-        description: "تم تسجيل خروجك بنجاح. شكراً لاستخدامك منصتنا!",
+        title: 'تم تسجيل الخروج بنجاح',
+        description: 'تم تسجيل خروجك بنجاح. شكراً لاستخدامك منصتنا!',
       });
-      
+
       // Force redirect to home page
       window.location.href = '/';
-      
     } catch (error) {
       console.error('Logout error:', error);
       toast({
-        title: "خطأ في تسجيل الخروج",
-        description: "حدث خطأ أثناء تسجيل الخروج. يرجى المحاولة مرة أخرى.",
-        variant: "destructive",
+        title: 'خطأ في تسجيل الخروج',
+        description: 'حدث خطأ أثناء تسجيل الخروج. يرجى المحاولة مرة أخرى.',
+        variant: 'destructive',
       });
       // Even if there's an error, redirect to home
       window.location.href = '/';
@@ -51,7 +49,7 @@ export default function LogoutButton() {
       className="text-red-600 hover:text-red-700 hover:bg-red-50"
     >
       <LogOut className="h-4 w-4 mr-2" />
-      {isLoggingOut ? "جاري الخروج..." : "تسجيل الخروج"}
+      {isLoggingOut ? 'جاري الخروج...' : 'تسجيل الخروج'}
     </Button>
   );
 }
