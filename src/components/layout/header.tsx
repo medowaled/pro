@@ -30,27 +30,27 @@ export default function SiteHeader() {
   console.log('Header - Current pathname:', pathname);
 
   const handleDashboardClick = () => {
-    console.log('🔗 Dashboard link clicked');
-    console.log('👤 Current user:', user);
-    console.log('👤 User role:', user?.role);
-    
+    // --- DIAGNOSTIC LOGGING ---
+    console.log('--- Dashboard Button Clicked ---');
+    if (user) {
+      console.log('DIAGNOSTIC: User object is present.');
+      console.log('DIAGNOSTIC: Full user object:', JSON.stringify(user, null, 2));
+      console.log(`DIAGNOSTIC: User role is: ${user.role}`);
+    } else {
+      console.log('DIAGNOSTIC ERROR: User object is NULL at time of click.');
+    }
+    // --- END DIAGNOSTIC LOGGING ---
+
     if (!user) {
-      console.log('❌ No user, redirecting to login');
       router.replace('/login');
       return;
     }
     
     const targetUrl = user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
-    console.log('🎯 Target URL:', targetUrl);
+    console.log(`DIAGNOSTIC: Determined Target URL: ${targetUrl}`);
     
-    // Use router.replace for immediate navigation
-    router.replace(targetUrl);
-    
-    // Add a fallback with setTimeout in case router.replace doesn't work
-    setTimeout(() => {
-      console.log('🔄 Fallback navigation to:', targetUrl);
-      window.location.href = targetUrl;
-    }, 500);
+    // Forceful hard navigation
+    window.location.href = targetUrl;
   };
 
   return (
