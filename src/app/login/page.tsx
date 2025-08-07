@@ -27,7 +27,7 @@ import SiteHeader from "@/components/layout/header";
 import SiteFooter from "@/components/layout/footer";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 
 const formSchema = z.object({
   phone: z
@@ -39,7 +39,7 @@ const formSchema = z.object({
   password: z.string().min(8, "يجب أن تكون كلمة المرور 8 أحرف على الأقل"),
 });
 
-export default function LoginPage() {
+function LoginForm() {
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -168,5 +168,26 @@ export default function LoginPage() {
       </main>
       <SiteFooter />
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col min-h-screen">
+        <SiteHeader />
+        <main className="flex-grow flex items-center justify-center py-12">
+          <Card className="w-full max-w-md mx-4">
+            <CardContent className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">جاري تحميل صفحة تسجيل الدخول...</p>
+            </CardContent>
+          </Card>
+        </main>
+        <SiteFooter />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }

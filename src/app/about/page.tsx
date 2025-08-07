@@ -2,6 +2,7 @@
 
 "use client";
 
+import type { Viewport } from 'next';
 import { useEffect, useState, useRef } from 'react';
 import SiteFooter from "@/components/layout/footer";
 import SiteHeader from "@/components/layout/header";
@@ -18,6 +19,15 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import Autoplay from "embla-carousel-autoplay"
+
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#29ABE2',
+};
 
 
 const AnimatedNumber = ({ value, suffix = '', prefix = '' }: { value: number, suffix?: string, prefix?: string }) => {
