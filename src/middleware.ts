@@ -67,6 +67,13 @@ export async function middleware(request: NextRequest) {
                 console.log('🔄 Non-student trying to access user area, redirecting');
                 return NextResponse.redirect(new URL('/admin/dashboard', request.url));
             }
+
+            if (pathname.startsWith('/logout')) {
+                console.log('🚪 Handling logout request');
+                const response = NextResponse.redirect(new URL('/', request.url));
+                response.cookies.delete("token");
+                return response;
+              }
         }
         
         return NextResponse.next();
@@ -87,5 +94,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/user/:path*', '/login', '/register', '/courses/:id', '/courses', '/about'],
+    matcher: ['/admin/:path*', '/user/:path*', '/login', '/register', '/courses/:id', '/courses', '/about' , '/logout'],
 };
