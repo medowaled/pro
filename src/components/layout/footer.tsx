@@ -90,7 +90,6 @@ const Footer = () => {
               <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-4 md:mb-0 text-gray-300 text-base">
                  <Link href="/about" className="hover:text-white transition-colors">عني</Link>
                  <Link href="/courses" className="hover:text-white transition-colors">الدورات</Link>
-                 <a href="#contact" className="hover:text-white transition-colors">تواصل معنا</a>
               </nav>
               <div className="text-gray-400 text-xs text-left">
                 <p className="font-light">This platform was proudly developed by <a href="https://wa.me/201202021982?text=مرحبًا،%20محتاج%20استفسر%20عن%20المنصة%20التعليمية." target="_blank" rel="noopener noreferrer" className="font-medium text-white hover:text-blue-300 transition-colors cursor-pointer">Eng. Ahmed Waleed</a> and <a href="https://wa.me/201095412229" target="_blank" rel="noopener noreferrer" className="font-medium text-white hover:text-blue-300 transition-colors cursor-pointer">Eng. Islam Saad</a>.</p>

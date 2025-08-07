@@ -461,62 +461,13 @@ export default function SecureVideoPlayer({
   };
 
   const toggleFullscreen = () => {
-    console.log('toggleFullscreen called');
-    
-    if (!playerRef.current || !playerRef.current.isConnected) {
-      console.log('Player element is not connected to DOM');
-      return;
-    }
-    
-    if (!isFullscreen) {
-      console.log('Attempting to enter fullscreen');
-      
-      // For YouTube videos, use YouTube's fullscreen API
-      if (youTubeId && youtubePlayerRef.current) {
-        console.log('YouTube video detected, trying YouTube fullscreen methods');
-        try {
-          // Try YouTube's fullscreen method first
-          if (youtubePlayerRef.current.requestFullscreen) {
-            console.log('Trying YouTube requestFullscreen');
-            youtubePlayerRef.current.requestFullscreen();
-            setIsFullscreen(true);
-            return;
-          }
-          // Try using YouTube's built-in fullscreen API
-          if (youtubePlayerRef.current.getPlayerState && youtubePlayerRef.current.getPlayerState() !== -1) {
-            console.log('Trying iframe fullscreen');
-            // Use YouTube's built-in fullscreen
-            const iframe = playerRef.current.querySelector('iframe');
-            if (iframe && iframe.isConnected) {
-              if (requestFullscreen(iframe)) {
-                setIsFullscreen(true);
-                return;
-              }
-            }
-            // Try to trigger fullscreen on the YouTube player container
-            const youtubeContainer = playerRef.current.querySelector('#youtube-player');
-            if (youtubeContainer && youtubeContainer.isConnected && requestFullscreen(youtubeContainer as HTMLElement)) {
-              setIsFullscreen(true);
-              return;
-            }
-          }
-        } catch (error) {
-          console.log('YouTube fullscreen failed, trying browser fullscreen');
-        }
-      }
-      
-      // For other videos, use browser fullscreen API - ONLY the video container
-      console.log('Trying browser fullscreen on player container');
-      if (requestFullscreen(playerRef.current)) {
-        setIsFullscreen(true);
-      } else {
-        console.log('Fullscreen failed');
-      }
-    } else {
-      console.log('Attempting to exit fullscreen');
-      // Exit fullscreen
+    const playerElement = playerRef.current;
+    if (!playerElement) return;
+
+    if (document.fullscreenElement) {
       exitFullscreen();
-      setIsFullscreen(false);
+    } else {
+      requestFullscreen(playerElement);
     }
   };
 
@@ -618,16 +569,10 @@ export default function SecureVideoPlayer({
         }}
       >
         {player}
-        {/* Invisible overlay to prevent interaction - but allow fullscreen */}
+        {/* Invisible overlay to prevent interaction */}
         <div 
-          className="absolute inset-0 z-10 pointer-events-none"
+          className="absolute inset-0 z-10"
           style={{ pointerEvents: 'none' }}
-        />
-        {/* Fullscreen trigger overlay - only visible when hovering */}
-        <div 
-          className="absolute inset-0 z-20 opacity-0 hover:opacity-100 transition-opacity duration-200"
-          style={{ pointerEvents: 'auto' }}
-          onClick={toggleFullscreen}
         />
       </div>
       

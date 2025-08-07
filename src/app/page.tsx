@@ -156,7 +156,7 @@ export default function Home() {
                             كبير معلمي العلوم بوزارة التربية والتعليم خبرة 22 سنة في تدريس العلوم للمرحلة الإعدادية. شرح مبسط - مراجعات قوية – متابعة مستمرة. معانا... الفهم أول خطوة للتفوق.
                         </p>
                         <Button asChild size="lg" className="font-headline bg-white text-blue-600 hover:bg-gray-100 dark:bg-yellow-400 dark:text-background dark:hover:bg-yellow-500 rounded-full px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-6 text-base sm:text-lg">
-                            <Link href="/courses">ابدأ التعلم الآن</Link>
+                            <Link href="/register">ابدأ التعلم الآن</Link>
                         </Button>
                     </div>
                 </div>
