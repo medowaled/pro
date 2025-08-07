@@ -65,9 +65,21 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
-  // Don't render the form if user is already logged in - redirect immediately
+  // Don't render the form if user is already logged in
   if (user) {
-    return null; // Return null to prevent rendering while redirecting
+    return (
+      <div className="flex flex-col min-h-screen">
+        <SiteHeader />
+        <main className="flex-grow flex items-center justify-center py-12">
+          <Card className="w-full max-w-md mx-4">
+            <CardContent className="text-center py-8">
+              <p className="text-lg">جاري توجيهك إلى لوحة التحكم...</p>
+            </CardContent>
+          </Card>
+        </main>
+        <SiteFooter />
+      </div>
+    );
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -77,7 +89,11 @@ export default function LoginPage() {
 
       console.log("✅ Login successful, user:", user);
 
-      // Redirect immediately without showing toast message
+      toast({
+        title: "تم تسجيل الدخول بنجاح",
+        description: "جاري توجيهك إلى لوحة التحكم الخاصة بك.",
+      });
+
       console.log("🔄 Redirecting user to dashboard...");
       
       // Redirect based on user role
