@@ -85,17 +85,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const data = await response.json();
 
+    console.log('DIAGNOSTIC: Full API response:', JSON.stringify(data, null, 2));
+
     if (!response.ok) {
       throw new Error(data.message || 'فشل تسجيل الدخول');
     }
 
-    console.log('Login successful, user data:', data.user);
-    
-    // Force a hard redirect to ensure state is cleared and correct page is loaded
+    // --- DIAGNOSTIC LOGGING ---
+    if (!data.user) {
+      console.error('DIAGNOSTIC ERROR: data.user is missing from API response.');
+      throw new Error('User data is missing from API response.');
+    }
+    if (!data.user.role) {
+      console.error('DIAGNOSTIC ERROR: data.user.role is missing from API response.');
+      console.log('DIAGNOSTIC: User object received:', JSON.stringify(data.user, null, 2));
+      throw new Error('User role is missing from API response.');
+    }
+    console.log(`DIAGNOSTIC: User role is: ${data.user.role}`);
+    // --- END DIAGNOSTIC LOGGING ---
+
     const targetUrl = data.user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
+    console.log(`DIAGNOSTIC: Redirecting to: ${targetUrl}`);
     window.location.href = targetUrl;
     
-    // Return a promise that never resolves to prevent further client-side processing
     return new Promise(() => {});
   };
 
