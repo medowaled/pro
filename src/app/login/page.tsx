@@ -59,10 +59,10 @@ export default function LoginPage() {
       console.log('User already logged in, redirecting...');
       if (user.role === "ADMIN") {
         console.log('Redirecting admin to dashboard');
-        router.push("/admin/dashboard");
+        router.replace("/admin/dashboard");
       } else {
         console.log('Redirecting student to my-courses');
-        router.push("/user/my-courses");
+        router.replace("/user/my-courses");
       }
     }
   }, [user, router]);
@@ -101,10 +101,10 @@ export default function LoginPage() {
       // Redirect based on user role with immediate effect
       if (user.role === "ADMIN") {
         console.log("👨‍💼 Redirecting admin to:", "/admin/dashboard");
-        router.push("/admin/dashboard");
+        router.replace("/admin/dashboard");
       } else {
         console.log("👨‍🎓 Redirecting student to:", "/user/my-courses");
-        router.push("/user/my-courses");
+        router.replace("/user/my-courses");
       }
     } catch (error: any) {
       console.error("❌ Login failed:", error);

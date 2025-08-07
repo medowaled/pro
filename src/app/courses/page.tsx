@@ -109,12 +109,12 @@ export default function CoursesPage() {
   const handleSubscribe = (courseId: string) => {
     if (!user) {
       // Redirect to login with redirect parameter
-      router.push(`/login?redirect=/user/payment-info`);
+      router.replace(`/login?redirect=/user/payment-info`);
       return;
     }
     
     // If user is logged in, redirect to payment info
-    router.push('/user/payment-info');
+    router.replace('/user/payment-info');
   };
 
   if (isLoading) {

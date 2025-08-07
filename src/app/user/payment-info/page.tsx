@@ -99,7 +99,7 @@ export default function PaymentInfoPage() {
     "اضغط على تأكيد التحويل"
   ];
 
-  return (
+    return (
     <div>
       <div className="text-center mb-12">
         <h1 className="font-headline text-4xl md:text-5xl font-bold text-primary">
@@ -109,6 +109,12 @@ export default function PaymentInfoPage() {
           للاشتراك في الدورات، يمكنك الدفع بسهولة وأمان من خلال المحافظ
           الإلكترونية التالية.
         </p>
+        <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 max-w-2xl mx-auto">
+          <h3 className="font-bold text-green-700 dark:text-green-300 mb-2">✅ تم التوجيه بنجاح!</h3>
+          <p className="text-green-600 dark:text-green-400">
+            مرحباً بك في صفحة الدفع. اختر طريقة الدفع المناسبة لك واتبع الخطوات أدناه.
+          </p>
+        </div>
         <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 max-w-2xl mx-auto">
           <h3 className="font-bold text-blue-700 dark:text-blue-300 mb-2">خطط الاشتراك المتاحة:</h3>
           <div className="space-y-2 text-blue-600 dark:text-blue-400">
