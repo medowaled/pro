@@ -21,9 +21,13 @@ export async function middleware(request: NextRequest) {
             return NextResponse.next();
         }
 
-        if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
-            // Don't redirect logged in users automatically
-            return NextResponse.next();
+        // Redirect logged in users from login/register pages to their dashboards
+        if ((pathname.startsWith('/login') || pathname.startsWith('/register')) && verifiedToken) {
+            if (verifiedToken.role === 'ADMIN') {
+                return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+            } else {
+                return NextResponse.redirect(new URL('/user/my-courses', request.url));
+            }
         }
         
         if (pathname.startsWith('/admin') || pathname.startsWith('/user')) {

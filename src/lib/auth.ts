@@ -1,5 +1,13 @@
 import jwt from "jsonwebtoken";
 
+interface JWTPayload {
+  id: string;
+  role: string;
+  name: string;
+  iat?: number;
+  exp?: number;
+}
+
 export function getJwtSecretKey() {
   const secret = process.env.NEXT_JWT_SECRET;
   if (!secret || secret.length === 0) {
@@ -11,14 +19,14 @@ export function getJwtSecretKey() {
   return secret;
 }
 
-export function verifyAuth(token: string) {
+export function verifyAuth(token: string): Promise<JWTPayload> {
   return new Promise((resolve, reject) => {
     const secretKey = getJwtSecretKey();
     jwt.verify(token, secretKey, (err: any, decoded: any) => {
       if (err) {
         return reject(err);
       }
-      resolve(decoded);
+      resolve(decoded as JWTPayload);
     });
   });
 }
