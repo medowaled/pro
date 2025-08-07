@@ -30,6 +30,7 @@ export async function POST(request: Request) {
 
     const { phone, password } = parsed.data;
 
+    // البحث عن المستخدم
     const user = await prisma.user.findUnique({ where: { phone } });
 
     if (!user) {
@@ -39,6 +40,7 @@ export async function POST(request: Request) {
       );
     }
 
+    // التحقق من كلمة المرور
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
@@ -48,24 +50,28 @@ export async function POST(request: Request) {
       );
     }
 
-    // إضافة فحص إضافي للتأكد من وجود الحقول
+    // إنشاء payload للمستخدم
     const userPayload = {
       id: user.id,
       role: user.role,
       name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'مستخدم',
     };
 
+    // إنشاء JWT token
+    const secretKey = getJwtSecretKey();
     const token = await new SignJWT(userPayload)
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("7d")
-      .sign(getJwtSecretKey());
+      .sign(new TextEncoder().encode(secretKey));
 
+    // إنشاء response
     const res = NextResponse.json({
       message: "تم تسجيل الدخول بنجاح",
       user: userPayload,
     });
 
+    // إعداد الكوكي
     res.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -76,9 +82,9 @@ export async function POST(request: Request) {
 
     return res;
   } catch (error) {
-    console.error(error);
+    console.error('Login error:', error);
     return NextResponse.json(
-      { message: "حدث خطأ غير متوقع في الخادم." },
+      { message: "حدث خطأ غير متوقع في الخادم. يرجى المحاولة مرة أخرى." },
       { status: 500 }
     );
   }

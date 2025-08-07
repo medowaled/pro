@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 
 interface User {
   id: string;
@@ -18,29 +17,29 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Cache for user data
+// تعريف الكاش
 let userCache: User | null = null;
 let cacheTimestamp = 0;
-const USER_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+const USER_CACHE_DURATION = 10 * 60 * 1000; // 10 دقائق
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const checkUser = useCallback(async () => {
+  const checkUser = useCallback(async (forceCheck = false) => {
+    if (isLoggingOut) return; // منع الفحص أثناء تسجيل الخروج
+    
     setIsLoading(true);
     try {
-      // Check cache first
       const now = Date.now();
-      if (userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
-        console.log('Using cached user data:', userCache);
+      // تجاهل الكاش إذا تم طلب فحص إجباري
+      if (!forceCheck && userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
         setUser(userCache);
         setIsLoading(false);
         return;
       }
-
-      console.log('Checking user authentication...');
+      
       const res = await fetch('/api/auth/me', {
         headers: {
           'Cache-Control': 'no-cache',
@@ -49,88 +48,83 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (res.ok) {
         const data = await res.json();
-        console.log('User authenticated:', data.user);
         userCache = data.user;
         cacheTimestamp = now;
         setUser(data.user);
       } else {
-        console.log('User not authenticated');
+        // إذا لم يكن هناك مستخدم صالح، نمسح الكاش
         setUser(null);
         userCache = null;
+        cacheTimestamp = 0;
       }
     } catch (error) {
-      console.error('Error checking user auth:', error);
+      // في حالة حدوث خطأ، نمسح الكاش ولا نعرض أي مستخدم
       setUser(null);
       userCache = null;
+      cacheTimestamp = 0;
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [isLoggingOut]);
 
   useEffect(() => {
-    checkUser();
+    // تأخير قليل قبل فحص المستخدم للتأكد من عدم وجود مشاكل
+    const timer = setTimeout(() => {
+      checkUser();
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [checkUser]);
 
-  // Add effect to log user state changes and handle redirects
-  useEffect(() => {
-    console.log('User state changed:', user);
-    
-    // If user is logged in and we're on login/register page, redirect them
-    if (user && (window.location.pathname === '/login' || window.location.pathname === '/register')) {
-      const targetPath = user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
-      console.log('Redirecting logged in user to:', targetPath);
-      window.location.href = targetPath;
-    }
-  }, [user]);
-
   const login = async (phone: string, password: string): Promise<User> => {
+    if (isLoggingOut) {
+      throw new Error('جاري تسجيل الخروج، يرجى الانتظار');
+    }
+    
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone, password }),
     });
-
     const data = await response.json();
-
     if (!response.ok) {
       throw new Error(data.message || 'فشل تسجيل الدخول');
     }
-
-    console.log('Login successful, user data:', data.user);
     
-    // Update cache and state immediately
+    // تحديث الكاش والحالة مباشرة
     userCache = data.user;
     cacheTimestamp = Date.now();
     setUser(data.user);
     
-    // Return the user data immediately
     return data.user;
   };
 
   const logout = async (): Promise<void> => {
+    if (isLoggingOut) return; // منع تسجيل الخروج المتكرر
+    
+    setIsLoggingOut(true);
     try {
-      console.log("🔄 Starting logout process...");
-      
-      // Clear user state immediately
+      // حذف البيانات من الحالة والكاش أولاً
       setUser(null);
-      
-      // Clear cache
       userCache = null;
       cacheTimestamp = 0;
       
-      // Call logout API
+      // استدعاء API تسجيل الخروج
       await fetch('/api/auth/logout', { 
         method: 'POST',
       });
       
-      console.log("✅ Logout completed successfully");
-      
+      // إعادة التوجيه للصفحة الرئيسية
+      window.location.href = '/';
     } catch (error) {
-      console.error("❌ Logout failed", error);
-      // Even if API fails, maintain logout state
+      // في حالة حدوث خطأ، تأكد من حذف البيانات المحلية
       setUser(null);
       userCache = null;
       cacheTimestamp = 0;
+      // إعادة التوجيه للصفحة الرئيسية حتى في حالة الخطأ
+      window.location.href = '/';
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 

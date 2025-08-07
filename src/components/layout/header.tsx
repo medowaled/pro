@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import Mostafa from '../../app/images/hero-latest.png';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from 'next-themes';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 const navLinks = [
   { href: '/', label: 'الرئيسية' },
@@ -24,17 +24,31 @@ export default function SiteHeader() {
   const pathname = usePathname();
   const { user, logout, isLoading } = useAuth();
   const { theme, setTheme } = useTheme();
-  const router = useRouter();
-
-  console.log('Header - Current user:', user);
-  console.log('Header - Current pathname:', pathname);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleDashboardClick = () => {
-    console.log('🔗 Dashboard link clicked');
-    console.log('👤 Current user:', user);
-    const targetUrl = user?.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
-    console.log('🎯 Target URL:', targetUrl);
+    if (!user || isLoading) {
+      window.location.href = '/login';
+      return;
+    }
+    
+    const targetUrl = user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
     window.location.href = targetUrl;
+  };
+
+  const handleLogout = async () => {
+    if (isLoggingOut) return; // منع النقر المتكرر
+    
+    setIsLoggingOut(true);
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+      // إعادة التوجيه للصفحة الرئيسية حتى في حالة الخطأ
+      window.location.href = '/';
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -83,7 +97,7 @@ export default function SiteHeader() {
                 pathname.startsWith('/user') || pathname.startsWith('/admin') ? 'text-primary font-bold' : 'text-foreground/80'
               )}
             >
-              لوحة التحكم
+              {user.role === 'ADMIN' ? 'لوحة التحكم' : 'دوراتي'}
             </button>
           )}
         </nav>
@@ -93,8 +107,13 @@ export default function SiteHeader() {
           {user && !isLoading ? (
             <div className="flex items-center gap-2 sm:gap-4">
               <span className="font-semibold text-foreground hidden sm:inline text-sm md:text-base">{user.name}</span>
-              <Button variant="destructive" className="font-headline rounded-full text-xs sm:text-sm" onClick={logout}>
-                تسجيل الخروج
+              <Button 
+                variant="destructive" 
+                className="font-headline rounded-full text-xs sm:text-sm" 
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+              >
+                {isLoggingOut ? 'جاري الخروج...' : 'تسجيل الخروج'}
               </Button>
             </div>
           ) : !isLoading ? (
@@ -167,14 +186,19 @@ export default function SiteHeader() {
                           pathname.startsWith('/user') || pathname.startsWith('/admin') ? 'text-primary font-bold' : 'text-foreground/80'
                         )}
                       >
-                        لوحة التحكم
+                        {user.role === 'ADMIN' ? 'لوحة التحكم' : 'دوراتي'}
                       </button>
                     )}
                   </nav>
                   <div className="mt-auto flex flex-col gap-3 sm:gap-4">
                     {user ? (
-                      <Button variant="destructive" className="font-headline text-base sm:text-xl" onClick={logout}>
-                        تسجيل الخروج
+                      <Button 
+                        variant="destructive" 
+                        className="font-headline text-base sm:text-xl" 
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                      >
+                        {isLoggingOut ? 'جاري الخروج...' : 'تسجيل الخروج'}
                       </Button>
                     ) : (
                       <>

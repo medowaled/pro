@@ -10,79 +10,80 @@ interface TokenPayload {
 export async function middleware(request: NextRequest) {
     try {
         const token = request.cookies.get('token')?.value;
-        const { pathname } = request.nextUrl;
+        const { pathname, searchParams } = request.nextUrl;
 
         console.log('🔍 Middleware checking:', pathname, 'Token exists:', !!token);
 
-        // If no token, allow access to public pages only
-        if (!token) {
-            // Allow access to public pages
-            if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about' || pathname === '/') {
-                return NextResponse.next();
-            }
-            
-            // Allow access to login and register pages when not logged in
-            if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
-                return NextResponse.next();
-            }
-            
-            // Redirect to login for protected routes
-            const redirectUrl = new URL('/login', request.url);
-            redirectUrl.searchParams.set('redirect', pathname);
-            return NextResponse.redirect(redirectUrl);
-        }
-
-        let verifiedToken: TokenPayload | null = null;
-        try {
-            const payload = await verifyAuth(token);
-            verifiedToken = {
-                id: payload.id as string,
-                role: payload.role as string,
-                name: payload.name as string
-            };
-            console.log('✅ Token verified for:', verifiedToken.role);
-        } catch (err) {
-            console.error('❌ Token verification failed:', err);
-            // Clear invalid token and redirect to login
-            const response = NextResponse.redirect(new URL('/login', request.url));
-            response.cookies.set("token", "", {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                path: "/",
+        // 1. معالجة تسجيل الخروج أولاً (يجب أن يكون في البداية)
+        if (pathname.startsWith('/logout')) {
+            console.log('🚪 Handling logout request');
+            const response = NextResponse.redirect(new URL('/', request.url));
+            // طريقة أكثر فعالية لحذف الكوكي
+            response.cookies.set({
+                name: 'token',
+                value: '',
+                path: '/',
                 expires: new Date(0),
-                maxAge: 0,
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
             });
             return response;
         }
 
-        // Allow access to public pages for everyone (logged in or not)
-        if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about' || pathname === '/') {
+        // 2. الصفحات العامة - السماح للجميع بالوصول بدون إعادة توجيه
+        if (pathname === '/' || pathname === '/about' || pathname === '/courses' || pathname.startsWith('/courses/')) {
+            // لا نعيد توجيه المستخدمين المصادق عليهم من الصفحات العامة
+            // نترك لهم حرية التنقل
             return NextResponse.next();
         }
 
-        // Handle login and register pages when user is logged in
+        // 3. صفحات التسجيل والدخول (منع المستخدم المصادق عليه من الوصول)
         if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
-            // If user is logged in, redirect them to their appropriate dashboard
-            if (verifiedToken) {
-                const dashboardPath = verifiedToken.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
-                console.log('🔄 Redirecting logged in user to:', dashboardPath);
-                return NextResponse.redirect(new URL(dashboardPath, request.url));
+            if (token) {
+                try {
+                    const payload = await verifyAuth(token);
+                    // إذا كان مسجل دخول بالفعل، نعيد توجيهه
+                    const dashboardUrl = payload.role === 'ADMIN' 
+                        ? '/admin/dashboard' 
+                        : '/user/my-courses';
+                    return NextResponse.redirect(new URL(dashboardUrl, request.url));
+                } catch (err) {
+                    // إذا كان التوكن غير صالح، نمسحه ونستمر
+                    const response = NextResponse.next();
+                    response.cookies.delete('token');
+                    return response;
+                }
             }
-            // If not logged in, allow access
             return NextResponse.next();
         }
-        
-        // Handle protected routes
+
+        // 4. المسارات المحمية
         if (pathname.startsWith('/admin') || pathname.startsWith('/user')) {
-            if (!verifiedToken) {
-                console.log('❌ No valid token, redirecting to login');
+            if (!token) {
+                console.log('❌ No token, redirecting to login');
                 const redirectUrl = new URL('/login', request.url);
                 redirectUrl.searchParams.set('redirect', pathname);
                 return NextResponse.redirect(redirectUrl);
             }
 
-            // Ensure users are redirected to their appropriate dashboard
+            let verifiedToken: TokenPayload;
+            try {
+                const payload = await verifyAuth(token);
+                verifiedToken = {
+                    id: payload.id as string,
+                    role: payload.role as string,
+                    name: payload.name as string
+                };
+                console.log('✅ Token verified for:', verifiedToken.role);
+            } catch (err) {
+                console.error('❌ Token verification failed:', err);
+                const response = NextResponse.redirect(new URL('/login', request.url));
+                response.cookies.delete('token');
+                return response;
+            }
+
+            // التحقق من الصلاحيات
             if (pathname.startsWith('/admin') && verifiedToken.role !== 'ADMIN') {
                 console.log('🔄 Non-admin trying to access admin area, redirecting');
                 return NextResponse.redirect(new URL('/user/my-courses', request.url));
@@ -93,24 +94,24 @@ export async function middleware(request: NextRequest) {
                 return NextResponse.redirect(new URL('/admin/dashboard', request.url));
             }
         }
-        
+
         return NextResponse.next();
     } catch (error) {
         console.error('🔥 Middleware error:', error);
-        // Clear token and redirect to login on any error
         const response = NextResponse.redirect(new URL('/login', request.url));
-        response.cookies.set("token", "", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            path: "/",
-            expires: new Date(0),
-            maxAge: 0,
-        });
+        response.cookies.delete('token');
         return response;
     }
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/user/:path*', '/login', '/register', '/courses/:id', '/courses', '/about'],
+    matcher: [
+        '/logout',
+        '/admin/:path*',
+        '/user/:path*',
+        '/login',
+        '/register',
+        '/courses/:path*',
+        '/about'
+    ],
 };

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Cairo } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
@@ -18,8 +18,6 @@ const fontHeadline = Cairo({
 export const metadata: Metadata = {
   title: 'مستر مصطفى خليل',
   description: 'منصة تعليمية رائدة في العالم العربي',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
-  themeColor: '#29ABE2',
   manifest: '/manifest.json',
   icons: {
     icon: [
@@ -32,6 +30,14 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#29ABE2',
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -40,8 +46,6 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <meta name="theme-color" content="#29ABE2" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="مستر مصطفى خليل" />

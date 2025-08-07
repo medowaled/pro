@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 
-export async function POST() {
-  // إنشاء response مع إعادة التوجيه للصفحة الرئيسية
-  const response = NextResponse.redirect('/');
+export async function GET() {
+  const response = NextResponse.json({ message: "تم حذف جميع الكوكيز بنجاح" });
   
   // Clear ALL possible auth cookies
   const cookiesToClear = [

@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import SiteHeader from '@/components/layout/header';
 import SiteFooter from '@/components/layout/footer';
+import { getStaticCoursesFromDB } from '@/lib/db-seeder';
 import { staticGradeLevels } from '@/lib/static-courses';
 import { useAuth } from '@/context/AuthContext';
 
