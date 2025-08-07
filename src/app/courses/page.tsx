@@ -106,7 +106,8 @@ export default function CoursesPage() {
     };
   };
 
-  const handleSubscribe = (courseId: string) => {
+  const handleSubscribe = (e: React.MouseEvent, courseId: string) => {
+    e.stopPropagation(); // Prevent card click from firing
     if (!user) {
       // Redirect to login with redirect parameter
       router.replace(`/login?redirect=/user/payment-info`);
@@ -115,6 +116,10 @@ export default function CoursesPage() {
     
     // If user is logged in, redirect to payment info
     router.replace('/user/payment-info');
+  };
+
+  const handleCardClick = (courseId: string) => {
+    router.push(`/courses/${courseId}`);
   };
 
   if (isLoading) {
@@ -151,53 +156,51 @@ export default function CoursesPage() {
               return (
                 <div key={index}>
                   <div
-                    className={`bg-card rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${shadowColor} flex flex-col`}
+                    className={`bg-card rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${shadowColor} cursor-pointer`}
+                    onClick={() => handleCardClick(level.id)}
                   >
-                    <Link href={`/courses/${level.id}`} className="flex-grow">
-                      <div className={`p-6 bg-gradient-to-br ${gradient} `}>
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h3 className="font-headline text-2xl font-bold">
-                              {level.title}
-                            </h3>
-                            <p className="text-sm opacity-90">دورة شاملة</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between text-sm opacity-90">
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4" />
-                            <span>ترم كامل</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Users className="w-4 h-4" />
-                            <span>{level.students} طالب</span>
-                          </div>
+                    <div className={`p-6 bg-gradient-to-br ${gradient} `}>
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="font-headline text-2xl font-bold">
+                            {level.title}
+                          </h3>
+                          <p className="text-sm opacity-90">دورة شاملة</p>
                         </div>
                       </div>
-                      <div className="p-6">
-                        <p className="font-body text-foreground/80 mb-4 h-12">
-                          {level.description}
-                        </p>
-                        <div className="flex justify-between items-center mb-4">
-                          <h4 className="font-headline font-bold text-lg">
-                            الوحدات:
-                          </h4>
+                      <div className="flex items-center justify-between text-sm opacity-90">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4" />
+                          <span>ترم كامل</span>
                         </div>
-                        <ul className="space-y-2 text-foreground/70 text-sm">
-                          {getUnits(level).map(
-                            (unit: StaticUnit, i: number) => (
-                              <li
-                                key={i}
-                                className="flex items-center gap-2 p-2 rounded-lg hover:bg-foreground/5 transition-colors group"
-                              >
-                                <span className="flex-1">{unit.title}</span>
-                              </li>
-                            )
-                          )}
-                        </ul>
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          <span>{level.students} طالب</span>
+                        </div>
                       </div>
-                    </Link>
-                    <div className="p-6 mt-auto pt-4 border-t border-foreground/10">
+                    </div>
+                    <div className="p-6">
+                      <p className="font-body text-foreground/80 mb-4 h-12">
+                        {level.description}
+                      </p>
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="font-headline font-bold text-lg">
+                          الوحدات:
+                        </h4>
+                      </div>
+                      <ul className="space-y-2 text-foreground/70 text-sm">
+                        {getUnits(level).map(
+                          (unit: StaticUnit, i: number) => (
+                            <li
+                              key={i}
+                              className="flex items-center gap-2 p-2 rounded-lg hover:bg-foreground/5 transition-colors group"
+                            >
+                              <span className="flex-1">{unit.title}</span>
+                            </li>
+                          )
+                        )}
+                      </ul>
+                      <div className="mt-6 pt-4 border-t border-foreground/10">
                         <div className="space-y-3">
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-foreground/70">اشتراك شهري:</span>
@@ -215,7 +218,7 @@ export default function CoursesPage() {
                             </div>
                           </div>
                           <Button
-                            onClick={() => handleSubscribe(level.id)}
+                            onClick={(e) => handleSubscribe(e, level.id)}
                             className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
                           >
                             {user ? 'اشترك الآن' : 'سجل دخول للاشتراك'}
