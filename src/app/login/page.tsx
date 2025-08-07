@@ -53,33 +53,13 @@ export default function LoginPage() {
     },
   });
 
-  // Redirect if user is already logged in or after login state updates
-  useEffect(() => {
-    if (user) {
-      console.log('User detected in LoginPage, redirecting...');
-      const targetUrl = user.role === "ADMIN" ? "/admin/dashboard" : "/user/my-courses";
-      router.replace(targetUrl);
-    }
-  }, [user, router]);
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       console.log("🔄 Starting login process...");
-      const loggedInUser = await login(values.phone, values.password);
+      // The login function in AuthContext now handles the redirect.
+      // It will not resolve, as the page will be reloaded.
+      await login(values.phone, values.password);
 
-      console.log("✅ Login successful, user:", loggedInUser);
-
-      toast({
-        title: "تم تسجيل الدخول بنجاح",
-        description: "جاري توجيهك إلى لوحة التحكم الخاصة بك.",
-      });
-
-      // Immediate redirection after login as a fallback
-      if (loggedInUser) {
-        const targetUrl = loggedInUser.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
-        console.log("🔄 Redirecting user immediately to:", targetUrl);
-        router.replace(targetUrl);
-      }
     } catch (error: any) {
       console.error("❌ Login failed:", error);
 

@@ -91,39 +91,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     console.log('Login successful, user data:', data.user);
     
-    // Update cache and state immediately
-    userCache = data.user;
-    cacheTimestamp = Date.now();
-    setUser(data.user);
+    // Force a hard redirect to ensure state is cleared and correct page is loaded
+    const targetUrl = data.user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
+    window.location.href = targetUrl;
     
-    // Return the user data immediately
-    return data.user;
+    // Return a promise that never resolves to prevent further client-side processing
+    return new Promise(() => {});
   };
 
   const logout = async (): Promise<void> => {
     try {
       console.log("🔄 Starting logout process...");
       
-      // Clear user state immediately
-      setUser(null);
-      
-      // Clear cache
-      userCache = null;
-      cacheTimestamp = 0;
-      
       // Call logout API
       await fetch('/api/auth/logout', { 
         method: 'POST',
       });
       
-      console.log("✅ Logout completed successfully");
-      
     } catch (error) {
       console.error("❌ Logout failed", error);
-      // Even if API fails, maintain logout state
-      setUser(null);
-      userCache = null;
-      cacheTimestamp = 0;
+    } finally {
+      // Always redirect to home on logout, regardless of API success
+      console.log("✅ Logout completed, redirecting to home.");
+      window.location.href = '/';
     }
   };
 
