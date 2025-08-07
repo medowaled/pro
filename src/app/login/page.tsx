@@ -98,7 +98,7 @@ export default function LoginPage() {
 
       console.log("🔄 Redirecting user to dashboard...");
       
-      // Redirect based on user role with immediate effect
+      // Redirect based on user role immediately
       if (user.role === "ADMIN") {
         console.log("👨‍💼 Redirecting admin to:", "/admin/dashboard");
         router.replace("/admin/dashboard");

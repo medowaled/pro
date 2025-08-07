@@ -97,13 +97,13 @@ export default function NewEnrollmentPage() {
 
       toast({
         title: "تم تسجيل الطالب بنجاح",
-        description: "تم تسجيل الطالب في الدورة المحددة بنجاح. يمكن للطالب الآن الوصول إلى محتوى الدورة والبدء في التعلم.",
+        description: "تم تسجيل الطالب في الدورة المحددة.",
       });
       router.push("/admin/dashboard");
     } catch (error: any) {
       toast({
         title: "فشل تسجيل الطالب",
-        description: error.message || "حدث خطأ أثناء تسجيل الطالب. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
+        description: error.message,
         variant: "destructive",
       });
     }

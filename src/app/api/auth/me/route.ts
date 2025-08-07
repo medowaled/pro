@@ -5,15 +5,17 @@ export async function GET(request: NextRequest) {
     const token = request.cookies.get('token')?.value;
 
     if (!token) {
-        console.log('No token found in cookies');
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
     try {
-        console.log('Verifying token:', token.substring(0, 20) + '...');
         const verifiedToken = await verifyAuth(token);
-        console.log('Token verified successfully:', verifiedToken);
         
+        // إضافة فحص إضافي للتأكد من وجود البيانات المطلوبة
+        if (!verifiedToken.id || !verifiedToken.role) {
+            return NextResponse.json({ message: 'Invalid token' }, { status: 401 });
+        }
+
         return NextResponse.json({ 
             user: { 
                 id: verifiedToken.id as string, 
@@ -22,7 +24,7 @@ export async function GET(request: NextRequest) {
             } 
         });
     } catch (err) {
-        console.error('Token verification failed in /api/auth/me:', err);
+        console.error('Token verification error:', err);
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 }

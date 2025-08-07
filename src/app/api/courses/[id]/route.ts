@@ -1,3 +1,4 @@
+
 import { verifyAuth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
@@ -122,7 +123,8 @@ export async function DELETE(
 
         return NextResponse.json({ message: 'تم حذف الدورة بنجاح.' }, { status: 200 });
 
-    } catch (error: any) {
+
+} catch (error: any) {
         console.error(error);
         if (error.code === 'P2025') { // Prisma's record not found error
              return NextResponse.json({ message: 'لم يتم العثور على الدورة.' }, { status: 404 });

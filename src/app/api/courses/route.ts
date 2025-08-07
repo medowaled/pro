@@ -1,3 +1,4 @@
+
 import { verifyAuth } from '@/lib/auth';
 import { getStaticCoursesFromDB } from '@/lib/db-seeder';
 import prisma from '@/lib/prisma';
