@@ -35,7 +35,11 @@ export async function middleware(request: NextRequest) {
         let verifiedToken: TokenPayload | null = null;
         try {
             const payload = await verifyAuth(token);
-            verifiedToken = payload as unknown as TokenPayload;
+            verifiedToken = {
+                id: payload.id as string,
+                role: payload.role as string,
+                name: payload.name as string
+            };
             console.log('✅ Token verified for:', verifiedToken.role);
         } catch (err) {
             console.error('❌ Token verification failed:', err);
@@ -62,6 +66,7 @@ export async function middleware(request: NextRequest) {
             // If user is logged in, redirect them to their appropriate dashboard
             if (verifiedToken) {
                 const dashboardPath = verifiedToken.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
+                console.log('🔄 Redirecting logged in user to:', dashboardPath);
                 return NextResponse.redirect(new URL(dashboardPath, request.url));
             }
             // If not logged in, allow access

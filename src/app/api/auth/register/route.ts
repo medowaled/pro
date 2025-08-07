@@ -45,6 +45,10 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Check if this is the first user (make them admin)
+    const userCount = await prisma.user.count();
+    const role = userCount === 0 ? "ADMIN" : "STUDENT";
+    
     const newUser = await prisma.user.create({
       data: {
         firstName,
@@ -52,7 +56,7 @@ export async function POST(request: Request) {
         phone,
         year,
         password: hashedPassword,
-        role: "STUDENT",
+        role,
       },
     });
 

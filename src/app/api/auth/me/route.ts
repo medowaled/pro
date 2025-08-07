@@ -16,9 +16,9 @@ export async function GET(request: NextRequest) {
         
         return NextResponse.json({ 
             user: { 
-                id: verifiedToken.id, 
-                name: verifiedToken.name, 
-                role: verifiedToken.role 
+                id: verifiedToken.id as string, 
+                name: verifiedToken.name as string, 
+                role: verifiedToken.role as string 
             } 
         });
     } catch (err) {

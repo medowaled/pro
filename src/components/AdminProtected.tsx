@@ -17,9 +17,9 @@ export default function AdminProtected({ children }: AdminProtectedProps) {
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "ADMIN")) {
       console.log("❌ Non-admin trying to access admin area, redirecting");
-      router.push("/user/my-courses");
+      window.location.href = "/user/my-courses";
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading]);
 
   if (isLoading) {
     return (

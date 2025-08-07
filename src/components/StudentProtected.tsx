@@ -17,9 +17,9 @@ export default function StudentProtected({ children }: StudentProtectedProps) {
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "STUDENT")) {
       console.log("❌ Non-student trying to access student area, redirecting");
-      router.push("/admin/dashboard");
+      window.location.href = "/admin/dashboard";
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading]);
 
   if (isLoading) {
     return (

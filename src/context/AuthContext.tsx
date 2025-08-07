@@ -71,9 +71,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkUser();
   }, [checkUser]);
 
-  // Add effect to log user state changes
+  // Add effect to log user state changes and handle redirects
   useEffect(() => {
     console.log('User state changed:', user);
+    
+    // If user is logged in and we're on login/register page, redirect them
+    if (user && (window.location.pathname === '/login' || window.location.pathname === '/register')) {
+      const targetPath = user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
+      console.log('Redirecting logged in user to:', targetPath);
+      window.location.href = targetPath;
+    }
   }, [user]);
 
   const login = async (phone: string, password: string): Promise<User> => {

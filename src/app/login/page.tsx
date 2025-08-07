@@ -101,14 +101,10 @@ export default function LoginPage() {
       // Redirect based on user role with immediate effect
       if (user.role === "ADMIN") {
         console.log("👨‍💼 Redirecting admin to:", "/admin/dashboard");
-        setTimeout(() => {
-          router.replace("/admin/dashboard");
-        }, 100);
+        router.replace("/admin/dashboard");
       } else {
         console.log("👨‍🎓 Redirecting student to:", "/user/my-courses");
-        setTimeout(() => {
-          router.replace("/user/my-courses");
-        }, 100);
+        router.replace("/user/my-courses");
       }
     } catch (error: any) {
       console.error("❌ Login failed:", error);

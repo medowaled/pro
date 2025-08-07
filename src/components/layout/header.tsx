@@ -34,7 +34,7 @@ export default function SiteHeader() {
     console.log('👤 Current user:', user);
     const targetUrl = user?.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
     console.log('🎯 Target URL:', targetUrl);
-    router.push(targetUrl);
+    window.location.href = targetUrl;
   };
 
   return (
