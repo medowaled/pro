@@ -25,6 +25,7 @@ export async function POST(request: Request) {
       const errorMessages = parsed.error.errors
         .map((e) => e.message)
         .join("\n");
+      console.error('Login validation error:', errorMessages);
       return NextResponse.json({ message: errorMessages }, { status: 400 });
     }
 
@@ -33,6 +34,7 @@ export async function POST(request: Request) {
     const user = await prisma.user.findUnique({ where: { phone } });
 
     if (!user) {
+      console.error('Login failed: user not found for phone', phone);
       return NextResponse.json(
         { message: "رقم الهاتف أو كلمة المرور غير صحيحة." },
         { status: 401 }
@@ -42,6 +44,7 @@ export async function POST(request: Request) {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
+      console.error('Login failed: invalid password for user', phone);
       return NextResponse.json(
         { message: "رقم الهاتف أو كلمة المرور غير صحيحة." },
         { status: 401 }
@@ -76,9 +79,9 @@ export async function POST(request: Request) {
 
     return res;
   } catch (error) {
-    console.error(error);
+    console.error('Unexpected error in login API:', error);
     return NextResponse.json(
-      { message: "حدث خطأ غير متوقع في الخادم." },
+      { message: `حدث خطأ غير متوقع في الخادم: ${error instanceof Error ? error.message : String(error)}` },
       { status: 500 }
     );
   }
