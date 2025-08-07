@@ -22,7 +22,7 @@ const navLinks = [
 
 export default function SiteHeader() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const { theme, setTheme } = useTheme();
 
   console.log('Header - Current user:', user);

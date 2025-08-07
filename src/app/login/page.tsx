@@ -42,7 +42,7 @@ const formSchema = z.object({
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const { login, user } = useAuth();
+  const { login, user, isLoading } = useAuth();
 
   console.log('LoginPage - Current user:', user);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -118,107 +118,92 @@ export default function LoginPage() {
   // Show loading state while checking authentication
   if (isLoading) {
     return (
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-muted-foreground">جاري التحقق من حالة تسجيل الدخول...</p>
+      <div className="flex flex-col min-h-screen">
+        <SiteHeader />
+        <main className="flex-grow flex items-center justify-center py-12">
+          <Card className="w-full max-w-md mx-4">
+            <CardContent className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">جاري التحقق من حالة تسجيل الدخول...</p>
+            </CardContent>
+          </Card>
+        </main>
+        <SiteFooter />
       </div>
     );
   }
 
-  // Don't render the form if user is already logged in (will be redirected)
-  if (user) {
-    return (
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-muted-foreground">جاري توجيهك إلى لوحة التحكم...</p>
-      </div>
-    );
-  }
-
-  return (
-    <Card className="w-full max-w-md mx-4">
-      <CardHeader className="text-center">
-        <CardTitle className="text-3xl font-headline">
-          تسجيل الدخول
-        </CardTitle>
-        <CardDescription className="font-body">
-          مرحباً بعودتك! أدخل بياناتك للمتابعة.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6"
-          >
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-body">رقم الهاتف</FormLabel>
-                  <FormControl>
-                    <Input placeholder="مثال: 9665xxxxxxxx" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-body">كلمة المرور</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="********"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              type="submit"
-              className="w-full font-headline text-lg"
-              disabled={form.formState.isSubmitting || isLoggingIn}
-            >
-              {form.formState.isSubmitting || isLoggingIn ? "جاري الدخول..." : "دخول"}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-      <CardFooter className="flex flex-col gap-4">
-        <div className="text-center text-sm text-muted-foreground font-body">
-          ليس لديك حساب؟{" "}
-          <Link
-            href="/register"
-            className="font-bold text-primary hover:underline"
-          >
-            أنشئ حساباً جديداً
-          </Link>
-        </div>
-      </CardFooter>
-    </Card>
-  );
-}
-
-export default function LoginPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <SiteHeader />
       <main className="flex-grow flex items-center justify-center py-12">
-        <Suspense fallback={
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">جاري التحميل...</p>
-          </div>
-        }>
-          <LoginForm />
-        </Suspense>
+        <Card className="w-full max-w-md mx-4">
+          <CardHeader className="text-center">
+            <CardTitle className="text-3xl font-headline">
+              تسجيل الدخول
+            </CardTitle>
+            <CardDescription className="font-body">
+              مرحباً بعودتك! أدخل بياناتك للمتابعة.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-body">رقم الهاتف</FormLabel>
+                      <FormControl>
+                        <Input placeholder="مثال: 9665xxxxxxxx" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-body">كلمة المرور</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="********"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="submit"
+                  className="w-full font-headline text-lg"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? "جاري الدخول..." : "دخول"}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter className="flex flex-col gap-4">
+            <div className="text-center text-sm text-muted-foreground font-body">
+              ليس لديك حساب؟{" "}
+              <Link
+                href="/register"
+                className="font-bold text-primary hover:underline"
+              >
+                أنشئ حساباً جديداً
+              </Link>
+            </div>
+          </CardFooter>
+        </Card>
       </main>
       <SiteFooter />
     </div>
