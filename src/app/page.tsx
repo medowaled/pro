@@ -16,7 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import SiteHeader from '@/components/layout/header';
 import SiteFooter from '@/components/layout/footer';
 import { useRef, useState, useEffect } from 'react';
-import Mostafa from './images/hero-latest.png';
+import Mostafa from './images/mostafa.png';
 import { Smile, Users, Star, Award, Trophy, FlaskConical, Lightbulb, GraduationCap, Atom, Dna } from 'lucide-react';
 import Autoplay from "embla-carousel-autoplay"
 import { useAuth } from '@/context/AuthContext';

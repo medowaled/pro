@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import prisma, { resetPrismaConnection } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
 import { getJwtSecretKey } from "@/lib/auth";
@@ -25,76 +25,53 @@ export async function POST(request: Request) {
       const errorMessages = parsed.error.errors
         .map((e) => e.message)
         .join("\n");
-      console.error('Login validation error:', errorMessages);
       return NextResponse.json({ message: errorMessages }, { status: 400 });
     }
 
     const { phone, password } = parsed.data;
 
-    // محاولة العثور على المستخدم مع إعادة المحاولة في حالة حدوث خطأ
-    let user;
-    try {
-      user = await prisma.user.findUnique({ where: { phone } });
-    } catch (dbError: any) {
-      console.error('Database error:', dbError);
-      
-      // إذا كان الخطأ يتعلق بـ prepared statement، قم بإعادة إنشاء الاتصال
-      if (dbError.message && dbError.message.includes('prepared statement')) {
-        console.log('Recreating Prisma connection due to prepared statement error');
-        const newPrisma = resetPrismaConnection();
-        try {
-          user = await newPrisma.user.findUnique({ where: { phone } });
-        } catch (retryError) {
-          console.error('Retry failed:', retryError);
-          return NextResponse.json(
-            { message: "حدث خطأ في قاعدة البيانات. يرجى المحاولة مرة أخرى." },
-            { status: 500 }
-          );
-        }
-      } else {
-        return NextResponse.json(
-          { message: "حدث خطأ في قاعدة البيانات. يرجى المحاولة مرة أخرى." },
-          { status: 500 }
-        );
-      }
-    }
+    // البحث عن المستخدم
+    const user = await prisma.user.findUnique({ where: { phone } });
 
     if (!user) {
-      console.error("❌ User not found for phone:", phone);
       return NextResponse.json(
         { message: "رقم الهاتف أو كلمة المرور غير صحيحة." },
         { status: 401 }
       );
     }
 
+    // التحقق من كلمة المرور
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      console.error("❌ Invalid password for user:", phone);
       return NextResponse.json(
         { message: "رقم الهاتف أو كلمة المرور غير صحيحة." },
         { status: 401 }
       );
     }
 
-    // إضافة فحص إضافي للتأكد من وجود الحقول
+    // إنشاء payload للمستخدم
     const userPayload = {
       id: user.id,
       role: user.role,
       name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'مستخدم',
     };
 
+    // إنشاء JWT token
+    const secretKey = getJwtSecretKey();
     const token = await new SignJWT(userPayload)
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("7d")
-      .sign(new TextEncoder().encode(getJwtSecretKey()));
+      .sign(new TextEncoder().encode(secretKey));
 
+    // إنشاء response
     const res = NextResponse.json({
       message: "تم تسجيل الدخول بنجاح",
       user: userPayload,
     });
 
+    // إعداد الكوكي
     res.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -105,7 +82,7 @@ export async function POST(request: Request) {
 
     return res;
   } catch (error) {
-    console.error('Unexpected error in login API:', error);
+    console.error('Login error:', error);
     return NextResponse.json(
       { message: "حدث خطأ غير متوقع في الخادم. يرجى المحاولة مرة أخرى." },
       { status: 500 }
