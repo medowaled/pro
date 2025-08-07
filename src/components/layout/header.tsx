@@ -24,6 +24,9 @@ export default function SiteHeader() {
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
 
+  console.log('Header - Current user:', user);
+  console.log('Header - Current pathname:', pathname);
+
   return (
     <header className="bg-background shadow-sm sticky top-0 z-40">
       <div className="responsive-container flex h-16 sm:h-20 items-center justify-between">
@@ -80,8 +83,8 @@ export default function SiteHeader() {
           {user ? (
              <div className="flex items-center gap-2 sm:gap-4">
               <span className="font-semibold text-foreground hidden sm:inline text-sm md:text-base">{user.name}</span>
-               <Button variant="destructive" asChild className="font-headline rounded-full text-xs sm:text-sm" onClick={logout}>
-                <Link href="/">تسجيل الخروج</Link>
+               <Button variant="destructive" className="font-headline rounded-full text-xs sm:text-sm" onClick={logout}>
+                تسجيل الخروج
               </Button>
              </div>
           ) : (
@@ -160,8 +163,8 @@ export default function SiteHeader() {
                     </nav>
                     <div className="mt-auto flex flex-col gap-3 sm:gap-4">
                       {user ? (
-                         <Button variant="destructive" asChild className="font-headline text-base sm:text-xl" onClick={logout}>
-                            <Link href="/">تسجيل الخروج</Link>
+                         <Button variant="destructive" className="font-headline text-base sm:text-xl" onClick={logout}>
+                            تسجيل الخروج
                         </Button>
                       ) : (
                         <>

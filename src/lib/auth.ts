@@ -1,11 +1,14 @@
+import jwt from "jsonwebtoken";
+
 export function getJwtSecretKey() {
   const secret = process.env.NEXT_JWT_SECRET;
   if (!secret || secret.length === 0) {
     throw new Error("JWT secret is not defined.");
   }
 
-  return new TextEncoder().encode(secret);
+  return secret;
 }
+
 export function verifyAuth(token: string) {
   return new Promise((resolve, reject) => {
     const secretKey = getJwtSecretKey();

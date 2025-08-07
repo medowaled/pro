@@ -23,7 +23,14 @@ export async function middleware(request: NextRequest) {
         }
 
         if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
-            // Don't redirect logged in users automatically
+            // Redirect logged in users to their dashboard
+            if (verifiedToken) {
+                if (verifiedToken.role === 'ADMIN') {
+                    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+                } else {
+                    return NextResponse.redirect(new URL('/user/my-courses', request.url));
+                }
+            }
             return NextResponse.next();
         }
         

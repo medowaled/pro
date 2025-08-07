@@ -34,11 +34,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Check cache first
       const now = Date.now();
       if (userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
+        console.log('Using cached user data:', userCache);
         setUser(userCache);
         setIsLoading(false);
         return;
       }
 
+      console.log('Checking user authentication...');
       const res = await fetch('/api/auth/me', {
         headers: {
           'Cache-Control': 'no-cache',
@@ -47,10 +49,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (res.ok) {
         const data = await res.json();
+        console.log('User authenticated:', data.user);
         userCache = data.user;
         cacheTimestamp = now;
         setUser(data.user);
       } else {
+        console.log('User not authenticated');
         setUser(null);
         userCache = null;
       }
@@ -67,6 +71,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkUser();
   }, [checkUser]);
 
+  // Add effect to log user state changes
+  useEffect(() => {
+    console.log('User state changed:', user);
+  }, [user]);
+
   const login = async (phone: string, password: string): Promise<User> => {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
@@ -82,15 +91,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     console.log('Login successful, user data:', data.user);
     
-    // Update cache
+    // Update cache and state immediately
     userCache = data.user;
     cacheTimestamp = Date.now();
     setUser(data.user);
     
-    // Wait a bit to ensure the cookie is set
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // Wait a bit to ensure the cookie is set and then verify
+    await new Promise(resolve => setTimeout(resolve, 200));
     
-    return data.user;
+    // Verify the login was successful by checking the user again
+    try {
+      const verifyResponse = await fetch('/api/auth/me', {
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
+      
+      if (verifyResponse.ok) {
+        const verifyData = await verifyResponse.json();
+        console.log('Login verification successful:', verifyData.user);
+        return verifyData.user;
+      } else {
+        console.error('Login verification failed');
+        throw new Error('فشل في التحقق من تسجيل الدخول');
+      }
+    } catch (error) {
+      console.error('Login verification error:', error);
+      throw new Error('فشل في التحقق من تسجيل الدخول');
+    }
   };
 
   const logout = async () => {
@@ -106,8 +134,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       cacheTimestamp = 0;
       
       setUser(null);
-      router.refresh();
-      window.location.href = '/login';
+      router.push('/login');
     }
   };
 
