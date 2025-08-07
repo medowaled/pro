@@ -30,9 +30,15 @@ export default function SiteHeader() {
   console.log('Header - Current pathname:', pathname);
 
   const handleDashboardClick = () => {
+    if (!user) {
+      console.log('No user logged in, redirecting to login');
+      window.location.href = '/login';
+      return;
+    }
+    
     console.log('🔗 Dashboard link clicked');
     console.log('👤 Current user:', user);
-    const targetUrl = user?.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
+    const targetUrl = user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
     console.log('🎯 Target URL:', targetUrl);
     window.location.href = targetUrl;
   };

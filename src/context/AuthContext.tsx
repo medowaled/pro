@@ -1,7 +1,6 @@
 'use client';
 
-import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 interface User {
   id: string;
@@ -18,93 +17,66 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Cache for user data
-let userCache: User | null = null;
-let cacheTimestamp = 0;
-const USER_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
-  const checkUser = useCallback(async () => {
+  // Simple check for existing user session on app load
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const res = await fetch('/api/auth/me', {
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          console.log('User authenticated:', data.user);
+          setUser(data.user);
+        } else {
+          console.log('User not authenticated');
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error checking user auth:', error);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkUser();
+  }, []);
+
+  const login = async (phone: string, password: string): Promise<User> => {
     setIsLoading(true);
     try {
-      // Check cache first
-      const now = Date.now();
-      if (userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
-        console.log('Using cached user data:', userCache);
-        setUser(userCache);
-        setIsLoading(false);
-        return;
+      console.log('Attempting login with phone:', phone);
+      
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('Login failed:', data);
+        throw new Error(data.message || 'فشل تسجيل الدخول');
       }
 
-      console.log('Checking user authentication...');
-      const res = await fetch('/api/auth/me', {
-        headers: {
-          'Cache-Control': 'no-cache',
-        },
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        console.log('User authenticated:', data.user);
-        userCache = data.user;
-        cacheTimestamp = now;
-        setUser(data.user);
-      } else {
-        console.log('User not authenticated');
-        setUser(null);
-        userCache = null;
-      }
+      console.log('Login successful, user data:', data.user);
+      setUser(data.user);
+      return data.user;
     } catch (error) {
-      console.error('Error checking user auth:', error);
-      setUser(null);
-      userCache = null;
+      console.error('Login error:', error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    checkUser();
-  }, [checkUser]);
-
-  // Add effect to log user state changes and handle redirects
-  useEffect(() => {
-    console.log('User state changed:', user);
-    
-    // If user is logged in and we're on login/register page, redirect them
-    if (user && (window.location.pathname === '/login' || window.location.pathname === '/register')) {
-      const targetPath = user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
-      console.log('Redirecting logged in user to:', targetPath);
-      window.location.href = targetPath;
-    }
-  }, [user]);
-
-  const login = async (phone: string, password: string): Promise<User> => {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, password }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || 'فشل تسجيل الدخول');
-    }
-
-    console.log('Login successful, user data:', data.user);
-    
-    // Update cache and state immediately
-    userCache = data.user;
-    cacheTimestamp = Date.now();
-    setUser(data.user);
-    
-    // Return the user data immediately
-    return data.user;
   };
 
   const logout = async (): Promise<void> => {
@@ -113,10 +85,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // Clear user state immediately
       setUser(null);
-      
-      // Clear cache
-      userCache = null;
-      cacheTimestamp = 0;
       
       // Call logout API
       await fetch('/api/auth/logout', { 
@@ -129,8 +97,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("❌ Logout failed", error);
       // Even if API fails, maintain logout state
       setUser(null);
-      userCache = null;
-      cacheTimestamp = 0;
     }
   };
 

@@ -27,7 +27,7 @@ import SiteHeader from "@/components/layout/header";
 import SiteFooter from "@/components/layout/footer";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect } from "react";
+import { useState } from "react";
 
 const formSchema = z.object({
   phone: z
@@ -42,9 +42,9 @@ const formSchema = z.object({
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const { login, user, isLoading } = useAuth();
+  const { login, isLoading } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  console.log('LoginPage - Current user:', user);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -53,40 +53,14 @@ export default function LoginPage() {
     },
   });
 
-  // Redirect if user is already logged in
-  useEffect(() => {
-    if (user) {
-      console.log('User already logged in, redirecting...');
-      if (user.role === "ADMIN") {
-        console.log('Redirecting admin to dashboard');
-        router.replace("/admin/dashboard");
-      } else {
-        console.log('Redirecting student to my-courses');
-        router.replace("/user/my-courses");
-      }
-    }
-  }, [user, router]);
-
-  // Don't render the form if user is already logged in
-  if (user) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <SiteHeader />
-        <main className="flex-grow flex items-center justify-center py-12">
-          <Card className="w-full max-w-md mx-4">
-            <CardContent className="text-center py-8">
-              <p className="text-lg">جاري توجيهك إلى لوحة التحكم...</p>
-            </CardContent>
-          </Card>
-        </main>
-        <SiteFooter />
-      </div>
-    );
-  }
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
     try {
       console.log("🔄 Starting login process...");
+      console.log("📱 Phone:", values.phone);
+      
       const user = await login(values.phone, values.password);
 
       console.log("✅ Login successful, user:", user);
@@ -101,10 +75,12 @@ export default function LoginPage() {
       // Redirect based on user role immediately
       if (user.role === "ADMIN") {
         console.log("👨‍💼 Redirecting admin to:", "/admin/dashboard");
-        router.replace("/admin/dashboard");
+        // Use window.location for more reliable redirect
+        window.location.href = "/admin/dashboard";
       } else {
         console.log("👨‍🎓 Redirecting student to:", "/user/my-courses");
-        router.replace("/user/my-courses");
+        // Use window.location for more reliable redirect
+        window.location.href = "/user/my-courses";
       }
     } catch (error: any) {
       console.error("❌ Login failed:", error);
@@ -114,25 +90,9 @@ export default function LoginPage() {
         description: error.message || "حدث خطأ أثناء تسجيل الدخول. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
-  }
-
-  // Show loading state while checking authentication
-  if (isLoading) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <SiteHeader />
-        <main className="flex-grow flex items-center justify-center py-12">
-          <Card className="w-full max-w-md mx-4">
-            <CardContent className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">جاري التحقق من حالة تسجيل الدخول...</p>
-            </CardContent>
-          </Card>
-        </main>
-        <SiteFooter />
-      </div>
-    );
   }
 
   return (
@@ -187,9 +147,9 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   className="w-full font-headline text-lg"
-                  disabled={form.formState.isSubmitting}
+                  disabled={isSubmitting || isLoading}
                 >
-                  {form.formState.isSubmitting ? "جاري الدخول..." : "دخول"}
+                  {isSubmitting || isLoading ? "جاري الدخول..." : "دخول"}
                 </Button>
               </form>
             </Form>
