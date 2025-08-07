@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import SiteHeader from "@/components/layout/header";
 import SiteFooter from "@/components/layout/footer";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 
@@ -42,6 +42,7 @@ const formSchema = z.object({
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -72,16 +73,14 @@ export default function LoginPage() {
 
       console.log("🔄 Redirecting user to dashboard...");
       
-      // Redirect based on user role immediately
-      if (user.role === "ADMIN") {
-        console.log("👨‍💼 Redirecting admin to:", "/admin/dashboard");
-        // Use window.location for more reliable redirect
-        window.location.href = "/admin/dashboard";
-      } else {
-        console.log("👨‍🎓 Redirecting student to:", "/user/my-courses");
-        // Use window.location for more reliable redirect
-        window.location.href = "/user/my-courses";
-      }
+      // استخدام معلمة redirect أو التوجيه الافتراضي حسب دور المستخدم
+      const redirectUrl = searchParams.get('redirect') || 
+        (user.role === "ADMIN" ? "/admin/dashboard" : "/user/my-courses");
+      
+      console.log("🎯 Redirecting to:", redirectUrl);
+      
+      // Use window.location for more reliable redirect
+      window.location.href = redirectUrl;
     } catch (error: any) {
       console.error("❌ Login failed:", error);
 

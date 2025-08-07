@@ -98,18 +98,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       userCache = null;
       cacheTimestamp = 0;
       
-      // استدعاء API تسجيل الخروج
+      // استدعاء API تسجيل الخروج (سيقوم middleware بإعادة التوجيه)
       await fetch('/api/auth/logout', { 
         method: 'POST',
       });
       
-      // إجبار إعادة التحقق من حالة المستخدم للتأكد من تسجيل الخروج
-      await checkUser(true);
+      // إعادة التوجيه للصفحة الرئيسية
+      window.location.href = '/';
     } catch (error) {
       // في حالة حدوث خطأ، تأكد من حذف البيانات المحلية
       setUser(null);
       userCache = null;
       cacheTimestamp = 0;
+      // إعادة التوجيه للصفحة الرئيسية حتى في حالة الخطأ
+      window.location.href = '/';
     }
   };
 
