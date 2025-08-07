@@ -31,7 +31,11 @@ export async function POST(request: Request) {
 
     const { phone, password } = parsed.data;
 
-    const user = await prisma.user.findUnique({ where: { phone } });
+    //const user = await prisma.user.findUnique({ where: { phone } });
+
+    const user = await prisma.$transaction(async (tx) => {
+      return tx.user.findUnique({ where: { phone } });
+    });
 
     if (!user) {
       console.error("❌ User not found for phone:", phone);
