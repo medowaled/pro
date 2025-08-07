@@ -41,31 +41,48 @@ export async function middleware(request: NextRequest) {
             console.error('❌ Token verification failed:', err);
             // Clear invalid token and redirect to login
             const response = NextResponse.redirect(new URL('/login', request.url));
-            response.cookies.set("token", "", {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                path: "/",
-                expires: new Date(0),
-                maxAge: 0,
+            
+            // Clear ALL possible auth cookies
+            const cookiesToClear = [
+                "token",
+                "auth", 
+                "session",
+                "user",
+                "userId",
+                "next-auth.session-token",
+                "__Secure-next-auth.session-token",
+                "csrf",
+                "csrf-token",
+                "session-token",
+                "access-token",
+                "refresh-token",
+                "auth-token",
+                "jwt",
+                "jwt-token",
+                "bearer-token",
+                "api-token",
+                "user-token",
+                "login-token",
+                "secure-token"
+            ];
+
+            cookiesToClear.forEach(cookieName => {
+                response.cookies.set(cookieName, "", {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "strict",
+                    path: "/",
+                    expires: new Date(0),
+                    maxAge: 0,
+                });
             });
-            // Clear other potential auth cookies
-            response.cookies.set("auth", "", {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                path: "/",
-                expires: new Date(0),
-                maxAge: 0,
-            });
-            response.cookies.set("session", "", {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                path: "/",
-                expires: new Date(0),
-                maxAge: 0,
-            });
+
+            // Add cache control headers
+            response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private, max-age=0');
+            response.headers.set('Pragma', 'no-cache');
+            response.headers.set('Expires', '0');
+            response.headers.set('Clear-Site-Data', '"cache", "cookies", "storage", "executionContexts"');
+            
             return response;
         }
 
@@ -111,31 +128,48 @@ export async function middleware(request: NextRequest) {
         console.error('🔥 Middleware error:', error);
         // Clear token and redirect to login on any error
         const response = NextResponse.redirect(new URL('/login', request.url));
-        response.cookies.set("token", "", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            path: "/",
-            expires: new Date(0),
-            maxAge: 0,
+        
+        // Clear ALL possible auth cookies
+        const cookiesToClear = [
+            "token",
+            "auth", 
+            "session",
+            "user",
+            "userId",
+            "next-auth.session-token",
+            "__Secure-next-auth.session-token",
+            "csrf",
+            "csrf-token",
+            "session-token",
+            "access-token",
+            "refresh-token",
+            "auth-token",
+            "jwt",
+            "jwt-token",
+            "bearer-token",
+            "api-token",
+            "user-token",
+            "login-token",
+            "secure-token"
+        ];
+
+        cookiesToClear.forEach(cookieName => {
+            response.cookies.set(cookieName, "", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                path: "/",
+                expires: new Date(0),
+                maxAge: 0,
+            });
         });
-        // Clear other potential auth cookies
-        response.cookies.set("auth", "", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            path: "/",
-            expires: new Date(0),
-            maxAge: 0,
-        });
-        response.cookies.set("session", "", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            path: "/",
-            expires: new Date(0),
-            maxAge: 0,
-        });
+
+        // Add cache control headers
+        response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private, max-age=0');
+        response.headers.set('Pragma', 'no-cache');
+        response.headers.set('Expires', '0');
+        response.headers.set('Clear-Site-Data', '"cache", "cookies", "storage", "executionContexts"');
+        
         return response;
     }
 }

@@ -1,86 +1,60 @@
 import { NextResponse } from "next/server";
 
 export async function POST() {
-  const response = NextResponse.json({ 
-    message: "تم تسجيل الخروج بنجاح",
-    success: true 
+  // Create response with redirect to login page
+  const response = NextResponse.redirect('/login');
+  
+  // Clear ALL possible auth cookies with maximum security
+  const cookiesToClear = [
+    "token",
+    "auth", 
+    "session",
+    "user",
+    "userId",
+    "next-auth.session-token",
+    "__Secure-next-auth.session-token",
+    "csrf",
+    "csrf-token",
+    "session-token",
+    "access-token",
+    "refresh-token",
+    "auth-token",
+    "jwt",
+    "jwt-token",
+    "bearer-token",
+    "api-token",
+    "user-token",
+    "login-token",
+    "secure-token"
+  ];
+
+  // Clear each cookie with maximum security settings
+  cookiesToClear.forEach(cookieName => {
+    response.cookies.set(cookieName, "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      expires: new Date(0), // مسح الكوكي فعليًا
+      maxAge: 0,
+    });
   });
 
-  // Clear the token cookie with proper settings
-  response.cookies.set("token", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    expires: new Date(0), // مسح الكوكي فعليًا
-    maxAge: 0,
-  });
-
-  // Clear any other potential auth cookies
-  response.cookies.set("auth", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    expires: new Date(0),
-    maxAge: 0,
-  });
-
-  response.cookies.set("session", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    expires: new Date(0),
-    maxAge: 0,
-  });
-
-  // Clear NextAuth cookies if they exist
-  response.cookies.set("next-auth.session-token", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    expires: new Date(0),
-    maxAge: 0,
-  });
-
-  response.cookies.set("__Secure-next-auth.session-token", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    expires: new Date(0),
-    maxAge: 0,
-  });
-
-  // Clear any other potential cookies
-  response.cookies.set("user", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    expires: new Date(0),
-    maxAge: 0,
-  });
-
-  response.cookies.set("userId", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    expires: new Date(0),
-    maxAge: 0,
-  });
-
-  // Add cache control headers to prevent caching and auto-login
-  response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+  // Add comprehensive cache control headers to prevent any caching
+  response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private, max-age=0');
   response.headers.set('Pragma', 'no-cache');
   response.headers.set('Expires', '0');
   response.headers.set('Clear-Site-Data', '"cache", "cookies", "storage", "executionContexts"');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+
+  // Add custom headers to signal logout
+  response.headers.set('X-Logout-Status', 'completed');
+  response.headers.set('X-Session-Cleared', 'true');
 
   return response;
 }

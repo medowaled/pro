@@ -150,6 +150,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (logoutResponse.ok) {
         console.log("✅ Logout API called successfully");
+        // The API now redirects to /login, so we don't need to handle redirect here
       } else {
         console.log("❌ Logout API failed");
       }
