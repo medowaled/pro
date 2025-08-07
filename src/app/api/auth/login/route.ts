@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import prisma from "@/lib/prisma";
+import prisma, { resetPrismaConnection } from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
 import { getJwtSecretKey } from "@/lib/auth";
@@ -31,11 +31,33 @@ export async function POST(request: Request) {
 
     const { phone, password } = parsed.data;
 
-    //const user = await prisma.user.findUnique({ where: { phone } });
-
-    const user = await prisma.$transaction(async (tx) => {
-      return tx.user.findUnique({ where: { phone } });
-    });
+    // محاولة العثور على المستخدم مع إعادة المحاولة في حالة حدوث خطأ
+    let user;
+    try {
+      user = await prisma.user.findUnique({ where: { phone } });
+    } catch (dbError: any) {
+      console.error('Database error:', dbError);
+      
+      // إذا كان الخطأ يتعلق بـ prepared statement، قم بإعادة إنشاء الاتصال
+      if (dbError.message && dbError.message.includes('prepared statement')) {
+        console.log('Recreating Prisma connection due to prepared statement error');
+        const newPrisma = resetPrismaConnection();
+        try {
+          user = await newPrisma.user.findUnique({ where: { phone } });
+        } catch (retryError) {
+          console.error('Retry failed:', retryError);
+          return NextResponse.json(
+            { message: "حدث خطأ في قاعدة البيانات. يرجى المحاولة مرة أخرى." },
+            { status: 500 }
+          );
+        }
+      } else {
+        return NextResponse.json(
+          { message: "حدث خطأ في قاعدة البيانات. يرجى المحاولة مرة أخرى." },
+          { status: 500 }
+        );
+      }
+    }
 
     if (!user) {
       console.error("❌ User not found for phone:", phone);
@@ -85,7 +107,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Unexpected error in login API:', error);
     return NextResponse.json(
-      { message: `حدث خطأ غير متوقع في الخادم: ${error instanceof Error ? error.message : String(error)}` },
+      { message: "حدث خطأ غير متوقع في الخادم. يرجى المحاولة مرة أخرى." },
       { status: 500 }
     );
   }

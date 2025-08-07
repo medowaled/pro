@@ -83,13 +83,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw new Error(data.message || 'فشل تسجيل الدخول');
     }
     
-    // تحديث الكاش والحالة
+    // تحديث الكاش والحالة مباشرة
     userCache = data.user;
     cacheTimestamp = Date.now();
     setUser(data.user);
-    
-    // إعادة التحقق من حالة المستخدم للتأكد من تحديث الحالة
-    await checkUser();
     
     return data.user;
   };
