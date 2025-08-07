@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import Mostafa from '../../app/images/hero-latest.png';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from 'next-themes';
+import { useRouter } from 'next/navigation';
 
 const navLinks = [
   { href: '/', label: 'الرئيسية' },
@@ -23,9 +24,18 @@ export default function SiteHeader() {
   const pathname = usePathname();
   const { user, logout, isLoading } = useAuth();
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
 
   console.log('Header - Current user:', user);
   console.log('Header - Current pathname:', pathname);
+
+  const handleDashboardClick = () => {
+    console.log('🔗 Dashboard link clicked');
+    console.log('👤 Current user:', user);
+    const targetUrl = user?.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
+    console.log('🎯 Target URL:', targetUrl);
+    router.push(targetUrl);
+  };
 
   return (
     <header className="bg-background shadow-sm sticky top-0 z-40">
@@ -66,15 +76,15 @@ export default function SiteHeader() {
             </Link>
           ))}
           {user && !isLoading && (
-            <Link
-              href={user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses'}
+            <button
+              onClick={handleDashboardClick}
               className={cn(
-                'font-body text-sm xl:text-lg hover:text-primary transition-colors',
+                'font-body text-sm xl:text-lg hover:text-primary transition-colors cursor-pointer bg-transparent border-none',
                 pathname.startsWith('/user') || pathname.startsWith('/admin') ? 'text-primary font-bold' : 'text-foreground/80'
               )}
             >
               لوحة التحكم
-            </Link>
+            </button>
           )}
         </nav>
 
@@ -150,15 +160,15 @@ export default function SiteHeader() {
                       </Link>
                     ))}
                     {user && !isLoading && (
-                      <Link
-                        href={user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses'}
+                      <button
+                        onClick={handleDashboardClick}
                         className={cn(
-                          'font-body text-lg sm:text-2xl hover:text-primary transition-colors',
+                          'font-body text-lg sm:text-2xl hover:text-primary transition-colors cursor-pointer bg-transparent border-none w-full text-center',
                           pathname.startsWith('/user') || pathname.startsWith('/admin') ? 'text-primary font-bold' : 'text-foreground/80'
                         )}
                       >
                         لوحة التحكم
-                      </Link>
+                      </button>
                     )}
                   </nav>
                   <div className="mt-auto flex flex-col gap-3 sm:gap-4">
