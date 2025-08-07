@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const user = await prisma.user.findUnique({ where: { phone } });
 
     if (!user) {
-      console.error('Login failed: user not found for phone', phone);
+      console.error("❌ User not found for phone:", phone);
       return NextResponse.json(
         { message: "رقم الهاتف أو كلمة المرور غير صحيحة." },
         { status: 401 }
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      console.error('Login failed: invalid password for user', phone);
+      console.error("❌ Invalid password for user:", phone);
       return NextResponse.json(
         { message: "رقم الهاتف أو كلمة المرور غير صحيحة." },
         { status: 401 }
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
       .setExpirationTime("7d")
-      .sign(getJwtSecretKey());
+      .sign(new TextEncoder().encode(getJwtSecretKey()));
 
     const res = NextResponse.json({
       message: "تم تسجيل الدخول بنجاح",
