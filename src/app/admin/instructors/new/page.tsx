@@ -63,13 +63,13 @@ export default function NewInstructorPage() {
 
       toast({
         title: 'تمت إضافة المدرب بنجاح',
-        description: 'تم إنشاء حساب المدرب الجديد.',
+        description: 'تم إنشاء حساب المدرب الجديد بنجاح. يمكن للمدرب الآن تسجيل الدخول والبدء في إدارة الدورات التعليمية.',
       });
       router.push('/admin/dashboard');
     } catch (error: any) {
       toast({
         title: 'فشل إضافة المدرب',
-        description: error.message,
+        description: error.message || "حدث خطأ أثناء إضافة المدرب. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
         variant: 'destructive',
       });
     }

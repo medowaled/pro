@@ -121,20 +121,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     try {
-        await fetch('/api/auth/logout', { method: 'POST' });
-    } catch (error) {
-        console.error("Logout failed", error);
-    } finally {
-      console.log(">>>>> HIT LOGOUT");
+      console.log("🔄 Starting logout process...");
       
-      // Clear cache
-      userCache = null;
-      cacheTimestamp = 0;
+      // Set logout state immediately
+      localStorage.setItem('logoutTime', Date.now().toString());
       
+      // Clear user state immediately
       setUser(null);
-      router.push('/login');
+      
+      // Clear all storage
+      sessionStorage.clear();
+      
+      // Call logout API
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+        },
+        credentials: 'include',
+      });
+      
+      console.log("✅ Logout completed successfully");
+      
+    } catch (error) {
+      console.error("❌ Logout failed", error);
+      // Even if API fails, maintain logout state
+      localStorage.setItem('logoutTime', Date.now().toString());
+      setUser(null);
+       router.push('/login');
     }
   };
 

@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
             } 
         });
     } catch (err) {
-        console.error('Token verification failed:', err);
+        console.error('Token verification failed in /api/auth/me:', err);
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 }

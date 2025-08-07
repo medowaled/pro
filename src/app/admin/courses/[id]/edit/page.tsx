@@ -178,13 +178,13 @@ export default function EditCoursePage() {
 
       toast({
         title: 'تم تحديث الدورة بنجاح',
-        description: 'تم حفظ التغييرات على الدورة.',
+        description: 'تم حفظ التغييرات على الدورة بنجاح. سيتم تطبيق التحديثات فوراً للطلاب المسجلين.',
       });
       router.push('/admin/dashboard');
     } catch (error: any) {
       toast({
         title: 'فشل تحديث الدورة',
-        description: error.message,
+        description: error.message || "حدث خطأ أثناء تحديث الدورة. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
         variant: 'destructive',
       });
     }

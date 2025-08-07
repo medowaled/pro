@@ -24,6 +24,11 @@ export default function AdminLayout({
   const pathname = usePathname();
   const { logout } = useAuth();
 
+  const handleLogout = async () => {
+    console.log("🔄 Admin logout button clicked");
+    await logout();
+  };
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen">
@@ -54,7 +59,7 @@ export default function AdminLayout({
                   isActive={pathname.startsWith('/admin/courses')}
                   tooltip={{children: 'إدارة الدورات'}}
                 >
-                  <Link href="/admin/dashboard">
+                  <Link href="/admin/courses">
                     <BookCopy />
                     <span className="group-data-[collapsible=icon]:hidden">إدارة الدورات</span>
                   </Link>
@@ -63,12 +68,12 @@ export default function AdminLayout({
               <SidebarMenuItem>
                 <SidebarMenuButton 
                   asChild 
-                  isActive={pathname.startsWith('/admin/enrollments')}
-                  tooltip={{children: 'تسجيل الطلاب'}}
+                  isActive={pathname.startsWith('/admin/students')}
+                  tooltip={{children: 'إدارة الطلاب'}}
                 >
-                  <Link href="/admin/dashboard">
+                  <Link href="/admin/students">
                     <Users />
-                    <span className="group-data-[collapsible=icon]:hidden">تسجيل الطلاب</span>
+                    <span className="group-data-[collapsible=icon]:hidden">إدارة الطلاب</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -78,18 +83,16 @@ export default function AdminLayout({
                   isActive={pathname.startsWith('/admin/instructors')}
                   tooltip={{children: 'إدارة المدربين'}}
                 >
-                  <Link href="/admin/dashboard">
+                  <Link href="/admin/instructors">
                     <UserCheck />
                     <span className="group-data-[collapsible=icon]:hidden">إدارة المدربين</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={logout} asChild tooltip={{children: 'الخروج'}}>
-                  <Link href="#">
-                    <LogOut />
-                    <span className="group-data-[collapsible=icon]:hidden">تسجيل الخروج</span>
-                  </Link>
+                <SidebarMenuButton onClick={handleLogout} tooltip={{children: 'الخروج'}}>
+                  <LogOut />
+                  <span className="group-data-[collapsible=icon]:hidden">تسجيل الخروج</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

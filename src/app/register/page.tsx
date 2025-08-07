@@ -85,13 +85,13 @@ export default function RegisterPage() {
 
       toast({
         title: "تم إنشاء الحساب بنجاح",
-        description: "يمكنك الآن تسجيل الدخول.",
+        description: "مرحباً بك في منصتنا التعليمية! تم إنشاء حسابك بنجاح. يمكنك الآن تسجيل الدخول والبدء في رحلتك التعليمية.",
       });
       router.push("/login");
     } catch (error: any) {
       toast({
         title: "فشل إنشاء الحساب",
-        description: error.message,
+        description: error.message || "حدث خطأ أثناء إنشاء الحساب. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
         variant: "destructive",
       });
     }

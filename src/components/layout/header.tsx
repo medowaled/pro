@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import Mostafa from '../../app/images/hero-latest.png';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from 'next-themes';
+import LogoutButton from '../LogoutButton';
 
 const navLinks = [
   { href: '/', label: 'الرئيسية' },
@@ -65,7 +66,7 @@ export default function SiteHeader() {
               {link.label}
             </Link>
           ))}
-           {user && (
+           {user && !isLoading && (
             <Link
               href={user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses'}
               className={cn(
@@ -80,14 +81,14 @@ export default function SiteHeader() {
 
         {/* Left side: Auth and Theme buttons */}
         <div className="flex items-center gap-1 sm:gap-2">
-          {user ? (
+          {user && !isLoading ? (
              <div className="flex items-center gap-2 sm:gap-4">
-              <span className="font-semibold text-foreground hidden sm:inline text-sm md:text-base">{user.name}</span>
-               <Button variant="destructive" className="font-headline rounded-full text-xs sm:text-sm" onClick={logout}>
-                تسجيل الخروج
-              </Button>
+               <span className="font-semibold text-foreground hidden sm:inline text-sm md:text-base">{user.name}</span>
+                <Button variant="destructive" className="font-headline rounded-full text-xs sm:text-sm" onClick={logout}>
+                 تسجيل الخروج
+               </Button>
              </div>
-          ) : (
+          ) : !isLoading ? (
             <div className="hidden lg:flex items-center gap-2">
                <Button asChild className="font-headline bg-gradient-to-r from-blue-500 to-green-500 text-white hover:opacity-90 rounded-full text-sm">
                 <Link href="/register">أنشئ حسابك</Link>
@@ -96,7 +97,7 @@ export default function SiteHeader() {
                 <Link href="/login">سجل دخولك</Link>
               </Button>
             </div>
-          )}
+          ) : null}
            <Button
             variant="ghost"
             size="icon"
@@ -149,7 +150,7 @@ export default function SiteHeader() {
                           {link.label}
                         </Link>
                       ))}
-                       {user && (
+                       {user && !isLoading && (
                         <Link
                            href={user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses'}
                           className={cn(
@@ -162,11 +163,11 @@ export default function SiteHeader() {
                       )}
                     </nav>
                     <div className="mt-auto flex flex-col gap-3 sm:gap-4">
-                      {user ? (
-                         <Button variant="destructive" className="font-headline text-base sm:text-xl" onClick={logout}>
-                            تسجيل الخروج
-                        </Button>
-                      ) : (
+                       {user ? (
+                          <Button variant="destructive" className="font-headline text-base sm:text-xl" onClick={logout}>
+                             تسجيل الخروج
+                         </Button>
+                       ) : (
                         <>
                            <Button asChild className="font-headline text-base sm:text-xl rounded-full bg-gradient-to-r from-blue-500 to-green-500 text-white">
                               <Link href="/register">أنشئ حسابك</Link>
@@ -175,7 +176,7 @@ export default function SiteHeader() {
                               <Link href="/login">سجل دخولك</Link>
                           </Button>
                         </>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 </SheetContent>

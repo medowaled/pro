@@ -35,6 +35,11 @@ export default function UserLayout({
   const noSidebarPaths = ["/user/payment-info"];
   const showSidebar = !noSidebarPaths.includes(pathname);
 
+  const handleLogout = async () => {
+    console.log("🔄 User logout button clicked");
+    await logout();
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <SiteHeader />
@@ -89,32 +94,25 @@ export default function UserLayout({
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={logout}
-                      asChild
+                      onClick={handleLogout}
                       tooltip={{ children: "تسجيل الخروج" }}
                     >
-                      <Link href="#">
-                        <LogOut />
-                        <span className="group-data-[collapsible=icon]:hidden">
-                          تسجيل الخروج
-                        </span>
-                      </Link>
+                      <LogOut />
+                      <span className="group-data-[collapsible=icon]:hidden">
+                        تسجيل الخروج
+                      </span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarContent>
             </Sidebar>
           )}
-          <SidebarInset className="bg-secondary/30 flex-1">
-            {showSidebar && (
-              <header className="flex items-center justify-between p-4 border-b bg-background md:hidden">
-                <SidebarTrigger />
-                <h1 className="text-xl font-headline font-bold text-primary">
-                  أهلاً بك، {user?.name}
-                </h1>
-                <div></div>
-              </header>
-            )}
+          <SidebarInset className="bg-secondary/30">
+            <header className="flex items-center justify-between p-4 border-b bg-background">
+              <SidebarTrigger className="md:hidden" />
+              <h1 className="text-2xl font-headline font-bold text-primary">لوحة تحكم الطالب</h1>
+              <div></div>
+            </header>
             <main className="p-4 md:p-8">{children}</main>
           </SidebarInset>
         </div>

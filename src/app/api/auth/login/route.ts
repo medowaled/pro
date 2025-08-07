@@ -56,23 +56,30 @@ export async function POST(request: Request) {
     const token = await new SignJWT(payload)
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
-      .setExpirationTime("7d")
-      .sign(getJwtSecretKey());
+      .setExpirationTime("30d") // Increased to 30 days
+      .sign(new TextEncoder().encode(getJwtSecretKey()));
 
     const response = NextResponse.json({
       message: "تم تسجيل الدخول بنجاح",
       user: payload,
     });
 
+    // Set the token cookie with improved options
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax", // Better compatibility
       path: "/",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
     });
 
-    console.log("✅ Login successful, token set.");
+    // Add cache control headers
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+
+    console.log("✅ Login successful, token set for 30 days.");
     return response;
   } catch (error) {
     console.error("🔥 Login error:", error);
