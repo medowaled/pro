@@ -31,12 +31,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const now = Date.now();
       if (userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
-        console.log('Using cached user data:', userCache);
         setUser(userCache);
         setIsLoading(false);
         return;
       }
-      console.log('Checking user authentication...');
       const res = await fetch('/api/auth/me', {
         headers: {
           'Cache-Control': 'no-cache',
@@ -44,17 +42,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       if (res.ok) {
         const data = await res.json();
-        console.log('User authenticated:', data.user);
         userCache = data.user;
         cacheTimestamp = now;
         setUser(data.user);
       } else {
-        console.log('User not authenticated');
         setUser(null);
         userCache = null;
       }
     } catch (error) {
-      console.error('Error checking user auth:', error);
       setUser(null);
       userCache = null;
     } finally {
@@ -68,10 +63,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // إعادة التوجيه إذا كان المستخدم مسجلاً الدخول
   useEffect(() => {
-    console.log('User state changed:', user);
     if (user && (window.location.pathname === '/login' || window.location.pathname === '/register')) {
       const targetPath = user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
-      console.log('Redirecting logged in user to:', targetPath);
       window.location.href = targetPath;
     }
   }, [user]);
@@ -84,10 +77,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
     const data = await response.json();
     if (!response.ok) {
-      console.error('Login failed:', response.status, data);
       throw new Error(data.message || 'فشل تسجيل الدخول');
     }
-    console.log('Login successful, user data:', data.user);
     userCache = data.user;
     cacheTimestamp = Date.now();
     setUser(data.user);
@@ -96,17 +87,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async (): Promise<void> => {
     try {
-      console.log("🔄 Starting logout process...");
       setUser(null);
       userCache = null;
       cacheTimestamp = 0;
       await fetch('/api/auth/logout', { 
         method: 'POST',
       });
-      await checkUser(); // إعادة التحقق من حالة المستخدم بعد تسجيل الخروج
-      console.log("✅ Logout completed successfully");
+      window.location.href = '/login'; // إعادة التوجيه مباشرة بعد تسجيل الخروج
     } catch (error) {
-      console.error("❌ Logout failed", error);
       setUser(null);
       userCache = null;
       cacheTimestamp = 0;
