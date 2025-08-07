@@ -53,34 +53,11 @@ function LoginForm() {
     },
   });
 
-  // Clear logout flag on component mount
-  useEffect(() => {
-    const justLoggedOut = sessionStorage.getItem('justLoggedOut') || localStorage.getItem('justLoggedOut');
-    if (justLoggedOut === 'true') {
-      console.log('🚫 User just logged out, clearing flag');
-      sessionStorage.removeItem('justLoggedOut');
-      localStorage.removeItem('justLoggedOut');
-      // Force a small delay to prevent auto-login
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    }
-  }, []);
-
   // Redirect if user is already logged in
   useEffect(() => {
     if (!isLoading && user && !isLoggingIn) {
       console.log('🔄 Redirecting logged in user:', user);
       const redirectTo = searchParams.get('redirect');
-      
-      // Check if user just logged out (prevent auto-login)
-      const justLoggedOut = sessionStorage.getItem('justLoggedOut') || localStorage.getItem('justLoggedOut');
-      if (justLoggedOut === 'true') {
-        console.log('🚫 User just logged out, preventing auto-redirect');
-        sessionStorage.removeItem('justLoggedOut');
-        localStorage.removeItem('justLoggedOut');
-        return;
-      }
       
       if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
         if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
@@ -120,7 +97,7 @@ function LoginForm() {
       // Get redirect URL from search params or use default
       const redirectTo = searchParams.get('redirect');
       
-      // Wait for the cookie to be set and then redirect
+      // Redirect after successful login
       setTimeout(() => {
         console.log('🔄 Redirecting after login:', user.role);
         if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
@@ -142,12 +119,12 @@ function LoginForm() {
             window.location.href = "/user/my-courses";
           }
         }
-      }, 1500);
+      }, 1000);
     } catch (error: any) {
       setIsLoggingIn(false);
       toast({
         title: "فشل تسجيل الدخول",
-        description: error.message,
+        description: error.message || "حدث خطأ أثناء تسجيل الدخول. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
         variant: "destructive",
       });
     }

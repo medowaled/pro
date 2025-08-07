@@ -26,10 +26,10 @@ export default function LogoutButton() {
         description: "تم تسجيل خروجك بنجاح. شكراً لاستخدامك منصتنا!",
       });
       
-      // Redirect to homepage
+      // Redirect to homepage after a short delay
       setTimeout(() => {
         window.location.href = '/';
-      }, 100);
+      }, 500);
       
     } catch (error) {
       console.error('Logout error:', error);
@@ -41,7 +41,7 @@ export default function LogoutButton() {
       // Even if there's an error, redirect to homepage
       setTimeout(() => {
         window.location.href = '/';
-      }, 100);
+      }, 500);
     } finally {
       setIsLoggingOut(false);
     }
