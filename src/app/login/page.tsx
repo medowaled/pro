@@ -58,8 +58,10 @@ export default function LoginPage() {
     if (user) {
       console.log('User already logged in, redirecting...');
       if (user.role === "ADMIN") {
+        console.log('Redirecting admin to dashboard');
         router.push("/admin/dashboard");
       } else {
+        console.log('Redirecting student to my-courses');
         router.push("/user/my-courses");
       }
     }
@@ -96,7 +98,7 @@ export default function LoginPage() {
 
       console.log("🔄 Redirecting user to dashboard...");
       
-      // Redirect based on user role
+      // Redirect based on user role with immediate effect
       if (user.role === "ADMIN") {
         console.log("👨‍💼 Redirecting admin to:", "/admin/dashboard");
         router.push("/admin/dashboard");

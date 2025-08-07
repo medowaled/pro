@@ -81,9 +81,23 @@ const PaymentMethodCard = ({
 };
 
 export default function PaymentInfoPage() {
-  const instaPaySteps = [];
+  const instaPaySteps = [
+    "افتح تطبيق InstaPay على هاتفك",
+    "اضغط على زر التحويل",
+    "أدخل الرقم: <strong>01224389180</strong>",
+    "أدخل المبلغ المطلوب",
+    "أضف رسالة: <strong>اشتراك دورة</strong>",
+    "اضغط على تأكيد التحويل"
+  ];
 
-  const vodafoneCashSteps = [];
+  const vodafoneCashSteps = [
+    "افتح تطبيق اتصالات كاش على هاتفك",
+    "اضغط على زر التحويل",
+    "أدخل الرقم: <strong>01116822035</strong>",
+    "أدخل المبلغ المطلوب",
+    "أضف رسالة: <strong>اشتراك دورة</strong>",
+    "اضغط على تأكيد التحويل"
+  ];
 
   return (
     <div>

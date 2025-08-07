@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Clock, Users, BookOpen } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ export default function CoursesPage() {
   const [staticCourses, setStaticCourses] = useState<StaticCourse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
+  const router = useRouter();
 
   // Memoized static data to avoid recreating on every render
   const staticData = useMemo(() => {
@@ -107,12 +109,12 @@ export default function CoursesPage() {
   const handleSubscribe = (courseId: string) => {
     if (!user) {
       // Redirect to login with redirect parameter
-      window.location.href = `/login?redirect=/user/payment-info`;
+      router.push(`/login?redirect=/user/payment-info`);
       return;
     }
     
     // If user is logged in, redirect to payment info
-    window.location.href = '/user/payment-info';
+    router.push('/user/payment-info');
   };
 
   if (isLoading) {
