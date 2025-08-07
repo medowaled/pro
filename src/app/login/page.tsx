@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import SiteHeader from "@/components/layout/header";
 import SiteFooter from "@/components/layout/footer";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 
@@ -42,6 +42,7 @@ const formSchema = z.object({
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -55,32 +56,36 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (isSubmitting) return;
-    
+
     setIsSubmitting(true);
     try {
       console.log("🔄 Starting login process...");
       console.log("📱 Phone:", values.phone);
-      
+
       const user = await login(values.phone, values.password);
 
       console.log("✅ Login successful, user:", user);
 
       toast({
         title: "تم تسجيل الدخول بنجاح",
-        description: "جاري توجيهك إلى لوحة التحكم الخاصة بك.",
+        description: "جاري توجيهك...",
       });
 
-      console.log("🔄 Redirecting user to dashboard...");
+      const redirectUrl = searchParams.get("redirect");
+      if (redirectUrl) {
+        console.log(`↩️ Redirecting to requested URL: ${redirectUrl}`);
+        router.replace(redirectUrl);
+        return;
+      }
       
-      // Redirect based on user role immediately
+      console.log("🔄 Redirecting user to their dashboard...");
+
       if (user.role === "ADMIN") {
-        console.log("👨‍💼 Redirecting admin to:", "/admin/dashboard");
-        // Use window.location for more reliable redirect
-        window.location.href = "/admin/dashboard";
+        console.log("👨‍💼 Redirecting admin to: /admin/dashboard");
+        router.replace("/admin/dashboard");
       } else {
-        console.log("👨‍🎓 Redirecting student to:", "/user/my-courses");
-        // Use window.location for more reliable redirect
-        window.location.href = "/user/my-courses";
+        console.log("👨‍🎓 Redirecting student to: /user/my-courses");
+        router.replace("/user/my-courses");
       }
     } catch (error: any) {
       console.error("❌ Login failed:", error);
