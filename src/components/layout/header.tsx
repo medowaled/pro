@@ -34,7 +34,13 @@ export default function SiteHeader() {
     console.log('👤 Current user:', user);
     console.log('👤 User role:', user?.role);
     
-    const targetUrl = user?.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
+    if (!user) {
+      console.log('❌ No user, redirecting to login');
+      router.replace('/login');
+      return;
+    }
+    
+    const targetUrl = user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
     console.log('🎯 Target URL:', targetUrl);
     
     // Use router.replace for immediate navigation
@@ -44,7 +50,7 @@ export default function SiteHeader() {
     setTimeout(() => {
       console.log('🔄 Fallback navigation to:', targetUrl);
       window.location.href = targetUrl;
-    }, 100);
+    }, 500);
   };
 
   return (

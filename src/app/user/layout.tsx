@@ -110,11 +110,13 @@ export default function UserLayout({
               </Sidebar>
             )}
             <SidebarInset className="bg-secondary/30">
-              <header className="flex items-center justify-between p-4 border-b bg-background">
-                <SidebarTrigger className="md:hidden" />
-                <h1 className="text-2xl font-headline font-bold text-primary">لوحة تحكم الطالب</h1>
-                <div></div>
-              </header>
+              {showSidebar && (
+                <header className="flex items-center justify-between p-4 border-b bg-background">
+                  <SidebarTrigger className="md:hidden" />
+                  <h1 className="text-2xl font-headline font-bold text-primary">لوحة تحكم الطالب</h1>
+                  <div></div>
+                </header>
+              )}
               <main className="p-4 md:p-8">{children}</main>
             </SidebarInset>
           </div>

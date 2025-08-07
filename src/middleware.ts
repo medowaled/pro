@@ -6,44 +6,59 @@ export async function middleware(request: NextRequest) {
         const token = request.cookies.get('token')?.value;
         const { pathname } = request.nextUrl;
 
+        console.log('🔍 Middleware - Pathname:', pathname);
+        console.log('🔍 Middleware - Token exists:', !!token);
+
         const verifiedToken = token && (await verifyAuth(token).catch((err) => {
             console.error('Token verification failed:', err);    
             return null;
         }));
 
+        console.log('🔍 Middleware - Verified token:', verifiedToken);
+
         // Allow access to public course introduction pages
         if (pathname.startsWith('/courses/')) {
+            console.log('✅ Allowing access to course page');
             return NextResponse.next();
         }
 
         // Allow access to homepage for everyone (no automatic redirect)
         if (pathname === '/') {
+            console.log('✅ Allowing access to homepage');
             return NextResponse.next();
         }
 
         // Redirect logged in users from login/register pages to their dashboards
         if ((pathname.startsWith('/login') || pathname.startsWith('/register')) && verifiedToken) {
+            console.log('🔄 Redirecting logged in user from auth page');
             if (verifiedToken.role === 'ADMIN') {
+                console.log('👨‍💼 Redirecting admin to dashboard');
                 return NextResponse.redirect(new URL('/admin/dashboard', request.url));
             } else {
+                console.log('👨‍🎓 Redirecting student to my-courses');
                 return NextResponse.redirect(new URL('/user/my-courses', request.url));
             }
         }
         
         if (pathname.startsWith('/admin') || pathname.startsWith('/user')) {
             if (!verifiedToken) {
+                console.log('❌ No token, redirecting to login');
                 const redirectUrl = new URL('/login', request.url);
                 redirectUrl.searchParams.set('redirect', pathname); // Pass the original path
                 return NextResponse.redirect(redirectUrl);
             }
 
             if (pathname.startsWith('/admin') && verifiedToken.role !== 'ADMIN') {
-                 return NextResponse.redirect(new URL('/', request.url));
+                console.log('❌ Non-admin trying to access admin area');
+                return NextResponse.redirect(new URL('/', request.url));
             }
 
             if (pathname.startsWith('/user') && verifiedToken.role !== 'STUDENT') {
+                console.log('❌ Non-student trying to access user area');
                 return NextResponse.redirect(new URL('/admin/dashboard', request.url));
             }
+
+            console.log('✅ Access granted to protected area');
         }
         
         return NextResponse.next();
