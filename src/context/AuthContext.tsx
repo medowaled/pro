@@ -87,14 +87,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async (): Promise<void> => {
     try {
+      // حذف البيانات من الحالة والكاش أولاً
       setUser(null);
       userCache = null;
       cacheTimestamp = 0;
+      
+      // استدعاء API تسجيل الخروج
       await fetch('/api/auth/logout', { 
         method: 'POST',
       });
-      // لا تعيد التوجيه لأي صفحة بعد تسجيل الخروج
+      
+      // إعادة التحقق من حالة المستخدم للتأكد من تسجيل الخروج
+      await checkUser();
     } catch (error) {
+      // في حالة حدوث خطأ، تأكد من حذف البيانات المحلية
       setUser(null);
       userCache = null;
       cacheTimestamp = 0;

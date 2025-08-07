@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 
 export async function POST() {
-  // Create response with redirect to login page
-  const response = NextResponse.redirect('/login');
+  // إنشاء response بسيط بدون إعادة توجيه
+  const response = NextResponse.json({ message: "تم تسجيل الخروج بنجاح" });
   
   // Clear ALL possible auth cookies
   const cookiesToClear = [
