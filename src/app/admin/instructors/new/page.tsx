@@ -69,7 +69,7 @@ export default function NewInstructorPage() {
     } catch (error: any) {
       toast({
         title: 'فشل إضافة المدرب',
-        description: error.message,
+        description: error.message || "حدث خطأ أثناء إضافة المدرب. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
         variant: 'destructive',
       });
     }

@@ -142,7 +142,7 @@ export default function NewCoursePage() {
     } catch (error: any) {
       toast({
         title: 'فشل إنشاء الدورة',
-        description: error.message,
+        description: error.message || "حدث خطأ أثناء إنشاء الدورة. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
         variant: 'destructive',
       });
     }

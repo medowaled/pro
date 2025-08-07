@@ -53,33 +53,54 @@ function LoginForm() {
     },
   });
 
-  // Simplified redirect logic for logged in users
+  // Clear logout flag on component mount
   useEffect(() => {
-    // Only redirect if user is actually logged in and not in a logout state
+    const justLoggedOut = sessionStorage.getItem('justLoggedOut') || localStorage.getItem('justLoggedOut');
+    if (justLoggedOut === 'true') {
+      console.log('🚫 User just logged out, clearing flag');
+      sessionStorage.removeItem('justLoggedOut');
+      localStorage.removeItem('justLoggedOut');
+      // Force a small delay to prevent auto-login
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  }, []);
+
+  // Redirect if user is already logged in
+  useEffect(() => {
     if (!isLoading && user && !isLoggingIn) {
-      // Add a small delay to ensure logout state is properly handled
-      const timer = setTimeout(() => {
-        const redirectTo = searchParams.get('redirect');
-        
-        // Determine the correct redirect path
-        let targetPath = '/';
-        if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
-          if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
-            targetPath = redirectTo;
-          } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
-            targetPath = redirectTo;
-          } else {
-            targetPath = user.role === "ADMIN" ? "/admin/dashboard" : "/user/my-courses";
-          }
-        } else {
-          targetPath = user.role === "ADMIN" ? "/admin/dashboard" : "/user/my-courses";
-        }
-        
-        // Redirect immediately if user is already logged in
-        window.location.replace(targetPath);
-      }, 500); // Add delay to prevent immediate redirect after logout
+      console.log('🔄 Redirecting logged in user:', user);
+      const redirectTo = searchParams.get('redirect');
       
-      return () => clearTimeout(timer);
+      // Check if user just logged out (prevent auto-login)
+      const justLoggedOut = sessionStorage.getItem('justLoggedOut') || localStorage.getItem('justLoggedOut');
+      if (justLoggedOut === 'true') {
+        console.log('🚫 User just logged out, preventing auto-redirect');
+        sessionStorage.removeItem('justLoggedOut');
+        localStorage.removeItem('justLoggedOut');
+        return;
+      }
+      
+      if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
+        if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
+          window.location.href = redirectTo;
+        } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
+          window.location.href = redirectTo;
+        } else {
+          if (user.role === "ADMIN") {
+            window.location.href = "/admin/dashboard";
+          } else {
+            window.location.href = "/user/my-courses";
+          }
+        }
+      } else {
+        if (user.role === "ADMIN") {
+          window.location.href = "/admin/dashboard";
+        } else {
+          window.location.href = "/user/my-courses";
+        }
+      }
     }
   }, [user, isLoading, searchParams, isLoggingIn]);
 
@@ -89,31 +110,39 @@ function LoginForm() {
       
       const user = await login(values.phone, values.password);
 
-      // Improved success message
       toast({
         title: "تم تسجيل الدخول بنجاح",
-        description: `مرحباً ${user.name}! تم تسجيل دخولك بنجاح. جاري توجيهك إلى لوحة التحكم الخاصة بك.`,
+        description: "جاري توجيهك إلى لوحة التحكم الخاصة بك.",
       });
+
+      console.log(">>> User logged in:", user);
       
       // Get redirect URL from search params or use default
       const redirectTo = searchParams.get('redirect');
       
-      // Determine the correct redirect path
-      let targetPath = '/';
-      if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
-        if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
-          targetPath = redirectTo;
-        } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
-          targetPath = redirectTo;
+      // Wait for the cookie to be set and then redirect
+      setTimeout(() => {
+        console.log('🔄 Redirecting after login:', user.role);
+        if (redirectTo && (redirectTo.startsWith('/admin') || redirectTo.startsWith('/user'))) {
+          if (redirectTo.startsWith('/admin') && user.role === 'ADMIN') {
+            window.location.href = redirectTo;
+          } else if (redirectTo.startsWith('/user') && user.role === 'STUDENT') {
+            window.location.href = redirectTo;
+          } else {
+            if (user.role === "ADMIN") {
+              window.location.href = "/admin/dashboard";
+            } else {
+              window.location.href = "/user/my-courses";
+            }
+          }
         } else {
-          targetPath = user.role === "ADMIN" ? "/admin/dashboard" : "/user/my-courses";
+          if (user.role === "ADMIN") {
+            window.location.href = "/admin/dashboard";
+          } else {
+            window.location.href = "/user/my-courses";
+          }
         }
-      } else {
-        targetPath = user.role === "ADMIN" ? "/admin/dashboard" : "/user/my-courses";
-      }
-      
-      // Redirect immediately after successful login
-      window.location.replace(targetPath);
+      }, 1500);
     } catch (error: any) {
       setIsLoggingIn(false);
       toast({
@@ -135,7 +164,7 @@ function LoginForm() {
   }
 
   // Don't render the form if user is already logged in (will be redirected)
-  if (user && !isLoggingIn) {
+  if (user) {
     return (
       <div className="text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>

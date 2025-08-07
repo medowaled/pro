@@ -103,7 +103,7 @@ export default function NewEnrollmentPage() {
     } catch (error: any) {
       toast({
         title: "فشل تسجيل الطالب",
-        description: error.message,
+        description: error.message || "حدث خطأ أثناء تسجيل الطالب. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
         variant: "destructive",
       });
     }

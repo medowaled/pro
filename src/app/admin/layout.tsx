@@ -13,8 +13,8 @@ import {
   SidebarMenuButton,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { GraduationCap, LayoutDashboard, BookCopy, Users, UserCheck } from 'lucide-react';
-import LogoutButton from '@/components/LogoutButton';
+import { GraduationCap, LayoutDashboard, BookCopy, Users, UserCheck, LogOut } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AdminLayout({
   children,
@@ -22,6 +22,12 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    console.log("🔄 Admin logout button clicked");
+    await logout();
+  };
 
   return (
     <SidebarProvider>
@@ -84,9 +90,10 @@ export default function AdminLayout({
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <div className="w-full">
-                  <LogoutButton />
-                </div>
+                <SidebarMenuButton onClick={handleLogout} tooltip={{children: 'الخروج'}}>
+                  <LogOut />
+                  <span className="group-data-[collapsible=icon]:hidden">تسجيل الخروج</span>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarContent>

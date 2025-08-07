@@ -12,7 +12,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   login: (phone: string, password: string) => Promise<User>;
-  logout: () => Promise<void>;
+  logout: () => void;
   isLoading: boolean;
 }
 
@@ -23,34 +23,17 @@ let userCache: User | null = null;
 let cacheTimestamp = 0;
 const USER_CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
-// Flag to track if user just logged out to prevent immediate re-checking
-let justLoggedOut = false;
-let logoutTimestamp = 0;
-const LOGOUT_COOLDOWN = 5 * 60 * 1000; // 5 minutes cooldown after logout
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   const checkUser = useCallback(async () => {
-    // Check if we're in logout cooldown period
-    const now = Date.now();
-    if (justLoggedOut && (now - logoutTimestamp) < LOGOUT_COOLDOWN) {
-      setUser(null);
-      setIsLoading(false);
-      return;
-    }
-
-    // Reset logout flag after cooldown period
-    if (justLoggedOut && (now - logoutTimestamp) >= LOGOUT_COOLDOWN) {
-      justLoggedOut = false;
-    }
-
     setIsLoading(true);
     try {
-      // Check cache first (but only if not in logout cooldown)
-      if (!justLoggedOut && userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
+      // Check cache first
+      const now = Date.now();
+      if (userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
         setUser(userCache);
         setIsLoading(false);
         return;
@@ -58,8 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const res = await fetch('/api/auth/me', {
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
+          'Cache-Control': 'no-cache',
         },
         credentials: 'include',
       });
@@ -69,99 +51,108 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         userCache = data.user;
         cacheTimestamp = now;
         setUser(data.user);
+        console.log('✅ User authenticated:', data.user);
       } else {
+        console.log('❌ User not authenticated');
         setUser(null);
         userCache = null;
-        cacheTimestamp = 0;
       }
     } catch (error) {
+      console.error('Error checking user auth:', error);
       setUser(null);
       userCache = null;
-      cacheTimestamp = 0;
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  // Force check user on mount
   useEffect(() => {
     checkUser();
   }, [checkUser]);
 
-  // Cleanup effect to reset logout flag on unmount
-  useEffect(() => {
-    return () => {
-      // Don't reset logout flag on unmount to maintain logout state
-    };
-  }, []);
-
   const login = async (phone: string, password: string): Promise<User> => {
-    try {
-      // Reset logout state when logging in
-      justLoggedOut = false;
-      logoutTimestamp = 0;
-      
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, password }),
-        credentials: 'include',
-      });
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, password }),
+      credentials: 'include',
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.message || 'فشل تسجيل الدخول');
-      }
-      
-      // Update cache and state immediately
-      userCache = data.user;
-      cacheTimestamp = Date.now();
-      setUser(data.user);
-      
-      return data.user;
-    } catch (error) {
-      // Clear cache on login error
-      userCache = null;
-      cacheTimestamp = 0;
-      setUser(null);
-      throw error;
+    if (!response.ok) {
+      throw new Error(data.message || 'فشل تسجيل الدخول');
     }
+
+    console.log('✅ Login successful, user data:', data.user);
+    
+    // Update cache and state immediately
+    userCache = data.user;
+    cacheTimestamp = Date.now();
+    setUser(data.user);
+    
+    // Wait for the cookie to be set
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    return data.user;
   };
 
-  const logout = async (): Promise<void> => {
+  const logout = async () => {
     try {
-      // Set logout flag and timestamp to prevent immediate re-checking
-      justLoggedOut = true;
-      logoutTimestamp = Date.now();
-      
-      // Clear user state and cache immediately
-      setUser(null);
-      userCache = null;
-      cacheTimestamp = 0;
+        console.log("🔄 Starting logout process...");
+        
+        // Set flag to prevent auto-login
+        sessionStorage.setItem('justLoggedOut', 'true');
+        localStorage.setItem('justLoggedOut', 'true');
+        
+        // Clear user state immediately
+        setUser(null);
+        userCache = null;
+        cacheTimestamp = 0;
+        
+        // Call logout API
+        const response = await fetch('/api/auth/logout', { 
+          method: 'POST',
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+          credentials: 'include',
+        });
+        
+        if (response.ok) {
+          console.log("✅ Logout API called successfully");
+        } else {
+          console.log("❌ Logout API failed");
+        }
+
+        // Call clear token API
+        const clearResponse = await fetch('/api/auth/clear-token', { 
+          method: 'POST',
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+          credentials: 'include',
+        });
+        
+        if (clearResponse.ok) {
+          console.log("✅ Clear token API called successfully");
+        } else {
+          console.log("❌ Clear token API failed");
+        }
+    } catch (error) {
+        console.error("❌ Logout failed", error);
+    } finally {
+      console.log("🔄 Redirecting to login page...");
       
       // Clear all storage
       sessionStorage.clear();
       localStorage.clear();
       
-      // Call logout API
-      await fetch('/api/auth/logout', { 
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-        },
-      });
-      
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Even if API fails, clear local state and set logout flag
-      setUser(null);
-      userCache = null;
-      cacheTimestamp = 0;
-      justLoggedOut = true;
-      logoutTimestamp = Date.now();
+      // Force a full page reload to clear all state
+      setTimeout(() => {
+        // Use replace to prevent back button from working
+        window.location.replace('/login');
+      }, 3000);
     }
   };
 

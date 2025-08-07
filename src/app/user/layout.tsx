@@ -18,10 +18,10 @@ import {
 import {
   BookOpen,
   CreditCard,
+  LogOut,
   GraduationCap
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import LogoutButton from "@/components/LogoutButton";
 
 export default function UserLayout({
   children,
@@ -29,11 +29,16 @@ export default function UserLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { logout, user } = useAuth();
 
   // Define paths where sidebar should not be displayed
   const noSidebarPaths = ["/user/payment-info"];
   const showSidebar = !noSidebarPaths.includes(pathname);
+
+  const handleLogout = async () => {
+    console.log("🔄 User logout button clicked");
+    await logout();
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -88,9 +93,15 @@ export default function UserLayout({
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <div className="w-full">
-                      <LogoutButton />
-                    </div>
+                    <SidebarMenuButton
+                      onClick={handleLogout}
+                      tooltip={{ children: "تسجيل الخروج" }}
+                    >
+                      <LogOut />
+                      <span className="group-data-[collapsible=icon]:hidden">
+                        تسجيل الخروج
+                      </span>
+                    </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarContent>

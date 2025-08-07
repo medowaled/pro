@@ -91,7 +91,7 @@ export default function RegisterPage() {
     } catch (error: any) {
       toast({
         title: "فشل إنشاء الحساب",
-        description: error.message,
+        description: error.message || "حدث خطأ أثناء إنشاء الحساب. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
         variant: "destructive",
       });
     }
