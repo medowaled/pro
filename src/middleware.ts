@@ -17,12 +17,16 @@ export async function middleware(request: NextRequest) {
 
         // If no token, allow access to public pages only
         if (!token) {
+            // Allow access to public pages
             if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about' || pathname === '/') {
                 return NextResponse.next();
             }
+            
+            // Allow access to login and register pages when not logged in
             if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
                 return NextResponse.next();
             }
+            
             // Redirect to login for protected routes
             const redirectUrl = new URL('/login', request.url);
             redirectUrl.searchParams.set('redirect', pathname);
@@ -49,21 +53,19 @@ export async function middleware(request: NextRequest) {
             return response;
         }
 
-        // Allow access to public pages
-        if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about') {
+        // Allow access to public pages for everyone (logged in or not)
+        if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about' || pathname === '/') {
             return NextResponse.next();
         }
 
-        // Allow access to homepage for everyone
-        if (pathname === '/') {
-            return NextResponse.next();
-        }
-
-        // Handle login and register pages - allow access without redirects
+        // Handle login and register pages when user is logged in
         if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
-            // Allow access to login/register pages even if user is logged in
-            // This prevents redirect loops and allows proper logout flow
-            // Don't redirect logged in users to prevent auto-login issues
+            // If user is logged in, redirect them to their appropriate dashboard
+            if (verifiedToken) {
+                const dashboardPath = verifiedToken.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
+                return NextResponse.redirect(new URL(dashboardPath, request.url));
+            }
+            // If not logged in, allow access
             return NextResponse.next();
         }
         

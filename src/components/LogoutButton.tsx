@@ -17,10 +17,6 @@ export default function LogoutButton() {
     try {
       setIsLoggingOut(true);
       
-      // Clear local storage first
-      sessionStorage.clear();
-      localStorage.clear();
-      
       // Call logout function from AuthContext
       await logout();
       
@@ -30,8 +26,11 @@ export default function LogoutButton() {
         description: "تم تسجيل خروجك بنجاح. شكراً لاستخدامك منصتنا!",
       });
       
-      // Redirect to homepage immediately
-      window.location.replace('/');
+      // Use router.push instead of window.location for better navigation
+      // This prevents potential issues with the authentication state
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
       
     } catch (error) {
       console.error('Logout error:', error);
@@ -41,7 +40,9 @@ export default function LogoutButton() {
         variant: "destructive",
       });
       // Even if there's an error, redirect to homepage
-      window.location.replace('/');
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
     } finally {
       setIsLoggingOut(false);
     }

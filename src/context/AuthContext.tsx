@@ -23,17 +23,23 @@ let userCache: User | null = null;
 let cacheTimestamp = 0;
 const USER_CACHE_DURATION = 60 * 60 * 1000; // 1 hour
 
+// Flag to track if user just logged out to prevent immediate re-checking
+let justLoggedOut = false;
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Add a flag to prevent auto-login after logout
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
   const checkUser = useCallback(async () => {
-    if (isLoggingOut) return; // Don't check user if logging out
-    
+    // If user just logged out, skip checking
+    if (justLoggedOut) {
+      setUser(null);
+      setIsLoading(false);
+      justLoggedOut = false;
+      return;
+    }
+
     setIsLoading(true);
     try {
       // Check cache first
@@ -68,27 +74,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [isLoggingOut]);
+  }, []);
 
-  // Force check user on mount and when needed
+  // Force check user on mount
   useEffect(() => {
-    if (!isLoggingOut) {
-      checkUser();
-    }
-  }, [checkUser, isLoggingOut]);
+    checkUser();
+  }, [checkUser]);
 
-  // Clear cache when component unmounts
+  // Cleanup effect to reset logout flag on unmount
   useEffect(() => {
     return () => {
-      // Don't clear cache on unmount to preserve user state
+      // Reset logout flag when component unmounts
+      justLoggedOut = false;
     };
   }, []);
 
   const login = async (phone: string, password: string): Promise<User> => {
-    if (isLoggingOut) {
-      throw new Error('جاري تسجيل الخروج، يرجى الانتظار');
-    }
-    
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -120,8 +121,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async (): Promise<void> => {
     try {
-      // Set logout flag to prevent auto-login
-      setIsLoggingOut(true);
+      // Set logout flag to prevent immediate re-checking
+      justLoggedOut = true;
       
       // Clear user state and cache immediately
       setUser(null);
@@ -141,24 +142,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
       });
       
-      // Force a fresh check after logout to ensure no auto-login
-      setTimeout(async () => {
-        await checkUser();
-        setIsLoggingOut(false);
-      }, 100);
-      
     } catch (error) {
       console.error('Logout error:', error);
       // Even if API fails, clear local state
       setUser(null);
       userCache = null;
       cacheTimestamp = 0;
-      setIsLoggingOut(false);
+      justLoggedOut = true;
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user: isLoggingOut ? null : user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
