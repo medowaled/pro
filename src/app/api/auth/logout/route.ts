@@ -1,80 +1,86 @@
 import { NextResponse } from "next/server";
 
 export async function POST() {
-  const res = NextResponse.json({ message: "تم تسجيل الخروج بنجاح" });
-  
-  // Clear the token cookie with all necessary options
-  res.cookies.set("token", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    expires: new Date(0),
-    maxAge: 0,
+  const response = NextResponse.json({ 
+    message: "تم تسجيل الخروج بنجاح",
+    success: true 
   });
 
-  // Also clear any other auth-related cookies
-  res.cookies.set("auth", "", {
+  // Clear the token cookie with proper settings
+  response.cookies.set("token", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
-    expires: new Date(0),
+    expires: new Date(0), // مسح الكوكي فعليًا
     maxAge: 0,
   });
 
   // Clear any other potential auth cookies
-  res.cookies.set("session", "", {
+  response.cookies.set("auth", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
+    path: "/",
+    expires: new Date(0),
+    maxAge: 0,
+  });
+
+  response.cookies.set("session", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
     path: "/",
     expires: new Date(0),
     maxAge: 0,
   });
 
   // Clear NextAuth cookies if they exist
-  res.cookies.set("next-auth.session-token", "", {
+  response.cookies.set("next-auth.session-token", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
     expires: new Date(0),
     maxAge: 0,
   });
 
-  res.cookies.set("__Secure-next-auth.session-token", "", {
+  response.cookies.set("__Secure-next-auth.session-token", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
     expires: new Date(0),
     maxAge: 0,
   });
 
   // Clear any other potential cookies
-  res.cookies.set("user", "", {
+  response.cookies.set("user", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
     expires: new Date(0),
     maxAge: 0,
   });
 
-  res.cookies.set("userId", "", {
+  response.cookies.set("userId", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
     expires: new Date(0),
     maxAge: 0,
   });
 
-  // Add cache control headers
-  res.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.headers.set('Pragma', 'no-cache');
-  res.headers.set('Expires', '0');
+  // Add cache control headers to prevent caching and auto-login
+  response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+  response.headers.set('Pragma', 'no-cache');
+  response.headers.set('Expires', '0');
+  response.headers.set('Clear-Site-Data', '"cache", "cookies", "storage", "executionContexts"');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
 
-  return res;
+  return response;
 }

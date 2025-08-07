@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Global logout state to prevent auto-login
 let isLoggedOut = false;
 let logoutTimestamp = 0;
-const LOGOUT_COOLDOWN = 10 * 60 * 1000; // 10 minutes cooldown
+const LOGOUT_COOLDOWN = 30 * 60 * 1000; // 30 minutes cooldown
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -33,11 +33,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (isLoggedOut) {
       const now = Date.now();
       if (now - logoutTimestamp < LOGOUT_COOLDOWN) {
+        console.log('🚫 User is in logout cooldown, skipping auth check');
         setUser(null);
         setIsLoading(false);
         return;
       } else {
         // Reset logout state after cooldown
+        console.log('🔄 Logout cooldown expired, resetting state');
         isLoggedOut = false;
       }
     }
@@ -105,7 +107,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       console.log("🔄 Starting logout process...");
       
-      // Set logout state immediately
+      // Set logout state immediately to prevent any further auth checks
       isLoggedOut = true;
       logoutTimestamp = Date.now();
       
@@ -116,8 +118,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       sessionStorage.clear();
       localStorage.clear();
       
-      // Call logout API
-      await fetch('/api/auth/logout', { 
+      // Call logout API to clear server-side session
+      const logoutResponse = await fetch('/api/auth/logout', { 
         method: 'POST',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -125,6 +127,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         },
         credentials: 'include',
       });
+      
+      if (logoutResponse.ok) {
+        console.log("✅ Logout API called successfully");
+      } else {
+        console.log("❌ Logout API failed");
+      }
       
       console.log("✅ Logout completed successfully");
       

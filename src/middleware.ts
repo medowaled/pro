@@ -16,12 +16,16 @@ export async function middleware(request: NextRequest) {
 
         // If no token, allow access to public pages only
         if (!token) {
+            // Allow access to public pages
             if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about' || pathname === '/') {
                 return NextResponse.next();
             }
+            
+            // Allow access to login and register pages when not logged in
             if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
                 return NextResponse.next();
             }
+            
             // Redirect to login for protected routes
             const redirectUrl = new URL('/login', request.url);
             redirectUrl.searchParams.set('redirect', pathname);
@@ -40,7 +44,24 @@ export async function middleware(request: NextRequest) {
             response.cookies.set("token", "", {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: "lax",
+                sameSite: "strict",
+                path: "/",
+                expires: new Date(0),
+                maxAge: 0,
+            });
+            // Clear other potential auth cookies
+            response.cookies.set("auth", "", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                path: "/",
+                expires: new Date(0),
+                maxAge: 0,
+            });
+            response.cookies.set("session", "", {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
                 path: "/",
                 expires: new Date(0),
                 maxAge: 0,
@@ -48,27 +69,19 @@ export async function middleware(request: NextRequest) {
             return response;
         }
 
-        // Allow access to public pages
-        if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about') {
+        // Allow access to public pages for everyone (logged in or not)
+        if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about' || pathname === '/') {
             return NextResponse.next();
         }
 
-        // Allow access to homepage for everyone
-        if (pathname === '/') {
-            return NextResponse.next();
-        }
-
-        // Handle login and register pages
+        // Handle login and register pages when user is logged in
         if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
-            // If user is already logged in, redirect to appropriate dashboard
+            // If user is logged in, redirect them to their appropriate dashboard
             if (verifiedToken) {
-                console.log('🔄 Redirecting logged in user from login page');
-                if (verifiedToken.role === 'ADMIN') {
-                    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-                } else {
-                    return NextResponse.redirect(new URL('/user/my-courses', request.url));
-                }
+                const dashboardPath = verifiedToken.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
+                return NextResponse.redirect(new URL(dashboardPath, request.url));
             }
+            // If not logged in, allow access
             return NextResponse.next();
         }
         
@@ -101,7 +114,24 @@ export async function middleware(request: NextRequest) {
         response.cookies.set("token", "", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            sameSite: "strict",
+            path: "/",
+            expires: new Date(0),
+            maxAge: 0,
+        });
+        // Clear other potential auth cookies
+        response.cookies.set("auth", "", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+            expires: new Date(0),
+            maxAge: 0,
+        });
+        response.cookies.set("session", "", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
             path: "/",
             expires: new Date(0),
             maxAge: 0,

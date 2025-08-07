@@ -26,10 +26,13 @@ export default function LogoutButton() {
         description: "تم تسجيل خروجك بنجاح. شكراً لاستخدامك منصتنا!",
       });
       
-      // Redirect to homepage after a short delay
+      // Force redirect to login page after logout
       setTimeout(() => {
-        window.location.href = '/';
-      }, 500);
+        // Clear any remaining data and redirect to login
+        sessionStorage.clear();
+        localStorage.clear();
+        window.location.href = '/login';
+      }, 1000);
       
     } catch (error) {
       console.error('Logout error:', error);
@@ -38,10 +41,12 @@ export default function LogoutButton() {
         description: "حدث خطأ أثناء تسجيل الخروج. يرجى المحاولة مرة أخرى.",
         variant: "destructive",
       });
-      // Even if there's an error, redirect to homepage
+      // Even if there's an error, redirect to login page
       setTimeout(() => {
-        window.location.href = '/';
-      }, 500);
+        sessionStorage.clear();
+        localStorage.clear();
+        window.location.href = '/login';
+      }, 1000);
     } finally {
       setIsLoggingOut(false);
     }
