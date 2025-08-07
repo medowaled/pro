@@ -125,23 +125,10 @@ export default function Home() {
     Autoplay({ delay: 5000, stopOnInteraction: true })
   );
   const { user, isLoading } = useAuth();
-  const router = useRouter();
 
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.replace('/login');
-    }
-  }, [user, isLoading, router]);
+  // إزالة التحقق من المستخدم - الصفحة الرئيسية متاحة للجميع
+  // middleware سيتعامل مع إعادة التوجيه للمستخدمين المصادق عليهم
 
-  if (isLoading || !user) {
-    // يمكن عرض سبينر أو شاشة انتظار بسيطة
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-        <span className="text-muted-foreground ml-4">جاري التحقق من تسجيل الدخول...</span>
-      </div>
-    );
-  }
   return (
     <div className="flex flex-col min-h-screen">
       <SiteHeader />
@@ -175,9 +162,24 @@ export default function Home() {
                         <p className="font-body text-base sm:text-lg md:text-xl max-w-xl mx-auto lg:mx-0 mb-6 sm:mb-8">
                             كبير معلمي العلوم بوزارة التربية والتعليم خبرة 22 سنة في تدريس العلوم للمرحلة الإعدادية. شرح مبسط - مراجعات قوية – متابعة مستمرة. معانا... الفهم أول خطوة للتفوق.
                         </p>
-                        <Button asChild size="lg" className="font-headline bg-white text-blue-600 hover:bg-gray-100 dark:bg-yellow-400 dark:text-background dark:hover:bg-yellow-500 rounded-full px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-6 text-base sm:text-lg">
-                            <Link href="/courses">ابدأ التعلم الآن</Link>
-                        </Button>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                          {user ? (
+                            <Button asChild size="lg" className="font-headline bg-white text-blue-600 hover:bg-gray-100 dark:bg-yellow-400 dark:text-background dark:hover:bg-yellow-500 rounded-full px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-6 text-base sm:text-lg">
+                              <Link href={user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses'}>
+                                {user.role === 'ADMIN' ? 'لوحة التحكم' : 'دوراتي'}
+                              </Link>
+                            </Button>
+                          ) : (
+                            <>
+                              <Button asChild size="lg" className="font-headline bg-white text-blue-600 hover:bg-gray-100 dark:bg-yellow-400 dark:text-background dark:hover:bg-yellow-500 rounded-full px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-6 text-base sm:text-lg">
+                                <Link href="/courses">ابدأ التعلم الآن</Link>
+                              </Button>
+                              <Button asChild size="lg" variant="outline" className="font-headline border-white text-white hover:bg-white hover:text-blue-600 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-yellow-400 dark:hover:text-background rounded-full px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-6 text-base sm:text-lg">
+                                <Link href="/login">تسجيل الدخول</Link>
+                              </Button>
+                            </>
+                          )}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -52,19 +52,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         cacheTimestamp = now;
         setUser(data.user);
       } else {
+        // إذا لم يكن هناك مستخدم صالح، نمسح الكاش
         setUser(null);
         userCache = null;
+        cacheTimestamp = 0;
       }
     } catch (error) {
+      // في حالة حدوث خطأ، نمسح الكاش ولا نعرض أي مستخدم
       setUser(null);
       userCache = null;
+      cacheTimestamp = 0;
     } finally {
       setIsLoading(false);
     }
   }, [isLoggingOut]);
 
   useEffect(() => {
-    checkUser();
+    // تأخير قليل قبل فحص المستخدم للتأكد من عدم وجود مشاكل
+    const timer = setTimeout(() => {
+      checkUser();
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [checkUser]);
 
   const login = async (phone: string, password: string): Promise<User> => {
