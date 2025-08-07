@@ -25,8 +25,11 @@ const USER_CACHE_DURATION = 10 * 60 * 1000; // 10 دقائق
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const checkUser = useCallback(async (forceCheck = false) => {
+    if (isLoggingOut) return; // منع الفحص أثناء تسجيل الخروج
+    
     setIsLoading(true);
     try {
       const now = Date.now();
@@ -58,21 +61,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [isLoggingOut]);
 
   useEffect(() => {
     checkUser();
   }, [checkUser]);
 
-  // إزالة إعادة التوجيه التلقائي عند وجود مستخدم
-  // useEffect(() => {
-  //   if (user && (window.location.pathname === '/login' || window.location.pathname === '/register')) {
-  //     const targetPath = user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
-  //     window.location.href = targetPath;
-  //   }
-  // }, [user]);
-
   const login = async (phone: string, password: string): Promise<User> => {
+    if (isLoggingOut) {
+      throw new Error('جاري تسجيل الخروج، يرجى الانتظار');
+    }
+    
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -92,13 +91,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async (): Promise<void> => {
+    if (isLoggingOut) return; // منع تسجيل الخروج المتكرر
+    
+    setIsLoggingOut(true);
     try {
       // حذف البيانات من الحالة والكاش أولاً
       setUser(null);
       userCache = null;
       cacheTimestamp = 0;
       
-      // استدعاء API تسجيل الخروج (سيقوم middleware بإعادة التوجيه)
+      // استدعاء API تسجيل الخروج
       await fetch('/api/auth/logout', { 
         method: 'POST',
       });
@@ -112,6 +114,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       cacheTimestamp = 0;
       // إعادة التوجيه للصفحة الرئيسية حتى في حالة الخطأ
       window.location.href = '/';
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 

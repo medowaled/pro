@@ -55,7 +55,7 @@ function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (isSubmitting) return;
+    if (isSubmitting || isLoading) return; // منع الإرسال المتكرر
     
     setIsSubmitting(true);
     try {

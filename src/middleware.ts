@@ -31,23 +31,10 @@ export async function middleware(request: NextRequest) {
             return response;
         }
 
-        // 2. الصفحات العامة (مع تحسين تجربة المستخدم المصادق عليه)
+        // 2. الصفحات العامة - السماح للجميع بالوصول بدون إعادة توجيه
         if (pathname === '/' || pathname === '/about' || pathname === '/courses' || pathname.startsWith('/courses/')) {
-            if (token) {
-                try {
-                    const payload = await verifyAuth(token);
-                    // إذا كان مسجل دخول، نعيد توجيهه حسب دوره
-                    const dashboardUrl = payload.role === 'ADMIN' 
-                        ? '/admin/dashboard' 
-                        : '/user/my-courses';
-                    return NextResponse.redirect(new URL(dashboardUrl, request.url));
-                } catch (err) {
-                    // إذا كان التوكن غير صالح، نمسحه ونستمر
-                    const response = NextResponse.next();
-                    response.cookies.delete('token');
-                    return response;
-                }
-            }
+            // لا نعيد توجيه المستخدمين المصادق عليهم من الصفحات العامة
+            // نترك لهم حرية التنقل
             return NextResponse.next();
         }
 
