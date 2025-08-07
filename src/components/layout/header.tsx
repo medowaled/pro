@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import Mostafa from '../../app/images/hero-latest.png';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from 'next-themes';
-import LogoutButton from '../LogoutButton';
+
 
 const navLinks = [
   { href: '/', label: 'الرئيسية' },
