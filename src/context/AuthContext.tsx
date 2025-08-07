@@ -103,6 +103,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await fetch('/api/auth/logout', { 
         method: 'POST',
       });
+      await checkUser(); // إعادة التحقق من حالة المستخدم بعد تسجيل الخروج
       console.log("✅ Logout completed successfully");
     } catch (error) {
       console.error("❌ Logout failed", error);
