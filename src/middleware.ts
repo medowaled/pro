@@ -14,72 +14,47 @@ export async function middleware(request: NextRequest) {
 
         console.log('🔍 Middleware checking:', pathname, 'Token exists:', !!token);
 
-        // If no token, allow access to public pages only
-        if (!token) {
-            // Allow access to public pages
-            if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about' || pathname === '/') {
-                return NextResponse.next();
-            }
-            
-            // Allow access to login and register pages when not logged in
-            if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
-                return NextResponse.next();
-            }
-            
-            // Redirect to login for protected routes
-            const redirectUrl = new URL('/login', request.url);
-            redirectUrl.searchParams.set('redirect', pathname);
-            return NextResponse.redirect(redirectUrl);
-        }
-
-        let verifiedToken: TokenPayload | null = null;
-        try {
-            const payload = await verifyAuth(token);
-            verifiedToken = {
-                id: payload.id as string,
-                role: payload.role as string,
-                name: payload.name as string
-            };
-            console.log('✅ Token verified for:', verifiedToken.role);
-        } catch (err) {
-            console.error('❌ Token verification failed:', err);
-            // Clear invalid token and redirect to login
-            const response = NextResponse.redirect(new URL('/login', request.url));
-            response.cookies.set("token", "", {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                path: "/",
-                expires: new Date(0),
-                maxAge: 0,
-            });
-            return response;
-        }
-
-        // Allow access to public pages for everyone (logged in or not)
-        if (pathname.startsWith('/courses/') || pathname === '/courses' || pathname === '/about' || pathname === '/') {
+        // Allow access to public pages for everyone
+        if (pathname === '/' || pathname === '/about' || pathname === '/courses' || pathname.startsWith('/courses/')) {
             return NextResponse.next();
         }
 
-        // Handle login and register pages when user is logged in
+        // Allow access to login and register pages
         if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
-            // If user is logged in, redirect them to their appropriate dashboard
-            if (verifiedToken) {
-                const dashboardPath = verifiedToken.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
-                console.log('🔄 Redirecting logged in user to:', dashboardPath);
-                return NextResponse.redirect(new URL(dashboardPath, request.url));
-            }
-            // If not logged in, allow access
             return NextResponse.next();
         }
-        
-        // Handle protected routes
+
+        // For protected routes, check authentication
         if (pathname.startsWith('/admin') || pathname.startsWith('/user')) {
-            if (!verifiedToken) {
-                console.log('❌ No valid token, redirecting to login');
+            if (!token) {
+                console.log('❌ No token, redirecting to login');
                 const redirectUrl = new URL('/login', request.url);
                 redirectUrl.searchParams.set('redirect', pathname);
                 return NextResponse.redirect(redirectUrl);
+            }
+
+            let verifiedToken: TokenPayload | null = null;
+            try {
+                const payload = await verifyAuth(token);
+                verifiedToken = {
+                    id: payload.id as string,
+                    role: payload.role as string,
+                    name: payload.name as string
+                };
+                console.log('✅ Token verified for:', verifiedToken.role);
+            } catch (err) {
+                console.error('❌ Token verification failed:', err);
+                // Clear invalid token and redirect to login
+                const response = NextResponse.redirect(new URL('/login', request.url));
+                response.cookies.set("token", "", {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === "production",
+                    sameSite: "strict",
+                    path: "/",
+                    expires: new Date(0),
+                    maxAge: 0,
+                });
+                return response;
             }
 
             // Ensure users are redirected to their appropriate dashboard

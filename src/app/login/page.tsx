@@ -27,7 +27,6 @@ import SiteHeader from "@/components/layout/header";
 import SiteFooter from "@/components/layout/footer";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { useEffect } from "react";
 
 const formSchema = z.object({
   phone: z
@@ -42,9 +41,8 @@ const formSchema = z.object({
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const { login, user, isLoading } = useAuth();
+  const { login, isLoading } = useAuth();
 
-  console.log('LoginPage - Current user:', user);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,37 +50,6 @@ export default function LoginPage() {
       password: "",
     },
   });
-
-  // Redirect if user is already logged in
-  useEffect(() => {
-    if (user) {
-      console.log('User already logged in, redirecting...');
-      if (user.role === "ADMIN") {
-        console.log('Redirecting admin to dashboard');
-        router.replace("/admin/dashboard");
-      } else {
-        console.log('Redirecting student to my-courses');
-        router.replace("/user/my-courses");
-      }
-    }
-  }, [user, router]);
-
-  // Don't render the form if user is already logged in
-  if (user) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <SiteHeader />
-        <main className="flex-grow flex items-center justify-center py-12">
-          <Card className="w-full max-w-md mx-4">
-            <CardContent className="text-center py-8">
-              <p className="text-lg">جاري توجيهك إلى لوحة التحكم...</p>
-            </CardContent>
-          </Card>
-        </main>
-        <SiteFooter />
-      </div>
-    );
-  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -115,24 +82,6 @@ export default function LoginPage() {
         variant: "destructive",
       });
     }
-  }
-
-  // Show loading state while checking authentication
-  if (isLoading) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <SiteHeader />
-        <main className="flex-grow flex items-center justify-center py-12">
-          <Card className="w-full max-w-md mx-4">
-            <CardContent className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">جاري التحقق من حالة تسجيل الدخول...</p>
-            </CardContent>
-          </Card>
-        </main>
-        <SiteFooter />
-      </div>
-    );
   }
 
   return (
@@ -187,9 +136,9 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   className="w-full font-headline text-lg"
-                  disabled={form.formState.isSubmitting}
+                  disabled={form.formState.isSubmitting || isLoading}
                 >
-                  {form.formState.isSubmitting ? "جاري الدخول..." : "دخول"}
+                  {form.formState.isSubmitting || isLoading ? "جاري الدخول..." : "دخول"}
                 </Button>
               </form>
             </Form>
