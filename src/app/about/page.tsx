@@ -1,12 +1,11 @@
-
-
-"use client";
+'use client';
 
 import type { Viewport } from 'next';
 import { useEffect, useState, useRef } from 'react';
 import SiteFooter from "@/components/layout/footer";
 import SiteHeader from "@/components/layout/header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Heart, FlaskConical, Lightbulb, Star, BookOpen, Trophy, GraduationCap, ChevronLeft } from "lucide-react";
 import Image from 'next/image';
 import Mostafa from '../images/mostafa-portrait.png';

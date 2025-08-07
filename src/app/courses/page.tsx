@@ -1,15 +1,6 @@
-import type { Viewport } from 'next';
-
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: '#29ABE2',
-};
-
 'use client';
 
+import type { Viewport } from 'next';
 import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -18,8 +9,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import SiteHeader from '@/components/layout/header';
 import SiteFooter from '@/components/layout/footer';
+import { getStaticCoursesFromDB } from '@/lib/db-seeder';
 import { staticGradeLevels } from '@/lib/static-courses';
 import { useAuth } from '@/context/AuthContext';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#29ABE2',
+};
 
 interface StaticUnit {
   title: string;
