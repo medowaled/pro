@@ -12,16 +12,12 @@ export default function LogoutButton() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
-    if (isLoggingOut) return; // Prevent multiple clicks
+    if (isLoggingOut) return;
     
     try {
       setIsLoggingOut(true);
       
-      // Clear all client-side data first
-      sessionStorage.clear();
-      localStorage.clear();
-      
-      // Call logout function from AuthContext
+      // Call logout function
       await logout();
       
       // Show success message
@@ -30,16 +26,8 @@ export default function LogoutButton() {
         description: "تم تسجيل خروجك بنجاح. شكراً لاستخدامك منصتنا!",
       });
       
-      // Force a complete page reload and redirect
-      setTimeout(() => {
-        // Clear any remaining data
-        sessionStorage.clear();
-        localStorage.clear();
-        
-        // Force reload and redirect to login page
-        window.location.replace('/login');
-        window.location.reload();
-      }, 500);
+      // Force redirect to login page
+      window.location.href = '/login';
       
     } catch (error) {
       console.error('Logout error:', error);
@@ -48,13 +36,8 @@ export default function LogoutButton() {
         description: "حدث خطأ أثناء تسجيل الخروج. يرجى المحاولة مرة أخرى.",
         variant: "destructive",
       });
-      // Even if there's an error, force redirect
-      setTimeout(() => {
-        sessionStorage.clear();
-        localStorage.clear();
-        window.location.replace('/login');
-        window.location.reload();
-      }, 500);
+      // Even if there's an error, redirect to login
+      window.location.href = '/login';
     } finally {
       setIsLoggingOut(false);
     }
