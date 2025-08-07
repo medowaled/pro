@@ -61,13 +61,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkUser();
   }, [checkUser]);
 
-  // إعادة التوجيه إذا كان المستخدم مسجلاً الدخول
-  useEffect(() => {
-    if (user && (window.location.pathname === '/login' || window.location.pathname === '/register')) {
-      const targetPath = user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
-      window.location.href = targetPath;
-    }
-  }, [user]);
+  // إزالة إعادة التوجيه التلقائي عند وجود مستخدم
+  // useEffect(() => {
+  //   if (user && (window.location.pathname === '/login' || window.location.pathname === '/register')) {
+  //     const targetPath = user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
+  //     window.location.href = targetPath;
+  //   }
+  // }, [user]);
 
   const login = async (phone: string, password: string): Promise<User> => {
     const response = await fetch('/api/auth/login', {
