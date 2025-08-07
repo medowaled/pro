@@ -1,13 +1,5 @@
 import { jwtVerify } from "jose";
 
-interface JWTPayload {
-  id: string;
-  role: string;
-  name: string;
-  iat?: number;
-  exp?: number;
-}
-
 export function getJwtSecretKey() {
   const secret = process.env.NEXT_JWT_SECRET;
   if (!secret || secret.length === 0) {
@@ -27,5 +19,4 @@ export async function verifyAuth(token: string) {
   } catch (error) {
     throw error;
   }
-}
 }
