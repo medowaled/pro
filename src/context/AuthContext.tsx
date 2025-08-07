@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Global logout state to prevent auto-login
 let isLoggedOut = false;
 let logoutTimestamp = 0;
-const LOGOUT_COOLDOWN = 30 * 60 * 1000; // 30 minutes cooldown
+const LOGOUT_COOLDOWN = 60 * 60 * 1000; // 1 hour cooldown
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -29,7 +29,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   const checkUser = useCallback(async () => {
-    // Don't check if user just logged out
+    // Check if user just logged out (persistent across reloads)
+    const storedLogoutTime = localStorage.getItem('logoutTimestamp');
+    if (storedLogoutTime) {
+      const logoutTime = parseInt(storedLogoutTime);
+      const now = Date.now();
+      if (now - logoutTime < LOGOUT_COOLDOWN) {
+        console.log('🚫 User is in logout cooldown, skipping auth check');
+        setUser(null);
+        setIsLoading(false);
+        return;
+      } else {
+        // Clear expired logout state
+        localStorage.removeItem('logoutTimestamp');
+        console.log('🔄 Logout cooldown expired, resetting state');
+      }
+    }
+
+    // Don't check if user just logged out (in-memory)
     if (isLoggedOut) {
       const now = Date.now();
       if (now - logoutTimestamp < LOGOUT_COOLDOWN) {
@@ -70,15 +87,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  // Only check user on mount, not periodically
   useEffect(() => {
     checkUser();
-  }, [checkUser]);
+  }, []); // Remove checkUser from dependencies to prevent re-runs
 
   const login = async (phone: string, password: string): Promise<User> => {
     try {
       // Reset logout state when logging in
       isLoggedOut = false;
       logoutTimestamp = 0;
+      localStorage.removeItem('logoutTimestamp');
 
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -110,13 +129,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Set logout state immediately to prevent any further auth checks
       isLoggedOut = true;
       logoutTimestamp = Date.now();
+      localStorage.setItem('logoutTimestamp', logoutTimestamp.toString());
       
       // Clear user state immediately
       setUser(null);
       
-      // Clear all storage
+      // Clear all storage except logout timestamp
       sessionStorage.clear();
-      localStorage.clear();
+      // Don't clear localStorage completely, keep logout timestamp
       
       // Call logout API to clear server-side session
       const logoutResponse = await fetch('/api/auth/logout', { 
@@ -141,6 +161,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Even if API fails, maintain logout state
       isLoggedOut = true;
       logoutTimestamp = Date.now();
+      localStorage.setItem('logoutTimestamp', logoutTimestamp.toString());
       setUser(null);
     }
   };
