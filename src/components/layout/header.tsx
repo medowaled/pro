@@ -32,7 +32,7 @@ export default function SiteHeader() {
   const handleDashboardClick = () => {
     if (!user) {
       console.log('No user logged in, redirecting to login');
-      router.push('/login');
+      window.location.href = '/login';
       return;
     }
     
@@ -40,7 +40,7 @@ export default function SiteHeader() {
     console.log('👤 Current user:', user);
     const targetUrl = user.role === 'ADMIN' ? '/admin/dashboard' : '/user/my-courses';
     console.log('🎯 Target URL:', targetUrl);
-    router.push(targetUrl);
+    window.location.href = targetUrl;
   };
 
   return (

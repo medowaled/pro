@@ -27,6 +27,7 @@ import SiteHeader from "@/components/layout/header";
 import SiteFooter from "@/components/layout/footer";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
 
 const formSchema = z.object({
   phone: z
@@ -42,6 +43,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
   const { login, isLoading } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,8 +54,13 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
     try {
       console.log("🔄 Starting login process...");
+      console.log("📱 Phone:", values.phone);
+      
       const user = await login(values.phone, values.password);
 
       console.log("✅ Login successful, user:", user);
@@ -68,10 +75,12 @@ export default function LoginPage() {
       // Redirect based on user role immediately
       if (user.role === "ADMIN") {
         console.log("👨‍💼 Redirecting admin to:", "/admin/dashboard");
-        router.replace("/admin/dashboard");
+        // Use window.location for more reliable redirect
+        window.location.href = "/admin/dashboard";
       } else {
         console.log("👨‍🎓 Redirecting student to:", "/user/my-courses");
-        router.replace("/user/my-courses");
+        // Use window.location for more reliable redirect
+        window.location.href = "/user/my-courses";
       }
     } catch (error: any) {
       console.error("❌ Login failed:", error);
@@ -81,6 +90,8 @@ export default function LoginPage() {
         description: error.message || "حدث خطأ أثناء تسجيل الدخول. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -136,9 +147,9 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   className="w-full font-headline text-lg"
-                  disabled={form.formState.isSubmitting || isLoading}
+                  disabled={isSubmitting || isLoading}
                 >
-                  {form.formState.isSubmitting || isLoading ? "جاري الدخول..." : "دخول"}
+                  {isSubmitting || isLoading ? "جاري الدخول..." : "دخول"}
                 </Button>
               </form>
             </Form>
