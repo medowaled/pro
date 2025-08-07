@@ -14,17 +14,25 @@ export async function middleware(request: NextRequest) {
 
         console.log('🔍 Middleware checking:', pathname, 'Token exists:', !!token);
 
-        // Allow access to public pages for everyone
+        // معالجة طلب تسجيل الخروج أولاً (يجب أن يكون في البداية)
+        if (pathname.startsWith('/logout')) {
+            console.log('🚪 Handling logout request');
+            const response = NextResponse.redirect(new URL('/', request.url));
+            response.cookies.delete("token");
+            return response;
+        }
+
+        // السماح بالوصول إلى الصفحات العامة للجميع
         if (pathname === '/' || pathname === '/about' || pathname === '/courses' || pathname.startsWith('/courses/')) {
             return NextResponse.next();
         }
 
-        // Allow access to login and register pages
+        // السماح بالوصول إلى صفحات التسجيل والدخول
         if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
             return NextResponse.next();
         }
 
-        // For protected routes, check authentication
+        // للطرق المحمية، التحقق من المصادقة
         if (pathname.startsWith('/admin') || pathname.startsWith('/user')) {
             if (!token) {
                 console.log('❌ No token, redirecting to login');
@@ -44,7 +52,7 @@ export async function middleware(request: NextRequest) {
                 console.log('✅ Token verified for:', verifiedToken.role);
             } catch (err) {
                 console.error('❌ Token verification failed:', err);
-                // Clear invalid token and redirect to login
+                // مسح التوكن غير الصالح وإعادة التوجيه لتسجيل الدخول
                 const response = NextResponse.redirect(new URL('/login', request.url));
                 response.cookies.set("token", "", {
                     httpOnly: true,
@@ -57,7 +65,7 @@ export async function middleware(request: NextRequest) {
                 return response;
             }
 
-            // Ensure users are redirected to their appropriate dashboard
+            // التأكد من توجيه المستخدمين إلى لوحة التحكم المناسبة لهم
             if (pathname.startsWith('/admin') && verifiedToken.role !== 'ADMIN') {
                 console.log('🔄 Non-admin trying to access admin area, redirecting');
                 return NextResponse.redirect(new URL('/user/my-courses', request.url));
@@ -67,19 +75,12 @@ export async function middleware(request: NextRequest) {
                 console.log('🔄 Non-student trying to access user area, redirecting');
                 return NextResponse.redirect(new URL('/admin/dashboard', request.url));
             }
-
-            if (pathname.startsWith('/logout')) {
-                console.log('🚪 Handling logout request');
-                const response = NextResponse.redirect(new URL('/', request.url));
-                response.cookies.delete("token");
-                return response;
-              }
         }
         
         return NextResponse.next();
     } catch (error) {
         console.error('🔥 Middleware error:', error);
-        // Clear token and redirect to login on any error
+        // مسح التوكن وإعادة التوجيه لتسجيل الدخول عند أي خطأ
         const response = NextResponse.redirect(new URL('/login', request.url));
         response.cookies.set("token", "", {
             httpOnly: true,
@@ -94,5 +95,14 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/user/:path*', '/login', '/register', '/courses/:id', '/courses', '/about' , '/logout'],
+    matcher: [
+        '/logout', // تم إضافته في البداية
+        '/admin/:path*', 
+        '/user/:path*', 
+        '/login', 
+        '/register', 
+        '/courses/:id', 
+        '/courses', 
+        '/about'
+    ],
 };
