@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   cookiesToClear.forEach((cookieName) => {
     response.cookies.set(cookieName, '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: true,
       sameSite: 'strict',
       path: '/',
       expires: new Date(0),
