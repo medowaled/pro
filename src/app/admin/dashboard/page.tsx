@@ -57,6 +57,7 @@ export default function AdminDashboardPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [instructors, setInstructors] = useState<Instructor[]>([]);
+
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{
     id: string;
@@ -67,28 +68,41 @@ export default function AdminDashboardPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [coursesRes, studentsRes, instructorsRes] = await Promise.all([
-        fetch('/api/courses'),
-        fetch('/api/students'),
-        fetch('/api/instructors'),
-      ]);
+      const coursesRes = await fetch('/api/courses');
+      const studentsRes = await fetch('/api/students');
+      const instructorsRes = await fetch('/api/instructors');
 
-      if (!coursesRes.ok || !studentsRes.ok || !instructorsRes.ok) {
-        throw new Error('Failed to fetch dashboard data');
+      if (!coursesRes.ok) {
+        const data = await coursesRes.json();
+        throw new Error(data.message || 'فشل في تحميل الدورات');
+      }
+      if (!studentsRes.ok) {
+        const data = await studentsRes.json();
+        throw new Error(data.message || 'فشل في تحميل الطلاب');
+      }
+      if (!instructorsRes.ok) {
+        const data = await instructorsRes.json();
+        throw new Error(data.message || 'فشل في تحميل المدربين');
       }
 
-      const coursesData = await coursesRes.json();
-      const studentsData = await studentsRes.json();
-      const instructorsData = await instructorsRes.json();
+      const coursesData: Course[] = await coursesRes.json();
+      const studentsData: Student[] = await studentsRes.json();
+      const instructorsData: Instructor[] = await instructorsRes.json();
 
       setCourses(coursesData);
       setStudents(studentsData);
       setInstructors(instructorsData);
+
+      toast({
+        title: 'نجاح',
+        description: 'تم تحميل بيانات لوحة التحكم بنجاح.',
+      });
     } catch (error) {
       console.error(error);
       toast({
         title: 'خطأ',
-        description: 'فشل في تحميل بيانات لوحة التحكم.',
+        description:
+          error instanceof Error ? error.message : 'حدث خطأ غير متوقع',
         variant: 'destructive',
       });
     }

@@ -1,30 +1,36 @@
 import { NextResponse, NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
-    try {
-        const students = await prisma.user.findMany({
-            where: {
-                role: 'STUDENT'
-            },
-            include: {
-                _count: {
-                    select: { enrollments: true }
-                }
-            }
-        });
+export async function GET(_: NextRequest) {
+  try {
+    const students = await prisma.user.findMany({
+      where: { role: 'STUDENT' },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        createdAt: true,
+        _count: { select: { enrollments: true } },
+      },
+    });
 
-        const formattedStudents = students.map(student => ({
-            id: student.id,
-            name: `${student.firstName} ${student.lastName}`,
-            phone: student.phone,
-            enrolledDate: student.createdAt.toISOString().split('T')[0],
-            courses: student._count.enrollments,
-        }));
+    const formattedStudents = students.map(
+      ({ id, firstName, lastName, phone, createdAt, _count }) => ({
+        id,
+        name: `${firstName} ${lastName}`,
+        phone,
+        enrolledDate: createdAt.toISOString().split('T')[0],
+        courses: _count.enrollments,
+      })
+    );
 
-        return NextResponse.json(formattedStudents);
-    } catch (error) {
-        console.error("Failed to fetch students:", error);
-        return NextResponse.json({ message: 'حدث خطأ أثناء جلب بيانات الطلاب.' }, { status: 500 });
-    }
+    return NextResponse.json(formattedStudents);
+  } catch (error) {
+    console.error('Failed to fetch students:', error);
+    return NextResponse.json(
+      { message: 'حدث خطأ أثناء جلب بيانات الطلاب.' },
+      { status: 500 }
+    );
+  }
 }

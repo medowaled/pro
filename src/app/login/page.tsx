@@ -25,7 +25,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import SiteHeader from '@/components/layout/header';
 import SiteFooter from '@/components/layout/footer';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useState, Suspense } from 'react';
 
@@ -41,7 +41,6 @@ const formSchema = z.object({
 
 function LoginForm() {
   const { toast } = useToast();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { login, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,8 +73,6 @@ function LoginForm() {
       // Use window.location for more reliable redirect
       window.location.href = redirectUrl;
     } catch (error: any) {
-      console.error('❌ Login failed:', error);
-
       toast({
         title: 'فشل تسجيل الدخول',
         description:
