@@ -1,7 +1,8 @@
+// app/api/logout/route.ts
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  const response = NextResponse.redirect(new URL('/', request.url));
+  const response = NextResponse.json({ success: true });
 
   const cookiesToClear = [
     'token',
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
   cookiesToClear.forEach((cookieName) => {
     response.cookies.set(cookieName, '', {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/',
       expires: new Date(0),
