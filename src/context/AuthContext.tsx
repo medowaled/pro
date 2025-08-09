@@ -1,75 +1,84 @@
 'use client';
 
-import React, {
+import {
   createContext,
-  useState,
+  useCallback,
   useContext,
   useEffect,
-  ReactNode,
-  useCallback,
+  useState,
 } from 'react';
 
 interface User {
   id: string;
-  name: string;
-  role: string;
+  email: string;
+  // Add other user fields here
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (phone: string, password: string) => Promise<User>;
-  logout: () => Promise<void>;
   isLoading: boolean;
-  isLoggingOut: boolean;
+  checkUser: (forceCheck?: boolean) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 let userCache: User | null = null;
 let cacheTimestamp = 0;
-const USER_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+const USER_CACHE_DURATION = 60_000; // 1 minute
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const clearCache = () => {
+    userCache = null;
+    cacheTimestamp = 0;
+  };
 
   const checkUser = useCallback(
     async (forceCheck = false) => {
       if (isLoggingOut) return;
 
-      setIsLoading(true);
-      try {
-        const now = Date.now();
+      const now = Date.now();
 
-        if (
-          !forceCheck &&
-          userCache &&
-          now - cacheTimestamp < USER_CACHE_DURATION
-        ) {
-          setUser(userCache);
-          setIsLoading(false);
+      // Use cache if valid and not forcing a refresh
+      if (
+        !forceCheck &&
+        userCache &&
+        now - cacheTimestamp < USER_CACHE_DURATION
+      ) {
+        setUser(userCache);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+
+      try {
+        const res = await fetch('/api/auth/me', { cache: 'no-store' });
+
+        if (res.status === 401) {
+          // Not logged in or token expired
+          setUser(null);
+          clearCache();
           return;
         }
 
-        const res = await fetch('/api/auth/me', {
-          headers: { 'Cache-Control': 'no-cache' },
-        });
-
-        if (res.ok && isLoggingOut === false) {
-          const data = await res.json();
-          userCache = data.user;
-          cacheTimestamp = now;
-          setUser(data.user);
-        } else {
-          setUser(null);
-          userCache = null;
-          cacheTimestamp = 0;
+        if (!res.ok) {
+          console.error('Error fetching user:', await res.text());
+          return;
         }
+
+        const data = await res.json();
+        userCache = data.user;
+        cacheTimestamp = now;
+        setUser(data.user);
       } catch (error) {
+        console.error('Check user failed:', error);
         setUser(null);
-        userCache = null;
-        cacheTimestamp = 0;
+        clearCache();
       } finally {
         setIsLoading(false);
       }
@@ -77,63 +86,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     [isLoggingOut]
   );
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      checkUser();
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [checkUser]);
-
-  const login = async (phone: string, password: string): Promise<User> => {
-    if (isLoggingOut) throw new Error('جاري تسجيل الخروج، يرجى الانتظار');
-
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, password }),
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || 'فشل تسجيل الدخول');
-    }
-
-    userCache = data.user;
-    cacheTimestamp = Date.now();
-    setUser(data.user);
-    return data.user;
-  };
-
-  const logout = async (): Promise<void> => {
+  const logout = useCallback(async () => {
     if (isLoggingOut) return;
 
     setIsLoggingOut(true);
     try {
+      // Clear local state immediately so navbar updates
       setUser(null);
-      userCache = null;
-      cacheTimestamp = 0;
-      localStorage.removeItem('token');
+      clearCache();
+
+      localStorage.removeItem('token'); // if you store token here
       sessionStorage.clear();
 
-      await fetch('/api/auth/logout', { method: 'POST' });
+      const res = await fetch('/api/auth/logout', { method: 'POST' });
 
-      // Force recheck from server so UI can't "bounce back"
-      await checkUser(true);
+      if (!res.ok) {
+        console.error('Logout failed:', await res.text());
+      }
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('Logout error:', error);
     } finally {
       setIsLoggingOut(false);
     }
-  };
+  }, [isLoggingOut]);
+
+  useEffect(() => {
+    checkUser(true); // Force check on mount
+  }, [checkUser]);
 
   return (
-    <AuthContext.Provider
-      value={{ user, login, logout, isLoading, isLoggingOut }}
-    >
+    <AuthContext.Provider value={{ user, isLoading, checkUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
