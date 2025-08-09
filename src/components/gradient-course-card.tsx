@@ -130,10 +130,7 @@ export function GradientCourseCard({ course }: GradientCourseCardProps) {
 
         {/* Course Stats */}
         <div className="grid grid-cols-2 gap-3 py-3">
-          <div className="flex justify-between items-center">
-              <span>اشتراك شهري:</span>
-              <span className="font-bold">100 جنيه</span>
-          </div>
+          
           <div className="text-center p-2 rounded-lg backdrop-blur-sm
             bg-slate-100/80 dark:bg-white/10
             border border-slate-200 dark:border-slate-700">
@@ -181,10 +178,7 @@ export function GradientCourseCard({ course }: GradientCourseCardProps) {
         <div className="w-full space-y-3">
           {/* Pricing */}
           <div className="flex justify-between items-center">
-            <div className="text-center">
-              <div className="text-xs text-slate-500 dark:text-slate-400">اشتراك شهري</div>
-              
-            </div>
+            
             <div className="text-center">
               <div className="text-xs text-slate-500 dark:text-slate-400">اشتراك كامل للترم</div>
               <div className="font-bold text-lg text-green-600 dark:text-green-400">
