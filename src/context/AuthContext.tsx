@@ -56,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           headers: { 'Cache-Control': 'no-cache' },
         });
 
-        if (res.ok) {
+        if (res.ok && isLoggingOut === false) {
           const data = await res.json();
           userCache = data.user;
           cacheTimestamp = now;
