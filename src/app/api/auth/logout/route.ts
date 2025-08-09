@@ -1,7 +1,14 @@
 // app/api/logout/route.ts
 import { NextResponse } from 'next/server';
+import { blacklistToken } from '@/lib/tokenBlacklist';
 
 export async function POST(request: Request) {
+  const token = request.headers.get('cookie')?.match(/token=([^;]+)/)?.[1];
+
+  if (token) {
+    blacklistToken(token);
+  }
+
   const response = NextResponse.json({ success: true });
 
   const cookiesToClear = [
