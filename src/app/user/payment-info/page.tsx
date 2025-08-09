@@ -63,7 +63,7 @@ const PaymentMethodCard = ({
             ملحوظة هامة جدا
           </p>
           <p className="text-green-600 dark:text-green-400">
-            إذا تم التحويل من خلال رقم غير الرقم المسجل منه الرجاء ارسال صورة من التحويل على رقم الواتساب <br />
+           (01092240848) إذا تم التحويل من خلال رقم غير الرقم المسجل منه الرجاء ارسال صورة من التحويل على رقم الواتساب <br />
             <span dir="ltr" className="font-bold text-lg text-green-600 dark:text-green-400">
               {whatsapp}
             </span>
@@ -81,23 +81,7 @@ const PaymentMethodCard = ({
 };
 
 export default function PaymentInfoPage() {
-  const instaPaySteps = [
-    "افتح تطبيق InstaPay على هاتفك",
-    "اضغط على زر التحويل",
-    "أدخل الرقم: <strong>01224389180</strong>",
-    "أدخل المبلغ المطلوب",
-    "أضف رسالة: <strong>اشتراك دورة</strong>",
-    "اضغط على تأكيد التحويل"
-  ];
-
-  const vodafoneCashSteps = [
-    "افتح تطبيق اتصالات كاش على هاتفك",
-    "اضغط على زر التحويل",
-    "أدخل الرقم: <strong>01116822035</strong>",
-    "أدخل المبلغ المطلوب",
-    "أضف رسالة: <strong>اشتراك دورة</strong>",
-    "اضغط على تأكيد التحويل"
-  ];
+ 
 
     return (
     <div>
@@ -118,11 +102,7 @@ export default function PaymentInfoPage() {
         <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 max-w-2xl mx-auto">
           <h3 className="font-bold text-blue-700 dark:text-blue-300 mb-2">خطط الاشتراك المتاحة:</h3>
           <div className="space-y-2 text-blue-600 dark:text-blue-400">
-            <div className="flex justify-between items-center">
-              <span>اشتراك شهري:</span>
-              <span className="font-bold">100 جنيه</span>
-            </div>
-            <div className="flex justify-between items-center">
+           <div className="flex justify-between items-center">
               <span>اشتراك كامل للترم:</span>
               <span className="font-bold text-green-600">300 جنيه</span>
             </div>
@@ -133,16 +113,16 @@ export default function PaymentInfoPage() {
         <PaymentMethodCard
           title="InstaPay"
           icon={<Smartphone className="w-10 h-10" />}
-          number="01224389180"
+          number="01092240848"
           steps={instaPaySteps}
-          whatsapp="01224389180"
+          whatsapp="01092240848"
         />
         <PaymentMethodCard
-          title="اتصالات كاش"
+          title="فودافون كاش"
           icon={<Smartphone className="w-10 h-10" />}
-          number="01116822035"
+          number="01092240848"
           steps={vodafoneCashSteps}
-          whatsapp="01116822035"
+          whatsapp="01092240848"
         />
       </div>
     </div>
