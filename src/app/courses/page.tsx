@@ -197,11 +197,7 @@ export default function CoursesPage() {
                       </ul>
                       <div className="mt-6 pt-4 border-t border-foreground/10">
                         <div className="space-y-3">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-foreground/70">اشتراك شهري:</span>
-                            <span className="text-lg font-bold text-primary">
-                              100 جنيه
-                            </span>
+                          
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-foreground/70">اشتراك كامل للترم:</span>

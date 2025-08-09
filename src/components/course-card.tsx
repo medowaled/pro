@@ -54,13 +54,12 @@ export function CourseCard({ course }: CourseCardProps) {
       </CardContent>
       <CardFooter className="p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-center bg-secondary/30 gap-2 sm:gap-0">
         <div className="text-center sm:text-left">
-          <div className="font-bold text-accent font-headline text-sm sm:text-base">
-            100 جنيه
-          </div>
-          <div className="text-xs text-muted-foreground">شهرياً</div>
+          
           <div className="text-xs text-green-600 mt-1">
-            300 جنيه للترم
+            300 جنيه 
           </div>
+          <div className="text-xs text-muted-foreground">للترم</div>
+
         </div>
         <Button asChild variant="ghost" className="text-accent hover:text-accent hover:bg-accent/10 text-xs sm:text-sm w-full sm:w-auto">
           <Link href={courseLink} className="flex items-center justify-center">

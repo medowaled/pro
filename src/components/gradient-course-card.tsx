@@ -183,9 +183,7 @@ export function GradientCourseCard({ course }: GradientCourseCardProps) {
           <div className="flex justify-between items-center">
             <div className="text-center">
               <div className="text-xs text-slate-500 dark:text-slate-400">اشتراك شهري</div>
-              <div className="font-bold text-lg text-slate-800 dark:text-white">
-                {course.price === "مدفوع" ? "مدفوع" : "100 جنيه"}
-              </div>
+              
             </div>
             <div className="text-center">
               <div className="text-xs text-slate-500 dark:text-slate-400">اشتراك كامل للترم</div>
