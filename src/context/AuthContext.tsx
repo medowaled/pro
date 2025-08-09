@@ -112,18 +112,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(null);
       userCache = null;
       cacheTimestamp = 0;
-      localStorage.removeItem('token'); // if you store token here
+      localStorage.removeItem('token');
       sessionStorage.clear();
 
-      const res = await fetch('/api/auth/logout', {
-        method: 'POST',
-      });
+      await fetch('/api/auth/logout', { method: 'POST' });
 
-      if (!res.ok) {
-        console.warn('Logout API responded with error:', await res.text());
-      }
-
-      // Just let the caller handle the redirect if needed
+      // Force recheck from server so UI can't "bounce back"
+      await checkUser(true);
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
