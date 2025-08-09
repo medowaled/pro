@@ -9,7 +9,17 @@ export async function POST(request: Request) {
     blacklistToken(token);
   }
 
-  const response = NextResponse.json({ success: true });
+  const response = NextResponse.json(
+    { success: true },
+    {
+      headers: {
+        'Cache-Control':
+          'no-store, no-cache, must-revalidate, proxy-revalidate',
+        Pragma: 'no-cache',
+        Expires: '0',
+      },
+    }
+  );
 
   const cookiesToClear = [
     'token',
