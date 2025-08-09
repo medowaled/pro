@@ -86,12 +86,7 @@ export default function PaymentInfoPage() {
   ];
 
   const vodafoneCashSteps = [
-    "افتح تطبيق فودافون كاش على هاتفك",
-    "اضغط على زر التحويل",
-    "أدخل الرقم: <strong>01092240848</strong>",
-    "أدخل المبلغ المطلوب",
-    "أضف رسالة: <strong>اشتراك دورة</strong>",
-    "اضغط على تأكيد التحويل"
+    
   ];
 
     return (
