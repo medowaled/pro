@@ -131,7 +131,7 @@ export default function NewInstructorPage() {
                 <FormItem>
                   <FormLabel>رقم الهاتف</FormLabel>
                   <FormControl>
-                    <Input dir="ltr" placeholder="مثال: 9665xxxxxxxx" {...field} />
+                    <Input dir="ltr" placeholder="مثال: 01xxxxxxxx" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

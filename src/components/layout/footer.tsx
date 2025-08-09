@@ -43,11 +43,11 @@ const Footer = () => {
                   <Mail className="h-5 w-5" />
                 </a>
                 <a
-                  href="tel:966542528952"
+                  href="tel:01092240848"
                   className="flex items-center gap-3 hover:text-primary transition-colors"
                   dir="ltr"
                 >
-                  <span className="align-middle">966542528952</span>
+                  <span className="align-middle">01092240848</span>
                   <Phone className="h-5 w-5" />
                 </a>
                 <div className="flex items-center gap-3">

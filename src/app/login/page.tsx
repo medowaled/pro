@@ -111,7 +111,7 @@ function LoginForm() {
                     <FormItem>
                       <FormLabel className="font-body">رقم الهاتف</FormLabel>
                       <FormControl>
-                        <Input placeholder="مثال: 9665xxxxxxxx" {...field} />
+                        <Input placeholder="مثال: 01xxxxxxxx" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
