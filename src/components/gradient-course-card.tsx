@@ -130,6 +130,10 @@ export function GradientCourseCard({ course }: GradientCourseCardProps) {
 
         {/* Course Stats */}
         <div className="grid grid-cols-2 gap-3 py-3">
+          <div className="flex justify-between items-center">
+              <span>اشتراك شهري:</span>
+              <span className="font-bold">100 جنيه</span>
+          </div>
           <div className="text-center p-2 rounded-lg backdrop-blur-sm
             bg-slate-100/80 dark:bg-white/10
             border border-slate-200 dark:border-slate-700">
