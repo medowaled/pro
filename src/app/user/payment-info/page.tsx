@@ -63,7 +63,7 @@ const PaymentMethodCard = ({
             ملحوظة هامة جدا
           </p>
           <p className="text-green-600 dark:text-green-400">
-           (01092240848) إذا تم التحويل من خلال رقم غير الرقم المسجل منه الرجاء ارسال صورة من التحويل على رقم الواتساب <br />
+            إذا تم التحويل من خلال رقم غير الرقم المسجل منه الرجاء ارسال صورة من التحويل على رقم الواتساب <br />
             <span dir="ltr" className="font-bold text-lg text-green-600 dark:text-green-400">
               {whatsapp}
             </span>
@@ -108,6 +108,10 @@ export default function PaymentInfoPage() {
         <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 max-w-2xl mx-auto">
           <h3 className="font-bold text-blue-700 dark:text-blue-300 mb-2">خطط الاشتراك المتاحة:</h3>
           <div className="space-y-2 text-blue-600 dark:text-blue-400">
+             <div className="flex justify-between items-center">
+              <span>اشتراك الشهرى:</span>
+              <span className="font-bold text-green-600">100 جنيه</span>
+            </div>
            <div className="flex justify-between items-center">
               <span>اشتراك كامل للترم:</span>
               <span className="font-bold text-green-600">300 جنيه</span>
