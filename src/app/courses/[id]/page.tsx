@@ -213,7 +213,12 @@ export default function CourseIntroPage() {
                     خطط الاشتراك
                   </CardTitle>
                   <div className="space-y-3">
-                    
+                    <div className="text-center p-3 bg-green-100 dark:bg-green-900/20 rounded-lg border-2 border-green-200 dark:border-green-800">
+                      <div className="text-sm text-foreground/70 mb-1">اشتراك شهرى</div>
+                      <div className="text-2xl font-bold text-green-600">
+                        100 جنيه
+                      </div>
+                    </div>
                     <div className="text-center p-3 bg-green-100 dark:bg-green-900/20 rounded-lg border-2 border-green-200 dark:border-green-800">
                       <div className="text-sm text-foreground/70 mb-1">اشتراك كامل للترم</div>
                       <div className="text-2xl font-bold text-green-600">

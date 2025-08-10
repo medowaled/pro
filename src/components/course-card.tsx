@@ -53,6 +53,14 @@ export function CourseCard({ course }: CourseCardProps) {
         </div>
       </CardContent>
       <CardFooter className="p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-center bg-secondary/30 gap-2 sm:gap-0">
+       <div className="text-center sm:text-left">
+          
+          <div className="text-xs text-green-600 mt-1">
+            100 جنيه 
+          </div>
+          <div className="text-xs text-muted-foreground">الشهرى</div>
+
+        </div>
         <div className="text-center sm:text-left">
           
           <div className="text-xs text-green-600 mt-1">
