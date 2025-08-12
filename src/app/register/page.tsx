@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
+import Link from 'next/link';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -12,7 +12,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -20,32 +20,32 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import SiteHeader from "@/components/layout/header";
-import SiteFooter from "@/components/layout/footer";
-import { useRouter } from "next/navigation";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import SiteHeader from '@/components/layout/header';
+import SiteFooter from '@/components/layout/footer';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z
   .object({
-    firstName: z.string().min(2, "الاسم الأول قصير جداً"),
-    lastName: z.string().min(2, "اسم العائلة قصير جداً"),
+    firstName: z.string().min(2, 'الاسم الأول قصير جداً'),
+    lastName: z.string().min(2, 'اسم العائلة قصير جداً'),
     phone: z
       .string()
       .regex(
         /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
-        "رقم هاتف غير صالح",
+        'رقم هاتف غير صالح'
       ),
-    password: z.string().min(8, "يجب أن تكون كلمة المرور 8 أحرف على الأقل"),
-    year: z.string().min(1, "يرجى اختيار السنة"),
+    password: z.string().min(8, 'يجب أن تكون كلمة المرور 8 أحرف على الأقل'),
+    year: z.string().min(1, 'يرجى اختيار السنة'),
     confirmPassword: z
       .string()
-      .min(8, "يجب أن تكون كلمة المرور 8 أحرف على الأقل"),
+      .min(8, 'يجب أن تكون كلمة المرور 8 أحرف على الأقل'),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "كلمتا المرور غير متطابقتين",
-    path: ["confirmPassword"],
+    message: 'كلمتا المرور غير متطابقتين',
+    path: ['confirmPassword'],
   });
 
 export default function RegisterPage() {
@@ -54,20 +54,20 @@ export default function RegisterPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      phone: "",
-      year: "",
-      password: "",
-      confirmPassword: "",
+      firstName: '',
+      lastName: '',
+      phone: '',
+      year: '',
+      password: '',
+      confirmPassword: '',
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           firstName: values.firstName,
           lastName: values.lastName,
@@ -80,19 +80,22 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "حدث خطأ ما");
+        throw new Error(data.message || 'حدث خطأ ما');
       }
 
       toast({
-        title: "تم إنشاء الحساب بنجاح",
-        description: "مرحباً بك في منصتنا التعليمية! تم إنشاء حسابك بنجاح. يمكنك الآن تسجيل الدخول والبدء في رحلتك التعليمية.",
+        title: 'تم إنشاء الحساب بنجاح',
+        description:
+          'مرحباً بك في منصتنا التعليمية! تم إنشاء حسابك بنجاح. يمكنك الآن تسجيل الدخول والبدء في رحلتك التعليمية.',
       });
-      router.push("/login");
+      router.push('/login');
     } catch (error: any) {
       toast({
-        title: "فشل إنشاء الحساب",
-        description: error.message || "حدث خطأ أثناء إنشاء الحساب. يرجى التحقق من البيانات والمحاولة مرة أخرى.",
-        variant: "destructive",
+        title: 'فشل إنشاء الحساب',
+        description:
+          error.message ||
+          'حدث خطأ أثناء إنشاء الحساب. يرجى التحقق من البيانات والمحاولة مرة أخرى.',
+        variant: 'destructive',
       });
     }
   }
@@ -157,10 +160,10 @@ export default function RegisterPage() {
                           {...field}
                           className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
                         >
-                          <option value="">اختر السنة</option>
-                          <option value="1">الأولى</option>
-                          <option value="2">الثانية</option>
-                          <option value="3">الثالثة</option>
+                          <option value="">أختر الصف</option>
+                          <option value="1">الأول</option>
+                          <option value="2">الثاني</option>
+                          <option value="3">الثالث</option>
                         </select>
                       </FormControl>
                       <FormMessage />
@@ -222,15 +225,15 @@ export default function RegisterPage() {
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting
-                    ? "جاري الإنشاء..."
-                    : "إنشاء الحساب"}
+                    ? 'جاري الإنشاء...'
+                    : 'إنشاء الحساب'}
                 </Button>
               </form>
             </Form>
           </CardContent>
           <CardFooter className="flex justify-center">
             <div className="text-center text-sm text-muted-foreground font-body">
-              لديك حساب بالفعل؟{" "}
+              لديك حساب بالفعل؟{' '}
               <Link
                 href="/login"
                 className="font-bold text-primary hover:underline"
