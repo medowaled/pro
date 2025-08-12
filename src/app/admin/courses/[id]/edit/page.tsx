@@ -145,11 +145,11 @@ export default function EditCoursePage() {
         }
       } catch (error) {
         console.error(error);
-        toast({
-          title: 'خطأ',
-          description: 'فشل في جلب بيانات الدورة.',
-          variant: 'destructive',
-        });
+        // toast({
+        //   title: 'خطأ',
+        //   description: 'فشل في جلب بيانات الدورة.',
+        //   variant: 'destructive',
+        // });
       } finally {
         setIsLoading(false);
       }
@@ -177,8 +177,6 @@ export default function EditCoursePage() {
       const parts = window.location.pathname.split('/').filter(Boolean);
       // parts = ['courses', '123', 'edit']
       const id = parts[parts.length - 2]; // '123'
-
-      console.log('I am hereeeeeeeeeee', id, '11111111111111111111111');
 
       const response = await fetch(`/api/courses/${id}`, {
         method: 'PUT',
