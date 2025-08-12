@@ -111,6 +111,7 @@ export default function SecureVideoPlayer({
   const [duration, setDuration] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
 
   useEffect(() => {
     const playerElement = playerRef.current;
@@ -644,6 +645,13 @@ export default function SecureVideoPlayer({
     );
   }
 
+  const changeSpeed = (rate: number) => {
+    setPlaybackRate(rate);
+    if (youtubePlayerRef.current && youtubePlayerRef.current.setPlaybackRate) {
+      youtubePlayerRef.current.setPlaybackRate(rate);
+    }
+  };
+
   return (
     <div className="w-full">
       <div
@@ -825,6 +833,21 @@ export default function SecureVideoPlayer({
                 +1m
               </Button>
             </div>
+          </div>
+
+          <div className="flex gap-2 mt-2 self-center">
+            {[1, 1.5, 2].map((rate) => (
+              <Button
+                key={rate}
+                variant={playbackRate === rate ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => changeSpeed(rate)}
+                className="px-3"
+                disabled={!isLoaded}
+              >
+                {rate}x
+              </Button>
+            ))}
           </div>
 
           {/* Volume Control */}
