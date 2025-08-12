@@ -1,9 +1,19 @@
-"use client";
+'use client';
 
-import { useRef, useEffect, useState } from "react";
-import { Play, Pause, Volume2, VolumeX, RotateCcw, SkipBack, SkipForward, Maximize2, Minimize2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
+import { useRef, useEffect, useState } from 'react';
+import {
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  RotateCcw,
+  SkipBack,
+  SkipForward,
+  Maximize2,
+  Minimize2,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 
 // Declare YouTube Player API
 declare global {
@@ -46,7 +56,7 @@ const requestFullscreen = (element: HTMLElement): boolean => {
     console.log('Element is not connected to DOM');
     return false;
   }
-  
+
   try {
     if (element.requestFullscreen) {
       element.requestFullscreen();
@@ -92,6 +102,7 @@ export default function SecureVideoPlayer({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const youtubePlayerRef = useRef<any>(null);
+  const youtubeContainerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -107,7 +118,7 @@ export default function SecureVideoPlayer({
 
     // Disable context menu (right-click)
     const handleContextMenu = (e: MouseEvent) => e.preventDefault();
-    
+
     // Disable keyboard shortcuts
     const handleKeyDown = (e: KeyboardEvent) => {
       // Prevent Ctrl+C, Ctrl+A, Ctrl+U, F12, Ctrl+Shift+I, Ctrl+Shift+J
@@ -119,20 +130,20 @@ export default function SecureVideoPlayer({
       ) {
         e.preventDefault();
       }
-      
+
       // Allow fullscreen shortcuts
       if (e.key === 'f' || e.key === 'F') {
         e.preventDefault();
         toggleFullscreen();
       }
-      
+
       // Allow video control keys to pass through
       // Space (play/pause), Arrow keys (seek), etc. are allowed
     };
 
     // Disable drag and drop
     const handleDragStart = (e: DragEvent) => e.preventDefault();
-    
+
     // Disable selection
     const handleSelectStart = (e: Event) => e.preventDefault();
 
@@ -142,21 +153,21 @@ export default function SecureVideoPlayer({
     // Disable cut
     const handleCut = (e: ClipboardEvent) => e.preventDefault();
 
-    playerElement.addEventListener("contextmenu", handleContextMenu);
-    playerElement.addEventListener("keydown", handleKeyDown);
-    playerElement.addEventListener("dragstart", handleDragStart);
-    playerElement.addEventListener("selectstart", handleSelectStart);
-    playerElement.addEventListener("copy", handleCopy);
-    playerElement.addEventListener("cut", handleCut);
+    playerElement.addEventListener('contextmenu', handleContextMenu);
+    playerElement.addEventListener('keydown', handleKeyDown);
+    playerElement.addEventListener('dragstart', handleDragStart);
+    playerElement.addEventListener('selectstart', handleSelectStart);
+    playerElement.addEventListener('copy', handleCopy);
+    playerElement.addEventListener('cut', handleCut);
 
     return () => {
       if (playerElement) {
-        playerElement.removeEventListener("contextmenu", handleContextMenu);
-        playerElement.removeEventListener("keydown", handleKeyDown);
-        playerElement.removeEventListener("dragstart", handleDragStart);
-        playerElement.removeEventListener("selectstart", handleSelectStart);
-        playerElement.removeEventListener("copy", handleCopy);
-        playerElement.removeEventListener("cut", handleCut);
+        playerElement.removeEventListener('contextmenu', handleContextMenu);
+        playerElement.removeEventListener('keydown', handleKeyDown);
+        playerElement.removeEventListener('dragstart', handleDragStart);
+        playerElement.removeEventListener('selectstart', handleSelectStart);
+        playerElement.removeEventListener('copy', handleCopy);
+        playerElement.removeEventListener('cut', handleCut);
       }
     };
   }, []);
@@ -204,13 +215,13 @@ export default function SecureVideoPlayer({
     return () => {
       document.removeEventListener('keydown', handleDevTools);
       document.removeEventListener('contextmenu', handleRightClick);
-      
+
       // Re-enable text selection when component unmounts
       document.body.style.userSelect = '';
       (document.body.style as any).webkitUserSelect = '';
       (document.body.style as any).mozUserSelect = '';
       (document.body.style as any).msUserSelect = '';
-      
+
       // Remove the added style
       document.head.removeChild(style);
     };
@@ -226,17 +237,24 @@ export default function SecureVideoPlayer({
 
     // Function to add right-click prevention to all video elements
     const addRightClickPrevention = () => {
-      const videoElements = document.querySelectorAll('video, iframe, .ytp-player-content, .html5-video-player');
-      videoElements.forEach(element => {
+      const videoElements = document.querySelectorAll(
+        'video, iframe, .ytp-player-content, .html5-video-player'
+      );
+      videoElements.forEach((element) => {
         element.addEventListener('contextmenu', handleVideoContextMenu, true);
-        element.addEventListener('mousedown', (e) => {
-          const mouseEvent = e as MouseEvent;
-          if (mouseEvent.button === 2) { // Right mouse button
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-          }
-        }, true);
+        element.addEventListener(
+          'mousedown',
+          (e) => {
+            const mouseEvent = e as MouseEvent;
+            if (mouseEvent.button === 2) {
+              // Right mouse button
+              e.preventDefault();
+              e.stopPropagation();
+              return false;
+            }
+          },
+          true
+        );
       });
     };
 
@@ -253,16 +271,22 @@ export default function SecureVideoPlayer({
 
     observer.observe(document.body, {
       childList: true,
-      subtree: true
+      subtree: true,
     });
 
     return () => {
       clearTimeout(timeoutId);
       observer.disconnect();
-      
-      const videoElements = document.querySelectorAll('video, iframe, .ytp-player-content, .html5-video-player');
-      videoElements.forEach(element => {
-        element.removeEventListener('contextmenu', handleVideoContextMenu, true);
+
+      const videoElements = document.querySelectorAll(
+        'video, iframe, .ytp-player-content, .html5-video-player'
+      );
+      videoElements.forEach((element) => {
+        element.removeEventListener(
+          'contextmenu',
+          handleVideoContextMenu,
+          true
+        );
       });
     };
   }, []);
@@ -284,40 +308,43 @@ export default function SecureVideoPlayer({
 
     // Initialize player when API is ready
     window.onYouTubeIframeAPIReady = () => {
-      if (playerRef.current && youTubeId) {
-        youtubePlayerRef.current = new window.YT.Player(playerRef.current, {
-          height: '100%',
-          width: '100%',
-          videoId: youTubeId,
-          playerVars: {
-            rel: 0,
-            modestbranding: 1,
-            iv_load_policy: 3,
-            autoplay: 1,
-            mute: 1,
-            disablekb: 1,
-            fs: 1,
-            controls: 0,
-            showinfo: 0,
-            enablejsapi: 1,
-            origin: window.location.origin,
-          },
-          events: {
-            onReady: (event: any) => {
-              setIsLoaded(true);
-              setDuration(event.target.getDuration());
-              setIsMuted(event.target.isMuted());
-              setVolume(event.target.getVolume() / 100);
+      if (youtubeContainerRef.current && youTubeId) {
+        youtubePlayerRef.current = new window.YT.Player(
+          youtubeContainerRef.current,
+          {
+            height: '100%',
+            width: '100%',
+            videoId: youTubeId,
+            playerVars: {
+              rel: 0,
+              modestbranding: 1,
+              iv_load_policy: 3,
+              autoplay: 1,
+              mute: 1,
+              disablekb: 1,
+              fs: 1,
+              controls: 0,
+              showinfo: 0,
+              enablejsapi: 1,
+              origin: window.location.origin,
             },
-            onStateChange: (event: any) => {
-              // YouTube player states: -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (video cued)
-              setIsPlaying(event.data === 1);
+            events: {
+              onReady: (event: any) => {
+                setIsLoaded(true);
+                setDuration(event.target.getDuration());
+                setIsMuted(event.target.isMuted());
+                setVolume(event.target.getVolume() / 100);
+              },
+              onStateChange: (event: any) => {
+                // YouTube player states: -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (video cued)
+                setIsPlaying(event.data === 1);
+              },
+              onError: (event: any) => {
+                console.error('YouTube player error:', event.data);
+              },
             },
-            onError: (event: any) => {
-              console.error('YouTube player error:', event.data);
-            }
           }
-        });
+        );
       }
     };
 
@@ -462,18 +489,20 @@ export default function SecureVideoPlayer({
 
   const toggleFullscreen = () => {
     console.log('toggleFullscreen called');
-    
+
     if (!playerRef.current || !playerRef.current.isConnected) {
       console.log('Player element is not connected to DOM');
       return;
     }
-    
+
     if (!isFullscreen) {
       console.log('Attempting to enter fullscreen');
-      
+
       // For YouTube videos, use YouTube's fullscreen API
       if (youTubeId && youtubePlayerRef.current) {
-        console.log('YouTube video detected, trying YouTube fullscreen methods');
+        console.log(
+          'YouTube video detected, trying YouTube fullscreen methods'
+        );
         try {
           // Try YouTube's fullscreen method first
           if (youtubePlayerRef.current.requestFullscreen) {
@@ -483,10 +512,13 @@ export default function SecureVideoPlayer({
             return;
           }
           // Try using YouTube's built-in fullscreen API
-          if (youtubePlayerRef.current.getPlayerState && youtubePlayerRef.current.getPlayerState() !== -1) {
+          if (
+            youtubePlayerRef.current.getPlayerState &&
+            youtubePlayerRef.current.getPlayerState() !== -1
+          ) {
             console.log('Trying iframe fullscreen');
             // Use YouTube's built-in fullscreen
-            const iframe = playerRef.current.querySelector('iframe');
+            const iframe = youtubeContainerRef.current?.querySelector('iframe');
             if (iframe && iframe.isConnected) {
               if (requestFullscreen(iframe)) {
                 setIsFullscreen(true);
@@ -494,8 +526,13 @@ export default function SecureVideoPlayer({
               }
             }
             // Try to trigger fullscreen on the YouTube player container
-            const youtubeContainer = playerRef.current.querySelector('#youtube-player');
-            if (youtubeContainer && youtubeContainer.isConnected && requestFullscreen(youtubeContainer as HTMLElement)) {
+            const youtubeContainer =
+              playerRef.current.querySelector('#youtube-player');
+            if (
+              youtubeContainer &&
+              youtubeContainer.isConnected &&
+              requestFullscreen(youtubeContainer as HTMLElement)
+            ) {
               setIsFullscreen(true);
               return;
             }
@@ -504,7 +541,7 @@ export default function SecureVideoPlayer({
           console.log('YouTube fullscreen failed, trying browser fullscreen');
         }
       }
-      
+
       // For other videos, use browser fullscreen API - ONLY the video container
       console.log('Trying browser fullscreen on player container');
       if (requestFullscreen(playerRef.current)) {
@@ -532,8 +569,14 @@ export default function SecureVideoPlayer({
 
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
-      document.removeEventListener('msfullscreenchange', handleFullscreenChange);
+      document.removeEventListener(
+        'webkitfullscreenchange',
+        handleFullscreenChange
+      );
+      document.removeEventListener(
+        'msfullscreenchange',
+        handleFullscreenChange
+      );
     };
   }, []);
 
@@ -541,8 +584,9 @@ export default function SecureVideoPlayer({
 
   if (youTubeId) {
     player = (
-      <div 
+      <div
         id="youtube-player"
+        ref={youtubeContainerRef}
         className="w-full h-full"
         style={{ pointerEvents: 'auto' }}
       />
@@ -594,7 +638,7 @@ export default function SecureVideoPlayer({
           WebkitUserSelect: 'none',
           MozUserSelect: 'none',
           msUserSelect: 'none',
-          pointerEvents: 'auto'
+          pointerEvents: 'auto',
         }}
       />
     );
@@ -619,20 +663,20 @@ export default function SecureVideoPlayer({
       >
         {player}
         {/* Invisible overlay to prevent interaction - but allow fullscreen */}
-        <div 
+        <div
           className="absolute inset-0 z-10 pointer-events-none"
           style={{ pointerEvents: 'none' }}
         />
         {/* Fullscreen trigger overlay - only visible when hovering */}
-        <div 
+        <div
           className="absolute inset-0 z-20 opacity-0 hover:opacity-100 transition-opacity duration-200"
           style={{ pointerEvents: 'auto' }}
           onClick={toggleFullscreen}
         />
       </div>
-      
+
       {/* External Video Controls */}
-      <div 
+      <div
         className="mt-4 p-4 bg-secondary/30 rounded-lg"
         onContextMenu={(e) => {
           e.preventDefault();
@@ -640,7 +684,7 @@ export default function SecureVideoPlayer({
           return false;
         }}
       >
-        <div 
+        <div
           className="flex flex-col gap-4"
           onContextMenu={(e) => {
             e.preventDefault();
@@ -649,7 +693,7 @@ export default function SecureVideoPlayer({
           }}
         >
           {/* Progress Bar */}
-          <div 
+          <div
             className="w-full"
             onContextMenu={(e) => {
               e.preventDefault();
@@ -680,7 +724,7 @@ export default function SecureVideoPlayer({
               <span>{formatTime(duration)}</span>
             </div>
           </div>
-          
+
           {/* Control Buttons */}
           <div className="flex items-center justify-center gap-2">
             <Button
@@ -691,14 +735,18 @@ export default function SecureVideoPlayer({
             >
               <RotateCcw className="h-4 w-4" />
             </Button>
-            
+
             <Button
               variant="outline"
               size="lg"
               onClick={togglePlay}
               disabled={!isLoaded}
             >
-              {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
+              {isPlaying ? (
+                <Pause className="h-6 w-6" />
+              ) : (
+                <Play className="h-6 w-6" />
+              )}
             </Button>
 
             <button
@@ -706,7 +754,11 @@ export default function SecureVideoPlayer({
               onClick={toggleFullscreen}
               className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3"
             >
-              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              {isFullscreen ? (
+                <Minimize2 className="h-4 w-4" />
+              ) : (
+                <Maximize2 className="h-4 w-4" />
+              )}
             </button>
           </div>
 
@@ -774,9 +826,9 @@ export default function SecureVideoPlayer({
               </Button>
             </div>
           </div>
-          
+
           {/* Volume Control */}
-          <div 
+          <div
             className="flex items-center gap-2"
             onContextMenu={(e) => {
               e.preventDefault();
@@ -790,7 +842,11 @@ export default function SecureVideoPlayer({
               onClick={toggleMute}
               disabled={!isLoaded}
             >
-              {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              {isMuted ? (
+                <VolumeX className="h-4 w-4" />
+              ) : (
+                <Volume2 className="h-4 w-4" />
+              )}
             </Button>
             <Slider
               value={[volume * 100]}
