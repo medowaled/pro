@@ -11,14 +11,16 @@ export type Course = {
   title: string;
   instructor: string;
   description?: string;
-  imageUrl?: string; 
+  imageUrl?: string;
   imageBase64?: string | null;
   dataAiHint?: string;
   videoUrl?: string | null;
-  price: string | {
-    monthly: string;
-    fullTerm: string;
-  };
+  price:
+    | string
+    | {
+        monthly: string;
+        fullTerm: string;
+      };
   category: string;
   instructorId: string;
   content?: CourseContentItem[] | null;
@@ -29,13 +31,14 @@ export type Student = {
   id: string;
   name: string;
   phone: string;
+  year: string;
   enrolledDate: string;
   courses: number;
-}
+};
 
 export type Instructor = {
   id: string;
   name: string;
   specialty: string;
   coursesTaught: number;
-}
+};

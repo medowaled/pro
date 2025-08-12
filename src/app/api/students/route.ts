@@ -10,16 +10,18 @@ export async function GET(_: NextRequest) {
         firstName: true,
         lastName: true,
         phone: true,
+        year: true,
         createdAt: true,
         _count: { select: { enrollments: true } },
       },
     });
 
     const formattedStudents = students.map(
-      ({ id, firstName, lastName, phone, createdAt, _count }) => ({
+      ({ id, firstName, lastName, phone, year, createdAt, _count }) => ({
         id,
         name: `${firstName} ${lastName}`,
         phone,
+        year,
         enrolledDate: createdAt.toISOString().split('T')[0],
         courses: _count.enrollments,
       })

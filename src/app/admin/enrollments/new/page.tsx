@@ -151,7 +151,15 @@ export default function NewEnrollmentPage() {
                     <SelectContent>
                       {students.map((student) => (
                         <SelectItem key={student.id} value={student.id}>
-                          {student.name} ({student.phone})
+                          {student.name} (
+                          {student.year === '1'
+                            ? 'الصف الأول'
+                            : student.year === '2'
+                            ? 'الصف الثاني'
+                            : student.year === '3'
+                            ? 'الصف الثالث'
+                            : student.year}
+                          )
                         </SelectItem>
                       ))}
                     </SelectContent>
