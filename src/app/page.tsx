@@ -349,6 +349,60 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Introduction video section */}
+        <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-background dark:bg-transparent">
+          <div className="responsive-container">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="responsive-heading font-headline font-bold text-foreground">
+                فيديو تعريفي للمراحل الدراسية
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
+              {/* Card 1 */}
+              <div className="responsive-card p-6 sm:p-8 text-center flex flex-col items-center border-t-4 border-purple-400 transform transition-transform duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                <h3 className="font-headline text-xl sm:text-2xl font-bold mb-2">
+                  الصف الأول الإعدادي
+                </h3>
+
+                <iframe
+                  className="w-full h-48 sm:h-56 md:h-64 lg:h-48 xl:h-56 2xl:h-64 rounded-lg mt-4"
+                  src="https://youtu.be/bOzpeHeEjTU?si=1DsK0HXl9rDm-Z7J"
+                  title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+              {/* Card 2 */}
+              <div className="responsive-card p-6 sm:p-8 text-center flex flex-col items-center border-t-4 border-blue-400 transform transition-transform duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                <h3 className="font-headline text-xl sm:text-2xl font-bold mb-2">
+                  الصف الثاني الإعدادي
+                </h3>
+                <iframe
+                  className="w-full h-48 sm:h-56 md:h-64 lg:h-48 xl:h-56 2xl:h-64 rounded-lg mt-4"
+                  src="https://youtu.be/PnDWp2EZICU?si=X3vwZmt_sjpNZ9wW"
+                  title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+              {/* Card 3 */}
+              <div className="responsive-card p-6 sm:p-8 text-center flex flex-col items-center border-t-4 border-green-400 transform transition-transform duration-300 hover:-translate-y-2 hover:shadow-2xl md:col-span-2 lg:col-span-1">
+                <h3 className="font-headline text-xl sm:text-2xl font-bold mb-2">
+                  الصف الثالث الإعدادي
+                </h3>
+
+                <iframe
+                  className="w-full h-48 sm:h-56 md:h-64 lg:h-48 xl:h-56 2xl:h-64 rounded-lg mt-4"
+                  src="https://youtu.be/1Wu_-Gkc844?si=u7_8OUJ89ZEmu5W_"
+                  title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Why Choose Me Section */}
         <section className="bg-background dark:bg-transparent text-foreground py-12 sm:py-16 md:py-20">
           <div className="responsive-container text-center">
