@@ -366,7 +366,7 @@ export default function Home() {
 
                 <iframe
                   className="w-full h-48 sm:h-56 md:h-64 lg:h-48 xl:h-56 2xl:h-64 rounded-lg mt-4"
-                  src="https://youtu.be/bOzpeHeEjTU?si=1DsK0HXl9rDm-Z7J"
+                  src="https://www.youtube.com/embed/bOzpeHeEjTU?si=gZFlx-iPhS4hwBjA"
                   title="YouTube video player"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -379,7 +379,7 @@ export default function Home() {
                 </h3>
                 <iframe
                   className="w-full h-48 sm:h-56 md:h-64 lg:h-48 xl:h-56 2xl:h-64 rounded-lg mt-4"
-                  src="https://youtu.be/PnDWp2EZICU?si=X3vwZmt_sjpNZ9wW"
+                  src="https://www.youtube.com/embed/PnDWp2EZICU?si=ajAfpTpqpnc6suPr"
                   title="YouTube video player"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -393,7 +393,7 @@ export default function Home() {
 
                 <iframe
                   className="w-full h-48 sm:h-56 md:h-64 lg:h-48 xl:h-56 2xl:h-64 rounded-lg mt-4"
-                  src="https://youtu.be/1Wu_-Gkc844?si=u7_8OUJ89ZEmu5W_"
+                  src="https://www.youtube.com/embed/1Wu_-Gkc844?si=3WO8sOBKCelwZMdS"
                   title="YouTube video player"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
