@@ -1,0 +1,32 @@
+{
+  "name": "مستر مصطفى خليل - منصة تعليمية",
+  "short_name": "مستر مصطفى",
+  "description": "منصة تعليمية رائدة في تدريس العلوم للمرحلة الإعدادية",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#29ABE2",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/images/hero-latest.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/hero-latest.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "science"],
+  "lang": "ar",
+  "dir": "rtl"
+} 

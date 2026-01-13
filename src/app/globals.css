@@ -1,0 +1,242 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 210 40% 98%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 210 40% 98%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 197 71% 53%; /* #29ABE2 */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 190 67% 93%; /* #E0F7FA */
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 177 63% 37%; /* #229A95 */
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 197 71% 53%;
+    --chart-1: 197 71% 53%;
+    --chart-2: 177 63% 37%;
+    --chart-3: 40 90% 60%;
+    --chart-4: 20 90% 55%;
+    --chart-5: 0 84.2% 60.2%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 224 76% 23%;
+    --sidebar-primary: 197 71% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 190 67% 93%;
+    --sidebar-accent-foreground: 224 76% 23%;
+    --sidebar-border: 190 30% 80%;
+    --sidebar-ring: 197 71% 53%;
+  }
+
+  .dark {
+    --background: 225 24% 10%;
+    --foreground: 210 40% 98%;
+    --card: 224 23% 14%;
+    --card-foreground: 210 40% 98%;
+    --popover: 224 23% 14%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 45 96% 58%; /* Yellow */
+    --primary-foreground: 225 24% 10%;
+    --secondary: 224 23% 14%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 152 63% 52%; /* Teal/Green */
+    --accent-foreground: 225 24% 10%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 45 96% 58%;
+    --chart-1: 197 71% 53%;
+    --chart-2: 177 63% 37%;
+    --chart-3: 40 90% 60%;
+    --chart-4: 20 90% 55%;
+    --chart-5: 0 84.2% 60.2%;
+    --sidebar-background: 224 70% 12%;
+    --sidebar-foreground: 190 67% 93%;
+    --sidebar-primary: 197 71% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 224 70% 18%;
+    --sidebar-accent-foreground: 190 67% 93%;
+    --sidebar-border: 190 30% 30%;
+    --sidebar-ring: 197 71% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* تحسين العرض على الأجهزة الصغيرة */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* تحسين النصوص للقراءة على الأجهزة المحمولة */
+  @media (max-width: 768px) {
+    body {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+  }
+  
+  /* تحسين التفاعل مع الشاشات اللمسية */
+  @media (hover: none) and (pointer: coarse) {
+    button, a {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+}
+
+@layer components {
+  /* تحسين البطاقات للاستجابة */
+  .responsive-card {
+    @apply bg-card rounded-lg shadow-sm border border-border transition-all duration-300 hover:shadow-md;
+  }
+  
+  /* تحسين الأزرار للاستجابة */
+  .responsive-button {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+  
+  /* تحسين النصوص للاستجابة */
+  .responsive-text {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+  
+  .responsive-heading {
+    @apply text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold;
+  }
+  
+  /* تحسين الشبكات للاستجابة */
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8;
+  }
+  
+  /* تحسين الحاويات للاستجابة */
+  .responsive-container {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* تحسين الصور للاستجابة */
+  .responsive-image {
+    @apply w-full h-auto object-cover;
+  }
+  
+  /* تحسين النماذج للاستجابة */
+  .responsive-form {
+    @apply space-y-4 sm:space-y-6;
+  }
+  
+  .responsive-input {
+    @apply w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent;
+  }
+}
+
+@layer utilities {
+  @keyframes float {
+    0% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
+    50% { transform: translateY(-20px) rotate(10deg); opacity: 0.05; }
+    100% { transform: translateY(0px) rotate(0deg); opacity: 0.1; }
+  }
+
+  .animate-float {
+    animation: float 15s ease-in-out infinite;
+  }
+  
+  /* تحسينات للاستجابة */
+  .mobile-only {
+    @apply block md:hidden;
+  }
+  
+  .desktop-only {
+    @apply hidden md:block;
+  }
+  
+  .tablet-only {
+    @apply hidden sm:block lg:hidden;
+  }
+  
+  /* تحسين المسافات للاستجابة */
+  .responsive-padding {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
+  
+  .responsive-margin {
+    @apply m-4 sm:m-6 lg:m-8;
+  }
+  
+  /* تحسين الارتفاعات للاستجابة */
+  .responsive-height {
+    @apply h-32 sm:h-40 md:h-48 lg:h-56;
+  }
+  
+  /* تحسين العرض للاستجابة */
+  .responsive-width {
+    @apply w-full sm:w-auto;
+  }
+  
+  /* تحسين الموضع للاستجابة */
+  .responsive-position {
+    @apply relative sm:absolute;
+  }
+  
+  /* تحسين الظلال للاستجابة */
+  .responsive-shadow {
+    @apply shadow-sm sm:shadow-md lg:shadow-lg;
+  }
+  
+  /* تحسين الحدود للاستجابة */
+  .responsive-border {
+    @apply border-0 sm:border lg:border-2;
+  }
+  
+  /* تحسين الحواف للاستجابة */
+  .responsive-radius {
+    @apply rounded-none sm:rounded-md lg:rounded-lg;
+  }
+  
+  /* تحسين الخطوط للاستجابة */
+  .responsive-font {
+    @apply text-sm sm:text-base lg:text-lg xl:text-xl;
+  }
+  
+  /* تحسين المسافات بين العناصر للاستجابة */
+  .responsive-gap {
+    @apply gap-2 sm:gap-4 lg:gap-6;
+  }
+  
+  /* تحسين التخطيط للاستجابة */
+  .responsive-layout {
+    @apply flex flex-col sm:flex-row lg:flex-col xl:flex-row;
+  }
+  
+  /* تحسين المحاذاة للاستجابة */
+  .responsive-align {
+    @apply text-center sm:text-left lg:text-center;
+  }
+  
+  /* تحسين العرض للاستجابة */
+  .responsive-display {
+    @apply block sm:inline-block lg:block;
+  }
+}
