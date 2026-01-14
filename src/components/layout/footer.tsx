@@ -35,8 +35,8 @@ const Footer = () => {
                   <span className="align-middle">mostafa3595@gmail.com</span>
                   <Mail className="h-5 w-5" />
                 </a>
-                 <a href="tel:966542528952" className="flex items-center gap-3 hover:text-primary transition-colors" dir="ltr">
-                  <span className="align-middle">966542528952</span>
+                 <a href="tel:01092240848" className="flex items-center gap-3 hover:text-primary transition-colors" dir="ltr">
+                  <span className="align-middle">01092240848</span>
                    <Phone className="h-5 w-5" />
                 </a>
                 <div className="flex items-center gap-3">

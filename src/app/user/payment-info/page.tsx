@@ -113,16 +113,16 @@ export default function PaymentInfoPage() {
         <PaymentMethodCard
           title="InstaPay"
           icon={<Smartphone className="w-10 h-10" />}
-          number="01224389180"
+          number="01092240848"
           steps={instaPaySteps}
-          whatsapp="01224389180"
+          whatsapp="01092240848"
         />
         <PaymentMethodCard
-          title="اتصالات كاش"
+          title="الدفع عبر فودافون كاش"
           icon={<Smartphone className="w-10 h-10" />}
-          number="01116822035"
+          number="01092240848"
           steps={vodafoneCashSteps}
-          whatsapp="01116822035"
+          whatsapp="01092240848"
         />
       </div>
     </div>
