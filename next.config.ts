@@ -53,7 +53,7 @@ const nextConfig: NextConfig = {
   },
   // Performance optimizations
   experimental: {
-    optimizeCss: true,
+    optimizeCss: false,
     optimizePackageImports: ['lucide-react'],
   },
   compiler: {
