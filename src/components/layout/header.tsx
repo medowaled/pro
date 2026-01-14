@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -22,17 +23,6 @@ export default function SiteHeader() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
-
-  // دالة تسجيل الخروج المحسنة
-  const handleLogoutClick = async () => {
-    try {
-      await logout(); // تنفيذ دالة الخروج الأصلية لمسح الكوكيز
-      window.location.href = '/login'; // إعادة تحميل كاملة للمتصفح لتصفير البيانات والاسم
-    } catch (error) {
-      console.error("Logout failed:", error);
-      window.location.href = '/login'; // احتياطياً لو حصل أي خطأ
-    }
-  };
 
   return (
     <header className="bg-background shadow-sm sticky top-0 z-40">
@@ -88,16 +78,12 @@ export default function SiteHeader() {
         {/* Left side: Auth and Theme buttons */}
         <div className="flex items-center gap-1 sm:gap-2">
           {user ? (
-              <div className="flex items-center gap-2 sm:gap-4">
+             <div className="flex items-center gap-2 sm:gap-4">
               <span className="font-semibold text-foreground hidden sm:inline text-sm md:text-base">{user.name}</span>
-               <Button 
-                variant="destructive" 
-                className="font-headline rounded-full text-xs sm:text-sm" 
-                onClick={handleLogoutClick}
-               >
-                تسجيل الخروج
+               <Button variant="destructive" asChild className="font-headline rounded-full text-xs sm:text-sm" onClick={logout}>
+                <Link href="/">تسجيل الخروج</Link>
               </Button>
-              </div>
+             </div>
           ) : (
             <div className="hidden lg:flex items-center gap-2">
                <Button asChild className="font-headline bg-gradient-to-r from-blue-500 to-green-500 text-white hover:opacity-90 rounded-full text-sm">
@@ -131,6 +117,7 @@ export default function SiteHeader() {
                 <SheetContent side="right" className="w-full max-w-sm">
                   <div className="flex flex-col h-full p-4">
                      <Link href="/" className="flex items-center gap-3 self-start mb-8">
+                       
                         <div className="bg-gradient-to-br from-blue-500 to-green-500 rounded-full shadow-lg shadow-blue-500/20">
                            <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
                              <AvatarImage src={Mostafa.src} alt="مستر مصطفى خليل" data-ai-hint="teacher portrait" />
@@ -173,8 +160,8 @@ export default function SiteHeader() {
                     </nav>
                     <div className="mt-auto flex flex-col gap-3 sm:gap-4">
                       {user ? (
-                         <Button variant="destructive" className="font-headline text-base sm:text-xl" onClick={handleLogoutClick}>
-                            تسجيل الخروج
+                         <Button variant="destructive" asChild className="font-headline text-base sm:text-xl" onClick={logout}>
+                            <Link href="/">تسجيل الخروج</Link>
                         </Button>
                       ) : (
                         <>
