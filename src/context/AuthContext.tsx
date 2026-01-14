@@ -18,7 +18,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Cache for user data
+// الذاكرة المؤقتة (Cache) - دي اللي كانت بتسبب الأزمة
 let userCache: User | null = null;
 let cacheTimestamp = 0;
 const USER_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
@@ -31,7 +31,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const checkUser = useCallback(async () => {
     setIsLoading(true);
     try {
-      // Check cache first
       const now = Date.now();
       if (userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
         setUser(userCache);
@@ -80,33 +79,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw new Error(data.message || 'فشل تسجيل الدخول');
     }
 
-    console.log('Login successful, user data:', data.user);
-    
-    // Update cache
     userCache = data.user;
     cacheTimestamp = Date.now();
     setUser(data.user);
     
-    // Wait a bit to ensure the cookie is set
     await new Promise(resolve => setTimeout(resolve, 100));
-    
     return data.user;
   };
 
+  // --- دالة تسجيل الخروج المعدلة ---
   const logout = async () => {
     try {
-        await fetch('/api/auth/logout', { method: 'POST' });
+      // 1. مسح الكوكيز من السيرفر
+      await fetch('/api/auth/logout', { method: 'POST' });
     } catch (error) {
-        console.error("Logout failed", error);
+      console.error("Logout failed", error);
     } finally {
-      console.log(">>>>> HIT LOGOUT");
-      
-      // Clear cache
+      // 2. تصفير الذاكرة المؤقتة (Global Cache)
       userCache = null;
       cacheTimestamp = 0;
       
+      // 3. تصفير حالة المستخدم في الـ State (عشان الهيدر يتغير فوراً)
       setUser(null);
-      router.refresh();
+      
+      // 4. توجيه لصفحة اللوجن وعمل Refresh كامل للمتصفح لتنظيف أي كاش باقي
       window.location.href = '/login';
     }
   };
