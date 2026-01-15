@@ -18,10 +18,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// الذاكرة المؤقتة (Cache) - دي اللي كانت بتسبب الأزمة
-let userCache: User | null = null;
-let cacheTimestamp = 0;
-const USER_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+// تم حذف الـ Cache الخارجي (userCache) لأنه كان سبب التعليق
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -29,34 +26,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   const checkUser = useCallback(async () => {
-    setIsLoading(true);
+    // إزالة شرط الكاش القديم لإجبار السيرفر على التأكد من الهوية الحقيقية
     try {
-      const now = Date.now();
-      if (userCache && (now - cacheTimestamp) < USER_CACHE_DURATION) {
-        setUser(userCache);
-        setIsLoading(false);
-        return;
-      }
-
       const res = await fetch('/api/auth/me', {
-        headers: {
-          'Cache-Control': 'no-cache',
-        },
+        cache: 'no-store', // منع التخزين نهائياً
+        headers: { 'Pragma': 'no-cache' },
       });
       
       if (res.ok) {
         const data = await res.json();
-        userCache = data.user;
-        cacheTimestamp = now;
         setUser(data.user);
       } else {
         setUser(null);
-        userCache = null;
       }
     } catch (error) {
-      console.error('Error checking user auth:', error);
       setUser(null);
-      userCache = null;
     } finally {
       setIsLoading(false);
     }
@@ -74,36 +58,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'فشل تسجيل الدخول');
 
-    if (!response.ok) {
-      throw new Error(data.message || 'فشل تسجيل الدخول');
-    }
-
-    userCache = data.user;
-    cacheTimestamp = Date.now();
     setUser(data.user);
-    
-    await new Promise(resolve => setTimeout(resolve, 100));
     return data.user;
   };
 
-  // --- دالة تسجيل الخروج المعدلة ---
   const logout = async () => {
     try {
-      // 1. مسح الكوكيز من السيرفر
       await fetch('/api/auth/logout', { method: 'POST' });
-    } catch (error) {
-      console.error("Logout failed", error);
     } finally {
-      // 2. تصفير الذاكرة المؤقتة (Global Cache)
-      userCache = null;
-      cacheTimestamp = 0;
-      
-      // 3. تصفير حالة المستخدم في الـ State (عشان الهيدر يتغير فوراً)
-      setUser(null);
-      
-      // 4. توجيه لصفحة اللوجن وعمل Refresh كامل للمتصفح لتنظيف أي كاش باقي
-      window.location.href = '/login';
+      setUser(null); // مسح المستخدم فوراً من الهيدر
+      window.location.href = '/login'; // ريفرش كامل لضمان نظافة الهوية
     }
   };
 
@@ -116,8 +82,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (context === undefined) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
